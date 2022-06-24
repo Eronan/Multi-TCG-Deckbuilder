@@ -5,6 +5,10 @@ VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Multi-TCG-Deckbuilder", "Multi-TCG-Deckbuilder\Multi-TCG-Deckbuilder.csproj", "{B51C1239-3563-4E68-8C36-ADDEC52F67AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGamePlugInBase", "IGamePlugInBase\IGamePlugInBase.csproj", "{AA72A98C-54AB-44D6-B364-0F99431741FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FECipher", "FECipher\FECipher.csproj", "{49D3EB06-CD13-4177-B960-0C0B1C5D4B12}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{B51C1239-3563-4E68-8C36-ADDEC52F67AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B51C1239-3563-4E68-8C36-ADDEC52F67AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B51C1239-3563-4E68-8C36-ADDEC52F67AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA72A98C-54AB-44D6-B364-0F99431741FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA72A98C-54AB-44D6-B364-0F99431741FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA72A98C-54AB-44D6-B364-0F99431741FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA72A98C-54AB-44D6-B364-0F99431741FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49D3EB06-CD13-4177-B960-0C0B1C5D4B12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49D3EB06-CD13-4177-B960-0C0B1C5D4B12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49D3EB06-CD13-4177-B960-0C0B1C5D4B12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49D3EB06-CD13-4177-B960-0C0B1C5D4B12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

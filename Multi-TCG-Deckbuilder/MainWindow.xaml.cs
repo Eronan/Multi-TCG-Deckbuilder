@@ -12,8 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Linq;
 
 namespace Multi_TCG_Deckbuilder
 {
