@@ -25,8 +25,8 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="20" />
                         </Grid.RowDefinitions>
-                        <Image Source="{Binding logo}" Width="100" Height="160"/>
-                        <TextBlock Text="{Binding longName}" Grid.Row="1" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                        <Image Source="{Binding IconImage}" Width="100" Height="160"/>
+                        <TextBlock Text="{Binding LongName}" Grid.Row="1" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>

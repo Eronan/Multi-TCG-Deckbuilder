@@ -1,19 +1,11 @@
-﻿using System;
+﻿using IGamePlugInBase;
+using Multi_TCG_Deckbuilder.Contexts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Text.Json;
-using Multi_TCG_Deckbuilder.Models;
+using System.Xml.Linq;
 
 namespace Multi_TCG_Deckbuilder
 {
@@ -22,36 +14,60 @@ namespace Multi_TCG_Deckbuilder
     /// </summary>
     public partial class LoadPlugin : Window
     {
-        private List<Game> gameList;
-
         public LoadPlugin()
         {
             InitializeComponent();
 
-            gameList = new List<Game>();
+            XDocument pluginPathDoc = XDocument.Load(@".\PlugInLocations.xml");
+            var root = pluginPathDoc.Root;
+            var descendants = root.Descendants("Plugin");
+            
+            var pluginPaths = descendants.Select(e => e.Attribute("Path").Value).ToArray();
 
-            string pluginDirectory = Directory.GetCurrentDirectory() + @"\plug-ins\";
-            string[] pluginFolders = Directory.GetDirectories(pluginDirectory);
-            foreach (string folder in pluginFolders)
+            IEnumerable<IGamePlugIn> gamePlugIns = pluginPaths.SelectMany(pluginPath => 
             {
-                string gameFile = folder + @"\game.json";
-                if (!File.Exists(gameFile)) { continue; }
+                Assembly pluginAssembly = LoadPlugins(pluginPath);
+                return GetGamePlugIns(pluginAssembly);
+            });
 
-                string jsonText = File.ReadAllText(gameFile);
-                try
+            listBox_GameList.ItemsSource = gamePlugIns;
+        }
+
+        static Assembly LoadPlugins(string relativePath)
+        {
+            // Navigate up to the solution root
+            string root = System.IO.Path.GetDirectoryName(typeof(LoadPlugin).Assembly.Location);
+
+            string pluginLocation = System.IO.Path.GetFullPath(System.IO.Path.Combine(root, relativePath.Replace('\\', System.IO.Path.DirectorySeparatorChar)));
+            Console.WriteLine($"Loading commands from: {pluginLocation}");
+            GameLoadContext loadContext = new GameLoadContext(pluginLocation);
+            return loadContext.LoadFromAssemblyName(new AssemblyName(System.IO.Path.GetFileNameWithoutExtension(pluginLocation)));
+        }
+
+        static IEnumerable<IGamePlugIn> GetGamePlugIns(Assembly assembly)
+        {
+            int count = 0;
+
+            foreach (Type type in assembly.GetTypes())
+            {
+                if (typeof(IGamePlugIn).IsAssignableFrom(type))
                 {
-                    Game tcg = JsonSerializer.Deserialize<Game>(jsonText);
-                    tcg.logo = folder + @"\" + tcg.logo;
-                    gameList.Add(tcg);
-                }
-                catch (JsonException error)
-                {
-                    Console.WriteLine(error.Message);
-                    //Output Error File
+                    IGamePlugIn result = Activator.CreateInstance(type) as IGamePlugIn;
+                    if (result != null)
+                    {
+                        count++;
+                        yield return result;
+                    }
                 }
             }
 
-            listBox_GameList.ItemsSource = gameList;
+            if (count == 0)
+            {
+                string availableTypes = string.Join(",", assembly.GetTypes().Select(t => t.FullName));
+                throw new ApplicationException(
+                    $"Can't find any type which implements ICommand in {assembly} from {assembly.Location}.\n" +
+                    $"Available types: {availableTypes}");
+            }
         }
     }
 }
