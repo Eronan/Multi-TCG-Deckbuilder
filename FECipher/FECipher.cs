@@ -6,8 +6,8 @@ namespace FECipher
     public class FECipher : IGamePlugIn
     {
         //Variables
-        Dictionary<string, Format> formatList;
-        FECard[] cardList;
+        Format[] formatList;
+        Dictionary<string, FECard> cardList;
         
         public FECipher()
         {
@@ -15,7 +15,7 @@ namespace FECipher
             JsonElement jsonDeserialize = JsonSerializer.Deserialize<dynamic>(jsonText);
             var jsonEnumerator = jsonDeserialize.EnumerateArray();
 
-            List<FECard> feCards = new List<FECard>();
+            Dictionary<string, FECard> feCards = new Dictionary<string, FECard>();
             foreach(var jsonCard in jsonEnumerator)
             {
                 string? character = jsonCard.GetProperty("Character").GetString();
@@ -29,7 +29,7 @@ namespace FECipher
                     cccost = classChangeProperty.GetString();
                 }
                 string? cardClass = jsonCard.GetProperty("Class").GetString();
-                string[]? types = jsonCard.GetProperty("Color").Deserialize<string[]>();
+                string[]? types = jsonCard.GetProperty("Type").Deserialize<string[]>();
                 int minRange = jsonCard.GetProperty("MinRange").GetInt32();
                 int maxRange = jsonCard.GetProperty("MaxRange").GetInt32();
                 string? attack = jsonCard.GetProperty("Attack").GetString();
@@ -74,30 +74,29 @@ namespace FECipher
                 FECard card = new FECard(character, title, colors, cost, cccost, cardClass, types, minRange,
                     maxRange, attack, support, skill, supportSkill, rarity, seriesNo, altArts);
 
-                feCards.Add(card);
+                feCards.Add(card.ID, card);
             }
 
-            this.cardList = feCards.ToArray();
+            this.cardList = feCards;
 
-            formatList = new Dictionary<string, Format>();
-            formatList.Add("standard", new Format("standard", "Standard", Properties.Resources.StandardIcon,
-                "The last Official Format of Fire Emblem Cipher, cards from Series 1 to Series 4 are not allowed in this format.",
-                this.cardList.Where(item => item.seriesNo > 4).ToArray()));
-            formatList.Add("unlimited", new Format("unlimited", "Unlimited", Properties.Resources.UnlimitedIcon,
-                "All cards are allowed in this format from Series 1 to Series 22.", this.cardList));
+            formatList = new Format[2]
+            {
+                 new Format("unlimited", "Unlimited", Properties.Resources.UnlimitedIcon, "All cards are allowed in this format from Series 1 to Series 22.", this.CardList),
+                 new Format("standard", "Standard", Properties.Resources.StandardIcon, "The last Official Format of Fire Emblem Cipher, cards from Series 1 to Series 4 are not allowed in this format.", this.cardList.Values.Where(item => item.seriesNo > 4).ToArray())
+            };
         }
 
         //Accessors
         public string Name { get => "FECipher"; }
         public string LongName { get => "Fire Emblem Cipher"; }
         public byte[] IconImage { get => Properties.Resources.Icon; }
-        public Dictionary<string, Format> Formats
+        public Format[] Formats
         {
             get { return this.formatList; }
         }
         public Card[] CardList
         {
-            get { return this.cardList; }
+            get {  return this.cardList.Values.ToArray(); }
         }
 
         //Public Functions

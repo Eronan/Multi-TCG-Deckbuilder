@@ -6,7 +6,12 @@
     <RootNamespace>Multi_TCG_Deckbuilder</RootNamespace>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>deckbuilder_icon_lKN_icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="deckbuilder_icon_lKN_icon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\IGamePlugInBase\IGamePlugInBase.csproj" />

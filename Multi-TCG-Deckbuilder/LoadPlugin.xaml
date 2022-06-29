@@ -12,7 +12,8 @@
             <RowDefinition Height="198.5*"/>
             <RowDefinition Height="37*"/>
         </Grid.RowDefinitions>
-        <ListBox x:Name="listBox_GameList" d:ItemsSource="{d:SampleData ItemCount=5}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+        <ListBox x:Name="listBox_GameList" d:ItemsSource="{d:SampleData ItemCount=5}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
+                 SelectionChanged="listBox_GameList_SelectionChanged">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal"/>
@@ -44,13 +45,13 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="20" />
                         </Grid.RowDefinitions>
-                        <Image Source="{Binding logo}" Width="100" Height="160"/>
-                        <TextBlock Text="{Binding longName}" Grid.Row="1" />
+                        <Image Source="{Binding Icon}" Width="100" Height="160"/>
+                        <TextBlock Text="{Binding LongName}" Grid.Row="1" />
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button x:Name="button_Select" Content="OK" HorizontalAlignment="Left" Margin="705,7,0,0" Grid.Row="2" VerticalAlignment="Top" Height="20" Width="40"/>
-        <Button x:Name="button_Cancel" Content="Cancel" HorizontalAlignment="Left" Margin="750,7,0,0" Grid.Row="2" VerticalAlignment="Top" Height="20" Width="40"/>
+        <Button x:Name="button_Select" Content="OK" HorizontalAlignment="Right" Margin="0,7,55,0" Grid.Row="2" VerticalAlignment="Top" Height="20" Width="40" Click="button_Select_Click"/>
+        <Button x:Name="button_Cancel" Content="Cancel" HorizontalAlignment="Right" Margin="0,7,10,0" Grid.Row="2" VerticalAlignment="Top" Height="20" Width="40" Click="button_Cancel_Click"/>
     </Grid>
 </Window>

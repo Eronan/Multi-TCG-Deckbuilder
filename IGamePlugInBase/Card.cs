@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IGamePlugInBase
+﻿namespace IGamePlugInBase
 {
+    /// <summary>
+    /// The Information of a Card that can be Added in the Deck Builder
+    /// </summary>
     public interface Card
     {
         /// <summary>
@@ -19,6 +16,11 @@ namespace IGamePlugInBase
         /// <summary>
         /// A set of Alternate Arts the card has. All cards must have at least 1 art.
         /// </summary>
-        public AlternateArt[] AltArts { get; }
+        public Dictionary<string, AlternateArt> AltArts { get; }
+
+        /// <summary>
+        /// The Text Details of the Card to be shown on the Deck Builder
+        /// </summary>
+        public string ViewDetails { get; }
     }
 }

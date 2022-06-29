@@ -1,7 +1,8 @@
-﻿using System.Drawing.Imaging;
-
-namespace IGamePlugInBase
+﻿namespace IGamePlugInBase
 {
+    /// <summary>
+    /// A Format within a Game.
+    /// </summary>
     public class Format
     {
         string name;
@@ -9,14 +10,16 @@ namespace IGamePlugInBase
         byte[] icon;
         string description;
         Card[] cardList;
+        Deck[] decks;
 
-        public Format(string name, string longName, byte[] iconImage, string description, Card[] cards)
+        public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks)
         {
             this.name = name;
             this.longName = longName;
             this.icon = iconImage;
             this.description = description;
             this.cardList = cards;
+            this.decks = decks;
         }
 
         /// <summary>
@@ -60,6 +63,14 @@ namespace IGamePlugInBase
         public Card[] CardList
         {
             get { return this.cardList; }
+        }
+
+        /// <summary>
+        /// The Decks that Compromise a Proper Game Deck in the Format
+        /// </summary>
+        public Deck[] Decks
+        {
+            get { return this.decks; }
         }
     }
 }

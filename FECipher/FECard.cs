@@ -118,9 +118,31 @@ namespace FECipher
         }
 
         [JsonIgnore]
-        public AlternateArt[] AltArts
+        public Dictionary<string, AlternateArt> AltArts
         {
-            get { return this.altArts.ToArray(); }
+            get { return this.altArts.ToDictionary(keySelector: m => m.Id, elementSelector: m => m as AlternateArt); }
+        }
+
+        public string ViewDetails
+        {
+            get
+            {
+                string fullDetails = this.Name;
+                fullDetails += string.Format("\nClass: {0}/Cost: {1}", this.cardClass, this.cost);
+                if (classChangeCost != null)
+                {
+                    fullDetails += "(" + this.classChangeCost + ")";
+                }
+
+                fullDetails += string.Format("\nColors: {0}\nTypes: {1}\nAttack: {2}/Support: {3}/Range: {4}-{5}", string.Join('/', this.colors), string.Join('/', this.types), this.attack, this.support, this.minRange, this.maxRange);
+                fullDetails += "\n---\nSkills:\n" + skill;
+
+                if (supportSkill != null)
+                {
+                    fullDetails += "\n---\nSupport:\n" + supportSkill;
+                }
+                return fullDetails;
+            }
         }
     }
 }

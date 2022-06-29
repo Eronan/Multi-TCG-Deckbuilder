@@ -13,7 +13,7 @@ namespace FECipher
         public string SetCode { get; set; }
         [JsonPropertyName("ImageFile")]
         [JsonPropertyOrder(2)]
-        public string FileLocation { get; set; }
+        public string ImageLocation { get; set; }
         [JsonPropertyName("LackeyCCGID")]
         [JsonPropertyOrder(3)]
         public string LackeyCCGId { get; set; }
@@ -26,15 +26,9 @@ namespace FECipher
         {
             this.Id = CardCode;
             this.SetCode = SetCode;
-            this.FileLocation = ImageFile;
+            this.ImageLocation = @"\plug-ins\fe-cipher\images" + ImageFile;
             this.LackeyCCGId = LackeyCCGId;
             this.LackeyCCGName = LackeyCCGName;
-        }
-
-        [JsonIgnore]
-        public byte[] ImageLocation
-        {
-            get { return File.ReadAllBytes(this.FileLocation); }
         }
     }
 }
