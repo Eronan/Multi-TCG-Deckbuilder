@@ -33,7 +33,7 @@ namespace Multi_TCG_Deckbuilder
         public DeckBuilder(IGamePlugIn gamePlugIn, Format format)
         {
             InitializeComponent();
-            this.Title = gamePlugIn.LongName + "Deck Builder";
+            this.Title = gamePlugIn.LongName + " Deck Builder";
             this.game = gamePlugIn;
             this.format = format;
             this.fullList = DeckBuilderCardArt.GetFromCards(format.CardList, AppDomain.CurrentDomain.BaseDirectory);
@@ -43,6 +43,7 @@ namespace Multi_TCG_Deckbuilder
             this.CreateDeckListBoxes(format.Decks);
         }
 
+        // Creates all the Deck List Boxes from an Array of Decks
         private void CreateDeckListBoxes(Deck[] decks)
         {
             if (decks.Length == 1)
@@ -58,6 +59,7 @@ namespace Multi_TCG_Deckbuilder
             }
         }
         
+        // Creates a List Box with all of its Children by using a Deck Class
         private ListBox CreateDeckListBox(Deck deck, bool onlyDeck)
         {
             // Deck Label
@@ -101,6 +103,10 @@ namespace Multi_TCG_Deckbuilder
             }
             listBox_Deck.ItemTemplate = this.FindResource("ImageControl_Deck") as DataTemplate;
             listBox_Deck.ItemsPanel = panelTemplate;
+            listBox_Deck.AllowDrop = true;
+            listBox_Deck.DragEnter += this.ListBox_Deck_DragEnter;
+            listBox_Deck.Drop += this.ListBox_Deck_Drop;
+            //listBox_Deck.PreviewMouseLeftButtonUp += ListBox_MouseUp;
 
             if (onlyDeck)
             {
@@ -118,9 +124,9 @@ namespace Multi_TCG_Deckbuilder
             return listBox_Deck;
         }
 
+        //Sub-Routine for Adding a Card to a ListBox Item Collection
         private void AddCard(DeckBuilderCardArt card, ListBox listbox_Deck)
         {
-            //List<DeckBuilderCardArt> cards = (List<DeckBuilderCardArt>)listbox_Deck.ItemsSource;
             Deck? deck = listbox_Deck.Tag as Deck;
             if (deck == null || !deck.ValidateAdd(card, listbox_Deck.Items.Cast<DeckBuilderCardArt>()))
             {
@@ -168,60 +174,77 @@ namespace Multi_TCG_Deckbuilder
 
         }
 
-        private void ImageCardSearch_MouseDown(object sender, MouseButtonEventArgs e)
+        private void ImageCardSearch_MouseRightDown(object sender, MouseButtonEventArgs e)
         {
             Image image = (Image) sender;
             DeckBuilderCardArt? card = image.DataContext as DeckBuilderCardArt;
-            if (card == null) return;
-
-            if (e.RightButton == MouseButtonState.Pressed)
+            ListBox? deck = this.deckListBoxes.GetValueOrDefault(this.format.DefaultDeckName);
+            if (card != null && deck != null)
             {
-                ListBox? deck = this.deckListBoxes.GetValueOrDefault(this.format.DefaultDeckName);
-                if (deck == null) return;
                 this.AddCard(card, deck);
-            }
-            else if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                this.dragCard = card;
-                this.Cursor = Cursors.Cross;
             }
         }
 
-        private void ImageCardDeck_MouseDown(object sender, MouseButtonEventArgs e)
+        private void ImageCardDeck_MouseRightDown(object sender, MouseButtonEventArgs e)
         {
             Image image = (Image)sender;
-            Deck deck = (Deck) image.Tag;
+            Deck deck = (Deck)image.Tag;
             ListBox? listbox_Deck = this.deckListBoxes.GetValueOrDefault(deck.Name);
             DeckBuilderCardArt? card = image.DataContext as DeckBuilderCardArt;
-            if (card == null || listbox_Deck == null) return;
-
-            if (e.RightButton == MouseButtonState.Pressed)
+            if (card != null && listbox_Deck != null)
             {
                 listbox_Deck.Items.Remove(image.DataContext);
             }
-            else if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                this.dragCard = card;
-                this.Cursor = Cursors.Cross;
-            }
         }
 
-        private void Window_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            this.Cursor = Cursors.Arrow;
-            this.dragCard = null;
-        }
-
+        /*
         private void ListBox_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            ListBox listbox = (ListBox) sender;
-            if (dragCard == null)
+            if (e.LeftButton == MouseButtonState.Released)
             {
-                return;
+                ListBox listbox = (ListBox)sender;
+                if (dragCard == null)
+                {
+                    return;
+                }
+                this.AddCard(dragCard, listbox);
+                this.Cursor = Cursors.Arrow;
+                this.dragCard = null;
             }
-            this.AddCard(dragCard, listbox);
-            this.Cursor = Cursors.Arrow;
-            this.dragCard = null;
+        }
+        */
+
+        private void ImageResults_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                Image imageControl = (Image)sender;
+                DataObject dragData = new DataObject();
+                dragData.SetData("myFormat", imageControl.DataContext);
+                DragDrop.DoDragDrop(imageControl, dragData, DragDropEffects.Move);
+            }
+        }
+
+        private void ListBox_Deck_DragEnter(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent("myFormat") || 
+                sender == e.Source)
+            {
+                e.Effects = DragDropEffects.None;
+            }
+        }
+
+        private void ListBox_Deck_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent("myFormat"))
+            {
+                DeckBuilderCardArt? card = e.Data.GetData("myFormat") as DeckBuilderCardArt;
+                ListBox? listbox = sender as ListBox;
+                if (card != null && listbox != null)
+                {
+                    AddCard(card, listbox);
+                }
+            }
         }
     }
 }
