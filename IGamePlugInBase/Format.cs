@@ -11,8 +11,9 @@
         string description;
         Card[] cardList;
         Deck[] decks;
+        string defaultDeckName;
 
-        public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks)
+        public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks, string defaultDeckName)
         {
             this.name = name;
             this.longName = longName;
@@ -20,6 +21,7 @@
             this.description = description;
             this.cardList = cards;
             this.decks = decks;
+            this.defaultDeckName = defaultDeckName;
         }
 
         /// <summary>
@@ -71,6 +73,14 @@
         public Deck[] Decks
         {
             get { return this.decks; }
+        }
+
+        /// <summary>
+        /// The Default Deck that a card is added to when Right-Clicked.
+        /// </summary>
+        public string DefaultDeckName
+        {
+            get { return this.defaultDeckName; }
         }
     }
 }

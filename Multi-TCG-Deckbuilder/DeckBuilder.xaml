@@ -4,19 +4,66 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Multi_TCG_Deckbuilder"
+        xmlns:localModels="clr-namespace:Multi_TCG_Deckbuilder.Models"
+        xmlns:plugin="clr-namespace:IGamePlugInBase;assembly=IGamePlugInBase"
         mc:Ignorable="d"
-        Title="Deck Builder" Height="450" Width="800"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" DataContext="{Binding ElementName=listBox_CardResults, Path=SelectedItem}">
+        Title="Deck Builder" Height="450" Width="800" MinHeight="450" MinWidth="800"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        MouseUp="Window_MouseUp">
+    <Window.Resources>
+        <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type localModels:DeckBuilderCardArt}">
+            <Image Source="{Binding ImageFile}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+                   MouseDown="ImageCardSearch_MouseDown"/>
+        </DataTemplate>
+        <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type localModels:DeckBuilderCardArt}">
+            <Image Source="{Binding ImageFile}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+                   MouseDown="ImageCardDeck_MouseDown" Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}"/>
+        </DataTemplate>
+        <DrawingImage x:Key="FilterImage">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V472.615 H472.615 V0 H0 Z">
+                    <DrawingGroup Opacity="1">
+                        <DrawingGroup Opacity="1">
+                            <GeometryDrawing Brush="#FF000000" Geometry="F1 M472.615,472.615z M0,0z M472.615,12.908L472.615,12.908 0,12.908 180.081,202.629 180.066,459.708 292.55,401.525 292.534,202.629z" />
+                        </DrawingGroup>
+                    </DrawingGroup>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="430*" />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="231*"/>
             <ColumnDefinition Width="338*"/>
             <ColumnDefinition Width="231*"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="0" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
-        <Border Grid.Column="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
-        <Border Grid.Column="2" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
-        <Grid>
+        <Menu Grid.ColumnSpan="3">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New"/>
+                <MenuItem Header="_Open"/>
+                <MenuItem Header="_Save"/>
+                <MenuItem Header="_SaveAs"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_View Stats"/>
+                <MenuItem Header="_Check Deck"/>
+                <Separator/>
+                <MenuItem Header="_Preferences"/>
+            </MenuItem>
+            <MenuItem Header="_About">
+                <MenuItem Header="_Plug In About"/>
+                <MenuItem Header="_Program About"/>
+            </MenuItem>
+        </Menu>
+        <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
+        <Border Grid.Row="1" Grid.Column="2" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
+        <Grid x:Name="grid_ViewCard" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+              DataContext="{Binding ElementName=listBox_CardResults, Path=SelectedItem}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="172*"/>
                 <RowDefinition Height="40"/>
@@ -26,45 +73,41 @@
             <TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" FontSize="15px" Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center"/>
             <Border Grid.Row="2" BorderThickness="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
             <ScrollViewer Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="1,1,1,1"
-                          Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}">
+                          Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}" HorizontalScrollBarVisibility="Disabled">
                 <TextBlock VerticalAlignment="Top" HorizontalAlignment="Stretch" Width="auto" Height="auto" Margin="0,0,0,0" Text="{Binding ViewDetails}" TextWrapping="Wrap"/>
             </ScrollViewer>
         </Grid>
-        <Grid Grid.Column="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
+        <Grid x:Name="grid_Decks" Grid.Column="1" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="185*"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <ScrollViewer x:Name="scroll_Decks" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" Width="Auto" Margin="1,0,1,0">
+                <StackPanel x:Name="panel_Decks" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto" Height="auto" Margin="0,0,0,0" />
+            </ScrollViewer>
+            <Button Grid.Row="1" Background="Transparent" BorderThickness="0" BorderBrush="Transparent">
+                <TextBlock x:Name="label_SummaryCounts" Text="Main Deck: 0   Side Deck: 0&#x0a;Fliers: 0             Archers: 0"/>
+            </Button>
+        </Grid>
+        <Grid Grid.Column="2" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="38"/>
                 <RowDefinition Height="197*"/>
             </Grid.RowDefinitions>
-            <Grid x:Name="grid_ViewCard" DataContext="{Binding ElementName=listBox_CardResults, Path=SelectedItem}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="195*"/>
-                    <RowDefinition Height="239*"/>
-                </Grid.RowDefinitions>
-                <Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="auto" Height="auto" Margin="54,10,54,10" Source="{Binding ImageFile}"/>
-                <TextBlock Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,10" TextWrapping="Wrap" Text="{Binding ViewDetails}"/>
-            </Grid>
-            <Label x:Name="label_Search" Content="Search:" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Grid.ColumnSpan="2" Height="26" Width="48" RenderTransformOrigin="0.119,0.506" />
-            <TextBox x:Name="textBox_SearchText" TextWrapping="Wrap" Text="Search" Width="auto" Margin="63,10,48,10" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"/>
-            <Button x:Name="button_AdvancedSearch" Content="🔍" Grid.Column="1" Margin="0,0,10,0" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Width="33"/>
-            <ListBox x:Name="listBox_CardResults" Grid.ColumnSpan="2" Grid.Row="1" d:ItemsSource="{d:SampleData ItemCount=20}" Margin="1,1,1,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}" BorderThickness="0" BorderBrush="Transparent">
+            <Label x:Name="label_Search" Content="Search:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Height="26" Width="48" RenderTransformOrigin="0.119,0.506" />
+            <TextBox x:Name="textBox_SearchText" TextWrapping="Wrap" Text="Search" Width="auto" Margin="48,10,48,10" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"
+                     Foreground="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}" GotFocus="searchBox_GotFocus" LostFocus="searchBox_LostFocus"
+                     TextChanged="searchBox_TextChanged"/>
+            <Button x:Name="button_AdvancedSearch" Grid.Column="1" Margin="0,0,10,0" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Width="33" Click="button_AdvancedSearch_Click">
+                <Image Source="{StaticResource ResourceKey=FilterImage}"/>
+            </Button>
+            <ListBox x:Name="listBox_CardResults" Grid.Row="1" d:ItemsSource="{d:SampleData ItemCount=20}" Margin="1,1,1,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}" BorderThickness="0" BorderBrush="Transparent" ItemTemplate="{StaticResource ResourceKey=ImageControl_Results}">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <!--<WrapPanel Orientation="Horizontal" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportWidth}" IsItemsHost="True" HorizontalAlignment="Stretch" Margin="0,0,0,0"/>-->
-                        <UniformGrid Columns="3" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportWidth}" />
+                        <UniformGrid Columns="4" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportWidth}" Height="auto" VerticalAlignment="Top"/>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Width="auto" HorizontalAlignment="Stretch" Height="auto">
-                            <Image Source="{Binding ImageFile}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
             </ListBox>
         </Grid>
     </Grid>

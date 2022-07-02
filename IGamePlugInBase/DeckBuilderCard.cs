@@ -17,12 +17,17 @@ namespace IGamePlugInBase
         /// </summary>
         [JsonPropertyName("ArtID")]
         public string ArtID { get; }
+        /// <summary>
+        /// Marks the card as a Special Card in the Deck.
+        /// </summary>
+        public bool MarkedSpecial { get; set; }
 
         [JsonConstructor]
-        public DeckBuilderCard(string cardID, string artID)
+        public DeckBuilderCard(string cardID, string artID, bool markSpecial = false)
         {
             this.CardID = cardID;
             this.ArtID = artID;
+            this.MarkedSpecial = markSpecial;
         }
     }
 }

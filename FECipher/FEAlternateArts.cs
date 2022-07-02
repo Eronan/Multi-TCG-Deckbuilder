@@ -26,7 +26,7 @@ namespace FECipher
         {
             this.Id = CardCode;
             this.SetCode = SetCode;
-            this.ImageLocation = @"\plug-ins\fe-cipher\images" + ImageFile;
+            this.ImageLocation = ImageFile;
             this.LackeyCCGId = LackeyCCGId;
             this.LackeyCCGName = LackeyCCGName;
         }

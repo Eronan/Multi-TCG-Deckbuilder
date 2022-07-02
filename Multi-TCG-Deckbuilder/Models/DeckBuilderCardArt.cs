@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 
 namespace Multi_TCG_Deckbuilder.Models
 {
-    internal class DeckBuilderCardArt : DeckBuilderCard
+    public partial class DeckBuilderCardArt : DeckBuilderCard
     {
         string name = "";
         string fileLocation = "";

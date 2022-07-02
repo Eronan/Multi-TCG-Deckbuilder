@@ -5,15 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Multi_TCG_Deckbuilder"
         mc:Ignorable="d"
-        Title="LoadPlugin" Height="450" Width="800">
+        Title="LoadPlugin" Height="450" Width="800"
+        MinHeight="450" MinWidth="800">
     <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="198.5*"/>
             <RowDefinition Height="198.5*"/>
             <RowDefinition Height="37*"/>
         </Grid.RowDefinitions>
-        <ListBox x:Name="listBox_GameList" d:ItemsSource="{d:SampleData ItemCount=5}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
-                 SelectionChanged="listBox_GameList_SelectionChanged">
+        <Menu>
+            <MenuItem Header="_File">
+                <MenuItem Header="_New Deck"/>
+                <MenuItem Header="_Open Deck"/>
+            </MenuItem>
+            <MenuItem Header="_Plug-Ins">
+                <MenuItem Header="_Install Plug-In"/>
+                <MenuItem Header="_Uninstall Plug-In"/>
+            </MenuItem>
+            <MenuItem Header="_Check for Updates">
+                <MenuItem Header="_Check Plug-In Updates"/>
+                <MenuItem Header="_Check Application Updates"/>
+            </MenuItem>
+        </Menu>
+        <ListBox Grid.Row="1" x:Name="listBox_GameList" d:ItemsSource="{d:SampleData ItemCount=5}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"
+                 Height="auto" Width="auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,0,0"
+                 SelectionChanged="listBox_GameList_SelectionChanged"
+                 ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal"/>
@@ -21,18 +39,20 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
+                    <Grid VerticalAlignment="Stretch" Margin="0,0,0,0" HorizontalAlignment="Left" MaxHeight="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportHeight}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
                             <RowDefinition Height="20" />
                         </Grid.RowDefinitions>
-                        <Image Source="{Binding IconImage}" Width="100" Height="160"/>
-                        <TextBlock Text="{Binding LongName}" Grid.Row="1" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                        <Image Source="{Binding IconImage}" Height="auto" VerticalAlignment="Stretch" Margin="0,0,0,0" MinWidth="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"/>
+                        <TextBlock Text="{Binding LongName}" Grid.Row="1" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" TextAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <ListBox x:Name="listBox_FormatList" d:ItemsSource="{d:SampleData ItemCount=5}" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Grid.Row="1">
+        <ListBox x:Name="listBox_FormatList" d:ItemsSource="{d:SampleData ItemCount=5}" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Grid.Row="2"
+                 Height="auto" Width="auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,0,0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal"/>
@@ -40,18 +60,18 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
+                    <Grid Height="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportHeight}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
                             <RowDefinition Height="20" />
                         </Grid.RowDefinitions>
-                        <Image Source="{Binding Icon}" Width="100" Height="160"/>
-                        <TextBlock Text="{Binding LongName}" Grid.Row="1" />
+                        <Image Source="{Binding Icon}" Height="auto" VerticalAlignment="Stretch" Margin="0,0,0,0" MinWidth="{Binding ActualHeight, RelativeSource={RelativeSource Self}}" />
+                        <TextBlock Text="{Binding LongName}" Grid.Row="1" Height="20" TextAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button x:Name="button_Select" Content="OK" HorizontalAlignment="Right" Margin="0,7,55,0" Grid.Row="2" VerticalAlignment="Top" Height="20" Width="40" Click="button_Select_Click"/>
-        <Button x:Name="button_Cancel" Content="Cancel" HorizontalAlignment="Right" Margin="0,7,10,0" Grid.Row="2" VerticalAlignment="Top" Height="20" Width="40" Click="button_Cancel_Click"/>
+        <Button x:Name="button_Select" Content="OK" HorizontalAlignment="Right" Margin="0,7,55,0" Grid.Row="3" VerticalAlignment="Top" Height="20" Width="40" Click="button_Select_Click"/>
+        <Button x:Name="button_Cancel" Content="Cancel" HorizontalAlignment="Right" Margin="0,7,10,0" Grid.Row="3" VerticalAlignment="Top" Height="20" Width="40" Click="button_Cancel_Click"/>
     </Grid>
 </Window>
