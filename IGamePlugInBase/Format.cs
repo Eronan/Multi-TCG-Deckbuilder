@@ -11,7 +11,6 @@
         string description;
         Card[] cardList;
         Deck[] decks;
-        string defaultDeckName;
 
         public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks, string defaultDeckName)
         {
@@ -21,7 +20,21 @@
             this.description = description;
             this.cardList = cards;
             this.decks = decks;
-            this.defaultDeckName = defaultDeckName;
+            this.DefaultDeckName = delegate(DeckBuilderCard card)
+            {
+                return defaultDeckName;
+            };
+        }
+
+        public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks, Func<DeckBuilderCard, string> defaultDeckFunction)
+        {
+            this.name = name;
+            this.longName = longName;
+            this.icon = iconImage;
+            this.description = description;
+            this.cardList = cards;
+            this.decks = decks;
+            this.DefaultDeckName = defaultDeckFunction;
         }
 
         /// <summary>
@@ -78,9 +91,6 @@
         /// <summary>
         /// The Default Deck that a card is added to when Right-Clicked.
         /// </summary>
-        public string DefaultDeckName
-        {
-            get { return this.defaultDeckName; }
-        }
+        public Func<DeckBuilderCard, string> DefaultDeckName { get; set; }
     }
 }

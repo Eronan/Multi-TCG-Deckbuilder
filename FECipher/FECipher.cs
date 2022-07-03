@@ -94,12 +94,15 @@ namespace FECipher
         private bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
         {
             //Check if Card can be Added to Deck
-            return deck.Where(item => item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name).Count() < 4;
+            return deck.Count(predicate: item =>
+            {
+                return item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name;
+            }) < 4;
         }
 
         public static bool ValidateDeck(IEnumerable<DeckBuilderCard> deck)
         {
-            return deck.Count() >= 50 && deck.Where(item => item.MarkedSpecial).Count() == 1;
+            return deck.Count() >= 50 && deck.Count(item => item.MarkedSpecial) == 1;
         }
 
         public bool ValidateSpecial(DeckBuilderCard card)

@@ -8,15 +8,17 @@
         xmlns:plugin="clr-namespace:IGamePlugInBase;assembly=IGamePlugInBase"
         mc:Ignorable="d"
         Title="Deck Builder" Height="450" Width="800" MinHeight="450" MinWidth="800"
+        AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.Resources>
         <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type localModels:DeckBuilderCardArt}">
             <Image Source="{Binding ImageFile}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
-                   MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageResults_MouseMove"/>
+                   MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove"/>
         </DataTemplate>
         <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type localModels:DeckBuilderCardArt}">
             <Image Source="{Binding ImageFile}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
-                   MouseRightButtonDown="ImageCardDeck_MouseRightDown" Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}"/>
+                   MouseRightButtonDown="ImageCardDeck_MouseRightDown" MouseMove="ImageCardDeck_MouseMove"
+                   Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}"/>
         </DataTemplate>
         <DrawingImage x:Key="FilterImage">
             <DrawingImage.Drawing>
