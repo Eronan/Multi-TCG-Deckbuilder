@@ -128,23 +128,26 @@ namespace Multi_TCG_Deckbuilder
         }
 
         // Sub-Routine for Adding a Card to a ListBox Item Collection
-        private void AddCard(DeckBuilderCardArt card, ListBox listbox_Deck)
+        private bool AddCard(DeckBuilderCardArt card, ListBox listbox_Deck)
         {
             Deck? deck = listbox_Deck.Tag as Deck;
             if (deck != null && deck.ValidateAdd(card, listbox_Deck.Items.Cast<DeckBuilderCardArt>()))
             {
                 listbox_Deck.Items.Add(card);
+                return true;
             }
+            return false;
         }
 
         // Sub-Routine for Removing a Card from a ListBox Item Collection
-        private void RemoveCard(DeckBuilderCardArt card, ListBox listbox_Deck)
+        private bool RemoveCard(DeckBuilderCardArt card, ListBox listbox_Deck)
         {
             listbox_Deck.Items.Remove(card);
             if (!listbox_Deck.Items.Contains(card))
             {
                 card.MarkedSpecial = false;
             }
+            return true;
         }
 
         // Remove Placeholder Text
@@ -289,15 +292,19 @@ namespace Multi_TCG_Deckbuilder
                 ListBox? listbox = sender as ListBox;
                 if (card != null && listbox != null)
                 {
-                    AddCard(card, listbox);
-
-                    if (e.Effects.HasFlag(DragDropEffects.Move) && !e.KeyStates.HasFlag(DragDropKeyStates.ControlKey))
+                    if (e.Effects.HasFlag(DragDropEffects.Move) && !e.KeyStates.HasFlag(DragDropKeyStates.ControlKey)
+                        && e.Data.GetDataPresent("listTag"))
                     {
-                        ListBox? originalList = e.Source as ListBox;
-                        if (originalList != null)
+                        Deck? originalDeck = e.Data.GetData("listTag") as Deck;
+                        ListBox? originalList = this.deckListBoxes.GetValueOrDefault(originalDeck != null ? originalDeck.Name : "");
+                        if (originalList != null && AddCard(card, listbox))
                         {
                             RemoveCard(card, originalList);
                         }
+                    }
+                    else
+                    {
+                        AddCard(card, listbox);
                     }
                 }
             }
