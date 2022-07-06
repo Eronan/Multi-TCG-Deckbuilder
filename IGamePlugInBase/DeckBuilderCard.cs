@@ -17,10 +17,6 @@ namespace IGamePlugInBase
         /// </summary>
         [JsonPropertyName("ArtID")]
         public string ArtID { get; }
-        /// <summary>
-        /// Marks the card as a Special Card in the Deck.
-        /// </summary>
-        public bool MarkedSpecial { get; set; }
 
         /// <summary>
         /// Constructor for the Card that is used by the Deck Builder
@@ -29,11 +25,10 @@ namespace IGamePlugInBase
         /// <param name="artID">Art ID</param>
         /// <param name="markSpecial">Is the Special Card in the Deck</param>
         [JsonConstructor]
-        public DeckBuilderCard(string cardID, string artID, bool markSpecial = false)
+        public DeckBuilderCard(string cardID, string artID)
         {
             this.CardID = cardID;
             this.ArtID = artID;
-            this.MarkedSpecial = markSpecial;
         }
     }
 }
