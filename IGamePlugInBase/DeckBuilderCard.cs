@@ -22,6 +22,12 @@ namespace IGamePlugInBase
         /// </summary>
         public bool MarkedSpecial { get; set; }
 
+        /// <summary>
+        /// Constructor for the Card that is used by the Deck Builder
+        /// </summary>
+        /// <param name="cardID">Card ID</param>
+        /// <param name="artID">Art ID</param>
+        /// <param name="markSpecial">Is the Special Card in the Deck</param>
         [JsonConstructor]
         public DeckBuilderCard(string cardID, string artID, bool markSpecial = false)
         {

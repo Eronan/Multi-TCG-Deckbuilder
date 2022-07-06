@@ -13,20 +13,30 @@
     <Window.Resources>
         <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type localModels:DeckBuilderCardArt}">
             <Image Source="{Binding ImageFile}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
-                   MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove"/>
+                   MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove" />
         </DataTemplate>
         <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type localModels:DeckBuilderCardArt}">
             <Image Source="{Binding ImageFile}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
-                   MouseRightButtonDown="ImageCardDeck_MouseRightDown" MouseMove="ImageCardDeck_MouseMove"
-                   Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}"/>
+                       MouseRightButtonDown="ImageCardDeck_MouseRightDown" MouseMove="ImageCardDeck_MouseMove"
+                       Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}"/>
         </DataTemplate>
         <DrawingImage x:Key="FilterImage">
             <DrawingImage.Drawing>
-                <DrawingGroup ClipGeometry="M0,0 V472.615 H472.615 V0 H0 Z">
+                <DrawingGroup ClipGeometry="M0,0 V107.128 H122.88 V0 H0 Z">
+                    <DrawingGroup.Transform>
+                        <TranslateTransform X="0.00026102352421730757" Y="0" />
+                    </DrawingGroup.Transform>
                     <DrawingGroup Opacity="1">
-                        <DrawingGroup Opacity="1">
-                            <GeometryDrawing Brush="#FF000000" Geometry="F1 M472.615,472.615z M0,0z M472.615,12.908L472.615,12.908 0,12.908 180.081,202.629 180.066,459.708 292.55,401.525 292.534,202.629z" />
-                        </DrawingGroup>
+                        <GeometryDrawing Brush="#FF000000" Geometry="F1 M122.88,107.128z M0,0z M2.788,0L120.085,0C121.629,0 122.88,1.251 122.88,2.795 122.88,3.645 122.501,4.406 121.902,4.919L75.082,51.505 75.082,91.484C75.082,92.591,74.439,93.547,73.506,94L51.42,106.752C50.087,107.523 48.381,107.068 47.608,105.736 47.353,105.295 47.232,104.814 47.233,104.338L47.227,104.338 47.227,51.496 0.811,4.761C-0.275,3.669 -0.27,1.904 0.822,0.819 1.366,0.278 2.077,0.0079999999999999 2.788,0.0079999999999999L2.788,0 2.788,0z M113.323,5.591L9.493,5.591 51.851,48.24C52.443,48.752,52.817,49.51,52.817,50.354L52.817,99.503 69.491,89.878 69.491,50.354 69.499,50.354C69.499,49.638,69.773,48.922,70.321,48.377L113.323,5.591 113.323,5.591z" />
+                    </DrawingGroup>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+        <DrawingImage x:Key="FilterRemoveImage">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V110.668 H122.88 V0 H0 Z">
+                    <DrawingGroup Opacity="1">
+                        <GeometryDrawing Brush="#FF000000" Geometry="F0 M122.88,110.668z M0,0z M91.124,15.645C104.052,15.645 114.53,26.124 114.53,39.051 114.53,51.978 104.051,62.457 91.124,62.457 78.197,62.457 67.718,51.978 67.718,39.051 67.718,26.125 78.197,15.645 91.124,15.645L91.124,15.645z M2.756,0L120.078,0C121.626,0 122.88,1.254 122.88,2.802 122.88,3.65 122.512,4.424 121.884,4.941L111.217,18.497C109.812,17.122,108.267,15.89,106.603,14.825L113.231,5.605 9.43,5.605 47.405,51.776C47.995,52.292,48.363,53.03,48.363,53.878L48.363,103.026 69.419,93.403 69.419,57.896C71.07,59.796,72.967,61.478,75.061,62.892L75.061,95.025C75.061,96.13,74.434,97.089,73.475,97.531L46.999,110.289C45.672,111.062 43.976,110.621 43.201,109.256 42.943,108.815 42.833,108.336 42.833,107.856L42.833,55.02 0.803,4.756C-0.267,3.65 -0.267,1.917 0.803,0.811 1.355,0.258 2.056,0 2.756,0L2.756,0z M96.93,28.282C98.258,26.933 100.419,26.927 101.755,28.269 103.09,29.611 103.096,31.793 101.768,33.141L95.939,39.055 101.775,44.974C103.092,46.312 103.074,48.48 101.735,49.817 100.395,51.153 98.242,51.15 96.925,49.811L91.128,43.933 85.321,49.822C83.992,51.171 81.832,51.177 80.495,49.835 79.16,48.493 79.154,46.312 80.482,44.963L86.312,39.05 80.476,33.131C79.159,31.793 79.176,29.624 80.516,28.288 81.855,26.952 84.008,26.955 85.326,28.294L91.122,34.172 96.93,28.282 96.93,28.282z" />
                     </DrawingGroup>
                 </DrawingGroup>
             </DrawingImage.Drawing>
@@ -96,11 +106,14 @@
                 <RowDefinition Height="197*"/>
             </Grid.RowDefinitions>
             <Label x:Name="label_Search" Content="Search:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Height="26" Width="48" RenderTransformOrigin="0.119,0.506" />
-            <TextBox x:Name="textBox_SearchText" TextWrapping="Wrap" Text="Search" Width="auto" Margin="48,10,48,10" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"
+            <TextBox x:Name="textBox_SearchText" TextWrapping="Wrap" Text="Search" Width="auto" Margin="48,10,65,10" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"
                      Foreground="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}" GotFocus="searchBox_GotFocus" LostFocus="searchBox_LostFocus"
                      TextChanged="searchBox_TextChanged"/>
-            <Button x:Name="button_AdvancedSearch" Grid.Column="1" Margin="0,0,10,0" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Width="33" Click="button_AdvancedSearch_Click">
+            <Button x:Name="button_AdvancedSearch" Grid.Column="1" Margin="0,0,35,0" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Width="25" Click="button_AdvancedSearch_Click">
                 <Image Source="{StaticResource ResourceKey=FilterImage}"/>
+            </Button>
+            <Button x:Name="button_ClearFilters" Grid.Column="2" Margin="0,0,5,0" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Width="25" Click="button_ClearFilters_Click" >
+                <Image Source="{StaticResource ResourceKey=FilterRemoveImage}"/>
             </Button>
             <ListBox x:Name="listBox_CardResults" Grid.Row="1" d:ItemsSource="{d:SampleData ItemCount=20}" Margin="1,1,1,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                      Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}" BorderThickness="0" BorderBrush="Transparent" ItemTemplate="{StaticResource ResourceKey=ImageControl_Results}">

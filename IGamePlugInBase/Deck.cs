@@ -14,14 +14,6 @@
         /// </summary>
         public string Label { get; }
         /// <summary>
-        /// A Feature to Mark a Specific Card as a Special Card
-        /// </summary>
-        public bool MarkSpecialCard { get; }
-        /// <summary>
-        /// The Label to be used when Marking the Special Card
-        /// </summary>
-        public string? SpecialCardLabel { get; }
-        /// <summary>
         /// The Expected Size of the Deck.
         /// Used to determine the Size of the ListBox on the Deck Builder Window.
         /// It is not the Minimum or Maximum, it merely denotes the number that is most commonly played in this Deck.
@@ -42,29 +34,23 @@
         /// The Function should output a boolean value. True if it is valid, and False if it is not.
         /// </summary>
         public Func<IEnumerable<DeckBuilderCard>, bool> ValidateDeck { get; set; }
-        /// <summary>
-        /// The Function used to determine whether a card can be Marked as Special.
-        /// The Function should take in a Card (the card to be Marked).
-        /// THe FUnction should output a boolean value. True if it can be marked, and False if it cannot.
-        /// </summary>
-        public Func<DeckBuilderCard, bool>? ValidateMarkSpecial { get; set; }
 
+        /// <summary>
+        /// Constructor for a Deck that will allow a Special Card to be Chosen
+        /// </summary>
+        /// <param name="name">Name of the Deck</param>
+        /// <param name="label">Label that appears in the Deck Builder</param>
+        /// <param name="expectedDeckSize">The Size the Deck is expected to be normally</param>
+        /// <param name="validateAdd">Function that Validates if a card can be Added to the Deck</param>
+        /// <param name="validateDeck">Function that Validates if the Deck is legal</param>
         public Deck(string name, string label, int expectedDeckSize, Func<DeckBuilderCard, IEnumerable<DeckBuilderCard>, bool> validateAdd,
-            Func<IEnumerable<DeckBuilderCard>, bool> validateDeck, bool markSpecialCard, string? specialCardLabel = null,
-            Func<DeckBuilderCard, bool>? validateMarkSpecial = null)
+            Func<IEnumerable<DeckBuilderCard>, bool> validateDeck)
         {
             this.Name = name;
             this.Label = label;
-            this.MarkSpecialCard = markSpecialCard;
             this.ExpectedDeckSize = expectedDeckSize;
             this.ValidateAdd = validateAdd;
             this.ValidateDeck = validateDeck;
-
-            if (markSpecialCard)
-            {
-                this.SpecialCardLabel = specialCardLabel;
-                this.ValidateMarkSpecial = validateMarkSpecial;
-            }
         }
     }
 }

@@ -26,6 +26,7 @@ namespace Multi_TCG_Deckbuilder
         IGamePlugIn game;
         Format format;
         List<DeckBuilderCardArt> fullList;
+        List<DeckBuilderCardArt> advancedSearchList;
         List<DeckBuilderCardArt> searchList;
         Dictionary<string, ListBox> deckListBoxes;
 
@@ -33,9 +34,11 @@ namespace Multi_TCG_Deckbuilder
         {
             InitializeComponent();
             this.Title = gamePlugIn.LongName + " Deck Builder";
+
             this.game = gamePlugIn;
             this.format = format;
             this.fullList = DeckBuilderCardArt.GetFromCards(format.CardList, AppDomain.CurrentDomain.BaseDirectory);
+            this.advancedSearchList = this.fullList;
             this.searchList = new List<DeckBuilderCardArt>();
 
             this.deckListBoxes = new Dictionary<string, ListBox>();
@@ -104,6 +107,7 @@ namespace Multi_TCG_Deckbuilder
             listBox_Deck.ItemTemplate = this.FindResource("ImageControl_Deck") as DataTemplate;
             listBox_Deck.ItemsPanel = panelTemplate;
             listBox_Deck.AllowDrop = true;
+            listBox_Deck.MinHeight = deck.ExpectedDeckSize % 10 * 50;
             listBox_Deck.DragOver += this.ListBox_Deck_DragOver;
             listBox_Deck.Drop += this.ListBox_Deck_Drop;
 
@@ -137,6 +141,10 @@ namespace Multi_TCG_Deckbuilder
         private void RemoveCard(DeckBuilderCardArt card, ListBox listbox_Deck)
         {
             listbox_Deck.Items.Remove(card);
+            if (!listbox_Deck.Items.Contains(card))
+            {
+                card.MarkedSpecial = false;
+            }
         }
 
         // Remove Placeholder Text
@@ -165,18 +173,45 @@ namespace Multi_TCG_Deckbuilder
         private void searchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string searchText = textBox_SearchText.Text;
-            if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.fullList == null || searchText.Length < 4)
+            if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.advancedSearchList == null || searchText.Length < 4)
             {
                 return;
             }
-            this.searchList = this.fullList.Where(item => item.Name.Contains(searchText, StringComparison.InvariantCultureIgnoreCase) || item.ViewDetails.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            this.searchList = this.advancedSearchList.Where(item => item.ViewDetails.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
             this.listBox_CardResults.ItemsSource = this.searchList;
         }
 
         // Filter Button Clicked
         private void button_AdvancedSearch_Click(object sender, RoutedEventArgs e)
         {
+            AdvancedSearch searchWindow = new AdvancedSearch(this.game.SearchFields);
+            if (searchWindow.ShowDialog() == true)
+            {
+                this.advancedSearchList = game.AdvancedFilterSearchList(this.fullList.Cast<DeckBuilderCard>(), game.SearchFields).Cast<DeckBuilderCardArt>().ToList();
 
+                string searchText = textBox_SearchText.Text;
+                if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.fullList == null || searchText.Length < 4)
+                {
+                    this.searchList = this.advancedSearchList;
+                    this.listBox_CardResults.ItemsSource = this.searchList;
+                }
+                else
+                {
+                    this.searchList = this.advancedSearchList.Where(item => item.ViewDetails.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    this.listBox_CardResults.ItemsSource = this.searchList;
+                }
+            }
+        }
+
+        private void button_ClearFilters_Click(object sender, RoutedEventArgs e)
+        {
+            this.advancedSearchList = this.fullList;
+            if (this.textBox_SearchText.Foreground != SystemColors.GrayTextBrush)
+            {
+                this.textBox_SearchText.Foreground = SystemColors.GrayTextBrush;
+                this.textBox_SearchText.Text = "Search";
+            }
+            this.listBox_CardResults.ItemsSource = null;
         }
 
         // Add Card to Default Deck

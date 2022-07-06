@@ -8,15 +8,17 @@ namespace FECipher
         //Variables
         Format[] formatList;
         Dictionary<string, FECard> cardList;
-        
+        SearchField[] searchFieldList;
+
         public FECipher()
         {
             string jsonText = File.ReadAllText("./plug-ins/fe-cipher/cardlist_New.json");
             JsonElement jsonDeserialize = JsonSerializer.Deserialize<dynamic>(jsonText);
             var jsonEnumerator = jsonDeserialize.EnumerateArray();
 
+            // Get Card Data
             Dictionary<string, FECard> feCards = new Dictionary<string, FECard>();
-            foreach(var jsonCard in jsonEnumerator)
+            foreach (var jsonCard in jsonEnumerator)
             {
                 string? id = jsonCard.GetProperty("CardID").GetString();
                 string? character = jsonCard.GetProperty("Character").GetString();
@@ -42,7 +44,7 @@ namespace FECipher
                 {
                     supportSkill = supportSkillProperty.GetString();
                 }
-                
+
                 string? rarity = jsonCard.GetProperty("Rarity").GetString();
                 int seriesNo = jsonCard.GetProperty("SeriesNumber").GetInt32();
                 var altArtEnumerator = jsonCard.GetProperty("AlternateArts").EnumerateArray();
@@ -80,15 +82,49 @@ namespace FECipher
 
             this.cardList = feCards;
 
-            Deck mainDeck = new Deck("main", "Main Deck", 50, ValidateAdd, ValidateDeck, true, "Main Character", ValidateSpecial);
-
+            // Create Valid Formats
+            Deck mainDeck = new Deck("main", "Main Deck", 49, ValidateAdd, ValidateDeck);
+            Deck mainCharacter = new Deck("character", "Main Character", 1, ValidateMainCharacterAdd, ValidateMainCharacterDeck);
             formatList = new Format[2]
             {
                  new Format("unlimited", "Unlimited", Properties.Resources.UnlimitedIcon, "All cards are allowed in this format from Series 1 to Series 22.",
-                    this.CardList, new Deck[1] { mainDeck }, "main"),
+                    this.CardList, new Deck[2] { mainCharacter, mainDeck }, "main"),
                  new Format("standard", "Standard", Properties.Resources.StandardIcon, "The last Official Format of Fire Emblem Cipher, cards from Series 1 to Series 4 are not allowed in this format.",
-                    this.cardList.Values.Where(item => item.seriesNo > 4).ToArray(), new Deck[1] { mainDeck }, "main")
+                    this.cardList.Values.Where(item => item.seriesNo > 4).ToArray(), new Deck[2] { mainCharacter, mainDeck }, "main")
             };
+
+            // Create Search Fields
+            string[] colours = new string[10] { "", "Red", "Blue", "Yellow", "Purple", "Green", "Black", "White", "Brown", "Colorless" };
+            this.searchFieldList = new SearchField[12]
+            {
+                new SearchField("character", "Character"),
+                new SearchField("title", "Title"),
+                new SearchField("color1", "Color", colours, ""),
+                new SearchField("color2", "Color", colours, ""),
+                new SearchField("cost", "Cost", 1),
+                new SearchField("cccost", "Class Change Cost", 1),
+                new SearchField("class", "Class"),
+                new SearchField("type", "Type"),
+                new SearchField("range", "Range", 0, 3),
+                new SearchField("attack", "Attack", 3),
+                new SearchField("support", "Support", 3),
+                new SearchField("series", "Series", 0, 12),
+            };
+        }
+
+        // Functions
+        private bool ValidateMainCharacterAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
+        {
+            if (deck.Count() > 0) { return false; }
+            FECard? feCard = this.cardList.GetValueOrDefault(card.CardID);
+            return deck.Count() == 0 && feCard != null && feCard.cost == "1";
+        }
+
+        private bool ValidateMainCharacterDeck(IEnumerable<DeckBuilderCard> deck)
+        {
+            if (deck.Count() != 1) { return false; }
+            FECard? feCard = this.cardList.GetValueOrDefault(deck.ElementAt(0).CardID);
+            return feCard != null && feCard.cost == "1";
         }
 
         private bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
@@ -100,41 +136,79 @@ namespace FECipher
             }) < 4;
         }
 
-        public static bool ValidateDeck(IEnumerable<DeckBuilderCard> deck)
+        private static bool ValidateDeck(IEnumerable<DeckBuilderCard> deck)
         {
-            return deck.Count() >= 50 && deck.Count(item => item.MarkedSpecial) == 1;
+            return deck.Count() >= 49;
         }
 
-        public bool ValidateSpecial(DeckBuilderCard card)
+        private bool MatchFields(FECard card, SearchField[] searchFields)
         {
-            FECard? feCard = this.cardList.GetValueOrDefault(card.CardID);
-            if (feCard == null) throw new NullReferenceException(String.Format("Card {0} does not exist.", card.CardID));
+            foreach (SearchField field in searchFields)
+            {
+                if (string.IsNullOrEmpty(field.Value)) continue;
 
-            return feCard.cost == "1";
+                switch (field.Id)
+                {
+                    case "character":
+                        if (!card.characterName.Contains(field.Value)) return false;
+                        break;
+                    case "title":
+                        if (!card.characterTitle.Contains(field.Value)) return false;
+                        break;
+                    case "color1":
+                    case "color2":
+                        if (Array.IndexOf(card.colors, field.Value) == -1) return false;
+                        break;
+                    case "cost":
+                        if (card.cost != field.Value) return false;
+                        break;
+                    case "cccost":
+                        if (card.classChangeCost != field.Value) return false;
+                        break;
+                    case "class":
+                        if (!card.cardClass.Contains(field.Value)) return false;
+                        break;
+                    case "type":
+                        if (!card.types.Any(item => item.Contains(field.Value))) return false;
+                        break;
+                    case "range":
+                        if (card.minRange < field.Value || card.maxRange > field.Value) return false;
+                        break;
+                    case "attack":
+                        if (card.attack != field.Value) return false;
+                        break;
+                    case "support":
+                        if (card.attack != field.Value) return false;
+                        break;
+                    case "series":
+                        if (card.seriesNo != field.Value) return false;
+                        break;
+                }
+            }
+            return true;
         }
 
-        //Accessors
+        //Public Accessors
         public string Name { get => "FECipher"; }
         public string LongName { get => "Fire Emblem Cipher"; }
         public byte[] IconImage { get => Properties.Resources.Icon; }
-        public Format[] Formats
-        {
-            get { return this.formatList; }
-        }
-        public Card[] CardList
-        {
-            get {  return this.cardList.Values.ToArray(); }
-        }
+        public Format[] Formats { get => this.formatList; }
+        public Card[] CardList { get => this.cardList.Values.ToArray(); }
+        public SearchField[] SearchFields { get => this.searchFieldList; }
 
-        //Public Functions
-        public bool ValidateAdd(dynamic card, dynamic[] deckList)
+        // Public Functions
+        public List<DeckBuilderCard> AdvancedFilterSearchList(IEnumerable<DeckBuilderCard> cards, SearchField[] searchFields)
         {
-            return false;
-        }
-
-        public bool ValidateDeck(dynamic[] deckList)
-        {
-            return false;
+            List<DeckBuilderCard> returnList = new List<DeckBuilderCard>();
+            foreach (DeckBuilderCard card in cards)
+            {
+                FECard? feCard = this.cardList.GetValueOrDefault(card.CardID);
+                if (feCard != null)
+                {
+                    if (this.MatchFields(feCard, searchFields)) returnList.Add(card);
+                }
+            }
+            return returnList;
         }
     }
 }

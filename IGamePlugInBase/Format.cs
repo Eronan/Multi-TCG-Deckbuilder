@@ -12,6 +12,16 @@
         Card[] cardList;
         Deck[] decks;
 
+        /// <summary>
+        /// Constructor for a Format
+        /// </summary>
+        /// <param name="name">Short Name of the Format</param>
+        /// <param name="longName">Long Name of the Format</param>
+        /// <param name="iconImage">Icon used for the Format</param>
+        /// <param name="description">Description of the Format</param>
+        /// <param name="cards">Cards Available for the Format</param>
+        /// <param name="decks">All Decks that appear in the Format</param>
+        /// <param name="defaultDeckName">Name of the Deck that is always used as the Default</param>
         public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks, string defaultDeckName)
         {
             this.name = name;
@@ -26,6 +36,16 @@
             };
         }
 
+        /// <summary>
+        /// Constructor for a Format
+        /// </summary>
+        /// <param name="name">Short Name of the Format</param>
+        /// <param name="longName">Long Name of the Format</param>
+        /// <param name="iconImage">Icon used for the Format</param>
+        /// <param name="description">Description of the Format</param>
+        /// <param name="cards">Cards Available for the Format</param>
+        /// <param name="decks">All Decks that appear in the Format</param>
+        /// <param name="defaultDeckName">A Function that determines which Deck a Card goes into by default.</param>
         public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks, Func<DeckBuilderCard, string> defaultDeckFunction)
         {
             this.name = name;
