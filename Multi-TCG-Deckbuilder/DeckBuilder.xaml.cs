@@ -29,6 +29,7 @@ namespace Multi_TCG_Deckbuilder
         List<DeckBuilderCardArt> advancedSearchList;
         List<DeckBuilderCardArt> searchList;
         Dictionary<string, ListBox> deckListBoxes;
+        Dictionary<string, List<DeckBuilderCardArt>> decksList;
 
         public DeckBuilder(IGamePlugIn gamePlugIn, Format format)
         {
@@ -143,10 +144,6 @@ namespace Multi_TCG_Deckbuilder
         private bool RemoveCard(DeckBuilderCardArt card, ListBox listbox_Deck)
         {
             listbox_Deck.Items.Remove(card);
-            if (!listbox_Deck.Items.Contains(card))
-            {
-                card.MarkedSpecial = false;
-            }
             return true;
         }
 

@@ -26,7 +26,7 @@
         /// The Function should take in a Card (the Card to be Added), a list of Cards (the current Deck)
         /// The Function should output a boolean value. True if it is valid, and False if it is not.
         /// </summary>
-        public Func<DeckBuilderCard, IEnumerable<DeckBuilderCard>, bool> ValidateAdd { get; set; }
+        public Func<DeckBuilderCard, IEnumerable<DeckBuilderCard>, Dictionary<string, IEnumerable<DeckBuilderCard>>, bool> ValidateAdd { get; set; }
 
         /// <summary>
         /// The Function used to determine whether a Deck is valid to the Rules.
@@ -43,7 +43,7 @@
         /// <param name="expectedDeckSize">The Size the Deck is expected to be normally</param>
         /// <param name="validateAdd">Function that Validates if a card can be Added to the Deck</param>
         /// <param name="validateDeck">Function that Validates if the Deck is legal</param>
-        public Deck(string name, string label, int expectedDeckSize, Func<DeckBuilderCard, IEnumerable<DeckBuilderCard>, bool> validateAdd,
+        public Deck(string name, string label, int expectedDeckSize, Func<DeckBuilderCard, IEnumerable<DeckBuilderCard>, Dictionary<string, IEnumerable<DeckBuilderCard>>, bool> validateAdd,
             Func<IEnumerable<DeckBuilderCard>, bool> validateDeck)
         {
             this.Name = name;

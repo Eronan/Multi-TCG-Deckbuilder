@@ -113,11 +113,11 @@ namespace FECipher
         }
 
         // Functions
-        private bool ValidateMainCharacterAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
+        private bool ValidateMainCharacterAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck, Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks)
         {
             if (deck.Count() > 0) { return false; }
             FECard? feCard = this.cardList.GetValueOrDefault(card.CardID);
-            return deck.Count() == 0 && feCard != null && feCard.cost == "1";
+            return deck.Count() == 0 && feCard != null && feCard.cost == "1" && this.ValidateAdd(card, deck, allDecks);
         }
 
         private bool ValidateMainCharacterDeck(IEnumerable<DeckBuilderCard> deck)
@@ -127,13 +127,15 @@ namespace FECipher
             return feCard != null && feCard.cost == "1";
         }
 
-        private bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
+        private bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck, Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks)
         {
-            //Check if Card can be Added to Deck
-            return deck.Count(predicate: item =>
+            int count = 0;
+            foreach (KeyValuePair<string, IEnumerable<DeckBuilderCard>> pair in allDecks)
             {
-                return item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name;
-            }) < 4;
+                count += pair.Value.Count(predicate: item => item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name);
+                if (count >= 4) return false;
+            }
+            return true;
         }
 
         private static bool ValidateDeck(IEnumerable<DeckBuilderCard> deck)
