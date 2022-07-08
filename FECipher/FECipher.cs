@@ -113,11 +113,11 @@ namespace FECipher
         }
 
         // Functions
-        private bool ValidateMainCharacterAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck, Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks)
+        private bool ValidateMainCharacterAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck, IEnumerable<IEnumerable<DeckBuilderCard>> otherDecks)
         {
             if (deck.Count() > 0) { return false; }
             FECard? feCard = this.cardList.GetValueOrDefault(card.CardID);
-            return deck.Count() == 0 && feCard != null && feCard.cost == "1" && this.ValidateAdd(card, deck, allDecks);
+            return deck.Count() == 0 && feCard != null && feCard.cost == "1" && this.ValidateAdd(card, deck, otherDecks);
         }
 
         private bool ValidateMainCharacterDeck(IEnumerable<DeckBuilderCard> deck)
@@ -127,12 +127,12 @@ namespace FECipher
             return feCard != null && feCard.cost == "1";
         }
 
-        private bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck, Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks)
+        private bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck, IEnumerable<IEnumerable<DeckBuilderCard>> otherDecks)
         {
-            int count = 0;
-            foreach (KeyValuePair<string, IEnumerable<DeckBuilderCard>> pair in allDecks)
+            int count = deck.Count(predicate: item => item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name);
+            foreach (IEnumerable<DeckBuilderCard> decklist in otherDecks)
             {
-                count += pair.Value.Count(predicate: item => item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name);
+                count += decklist.Count(predicate: item => item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name);
                 if (count >= 4) return false;
             }
             return true;

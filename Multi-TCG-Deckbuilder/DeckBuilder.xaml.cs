@@ -29,7 +29,6 @@ namespace Multi_TCG_Deckbuilder
         List<DeckBuilderCardArt> advancedSearchList;
         List<DeckBuilderCardArt> searchList;
         Dictionary<string, ListBox> deckListBoxes;
-        Dictionary<string, List<DeckBuilderCardArt>> decksList;
 
         public DeckBuilder(IGamePlugIn gamePlugIn, Format format)
         {
@@ -85,9 +84,6 @@ namespace Multi_TCG_Deckbuilder
             var panelTemplate = new ItemsPanelTemplate();
             panelTemplate.VisualTree = templatePanel;
 
-            // ListBox ItemsSource
-            List<DeckBuilderCardArt> itemsSource = new List<DeckBuilderCardArt>();
-
             // Deck List Box
             ListBox listBox_Deck = new ListBox();
             listBox_Deck.Name = "listBoxDeck_" + deck.Name;
@@ -132,10 +128,21 @@ namespace Multi_TCG_Deckbuilder
         private bool AddCard(DeckBuilderCardArt card, ListBox listbox_Deck)
         {
             Deck? deck = listbox_Deck.Tag as Deck;
-            if (deck != null && deck.ValidateAdd(card, listbox_Deck.Items.Cast<DeckBuilderCardArt>()))
+            if (deck != null)
             {
-                listbox_Deck.Items.Add(card);
-                return true;
+                List<IEnumerable<DeckBuilderCardArt>> otherDecks = new List<IEnumerable<DeckBuilderCardArt>>();
+                foreach (KeyValuePair<string, ListBox> valuePair in this.deckListBoxes)
+                {
+                    if (valuePair.Key != deck.Name)
+                    {
+                        otherDecks.Add(valuePair.Value.Items.Cast<DeckBuilderCardArt>());
+                    }
+                }
+                if (deck.ValidateAdd(card, listbox_Deck.Items.Cast<DeckBuilderCardArt>(), otherDecks))
+                {
+                    listbox_Deck.Items.Add(card);
+                    return true;
+                }
             }
             return false;
         }
