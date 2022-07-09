@@ -1,19 +1,13 @@
-﻿using System;
+﻿using IGamePlugInBase;
+using Multi_TCG_Deckbuilder.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Multi_TCG_Deckbuilder.Models;
-using IGamePlugInBase;
 
 namespace Multi_TCG_Deckbuilder
 {
@@ -94,6 +88,7 @@ namespace Multi_TCG_Deckbuilder
             listBox_Deck.HorizontalAlignment = HorizontalAlignment.Stretch;
             listBox_Deck.VerticalAlignment = VerticalAlignment.Top;
             listBox_Deck.Width = double.NaN;
+            listBox_Deck.MinHeight = 40;
             // listBox_Deck.MinHeight = Math.Ceiling(deck.ExpectedDeckSize / 10.0d) * 40;
             if (onlyDeck)
             {
@@ -110,6 +105,8 @@ namespace Multi_TCG_Deckbuilder
             listBox_Deck.AllowDrop = true;
             listBox_Deck.DragOver += this.ListBox_Deck_DragOver;
             listBox_Deck.Drop += this.ListBox_Deck_Drop;
+            listBox_Deck.GotFocus += this.listBox_GotFocus;
+            listBox_Deck.SelectionChanged += this.listBox_SelectionChanged;
 
             if (onlyDeck)
             {
@@ -131,7 +128,8 @@ namespace Multi_TCG_Deckbuilder
         private bool AddCard(DeckBuilderCardArt card, ListBox listbox_Deck)
         {
             Deck? deck = listbox_Deck.Tag as Deck;
-            if (deck != null)
+            TextBlock? label = deckLabels.GetValueOrDefault(deck != null ? deck.Name : "");
+            if (deck != null && label != null)
             {
                 // Convert ListBox Items to Cardlist Format
                 Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks = new Dictionary<string, IEnumerable<DeckBuilderCard>>();
@@ -144,6 +142,7 @@ namespace Multi_TCG_Deckbuilder
                 if (!format.ValidateMaximum(card, allDecks) && deck.ValidateAdd(card, listbox_Deck.Items.Cast<DeckBuilderCardArt>()))
                 {
                     listbox_Deck.Items.Add(card);
+                    label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\)$", string.Format("({0})", listbox_Deck.Items.Count));
                     return true;
                 }
             }
@@ -153,19 +152,33 @@ namespace Multi_TCG_Deckbuilder
         // Sub-Routine for Removing a Card from a ListBox Item Collection
         private bool RemoveCard(DeckBuilderCardArt card, ListBox listbox_Deck)
         {
-            listbox_Deck.Items.Remove(card);
-            return true;
+            Deck? deck = listbox_Deck.Tag as Deck;
+            TextBlock? label = deckLabels.GetValueOrDefault(deck != null ? deck.Name : "");
+            if (label != null)
+            {
+                listbox_Deck.Items.Remove(card);
+                label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\)$", string.Format("({0})", listbox_Deck.Items.Count));
+                return true;
+            }
+            return false;
         }
 
         // Sub-Routine for Moving a Card from a ListBox Item Collection to Another
         private bool MoveCard(DeckBuilderCardArt card, ListBox listbox_From, ListBox listbox_To)
         {
             Deck? deckTo = listbox_To.Tag as Deck;
+            TextBlock? labelTo = deckLabels.GetValueOrDefault(deckTo != null ? deckTo.Name : "");
+            Deck? deckFrom = listbox_From.Tag as Deck;
+            TextBlock? labelFrom = deckLabels.GetValueOrDefault(deckFrom != null ? deckFrom.Name : "");
 
-            if (deckTo != null && deckTo.ValidateAdd(card, listbox_To.Items.Cast<DeckBuilderCardArt>()))
+            if (deckTo != null && labelFrom != null && labelTo != null
+                && deckTo.ValidateAdd(card, listbox_To.Items.Cast<DeckBuilderCardArt>()))
             {
                 listbox_To.Items.Add(card);
                 listbox_From.Items.Remove(card);
+
+                labelTo.Text = Regex.Replace(labelTo.Text, "\\(([0-9]+)\\)$", string.Format("({0})", listbox_To.Items.Count));
+                labelFrom.Text = Regex.Replace(labelFrom.Text, "\\(([0-9]+)\\)$", string.Format("({0})", listbox_From.Items.Count));
                 return true;
             }
             return false;
@@ -288,6 +301,26 @@ namespace Multi_TCG_Deckbuilder
             }
         }
 
+        // ListBox Focused
+        private void listBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ListBox? listBox = sender as ListBox;
+            if (listBox != null)
+            {
+                grid_ViewCard.DataContext = listBox.SelectedItem;
+            }
+        }
+
+        // ListBox Selection Changed
+        private void listBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ListBox? listBox = sender as ListBox;
+            if (listBox != null)
+            {
+                grid_ViewCard.DataContext = listBox.SelectedItem;
+            }
+        }
+
         // Determine Valid Drop for ListBox Deck
         private void ListBox_Deck_DragOver(object sender, DragEventArgs e)
         {
@@ -376,6 +409,20 @@ namespace Multi_TCG_Deckbuilder
                 {
                     
                 }
+            }
+        }
+
+        // New Deck
+        private void MenuItem_New_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (ListBox listbox_Deck in this.deckListBoxes.Values)
+            {
+                listbox_Deck.Items.Clear();
+            }
+
+            foreach (TextBlock label in this.deckLabels.Values)
+            {
+                label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\)$", "(0)");
             }
         }
     }

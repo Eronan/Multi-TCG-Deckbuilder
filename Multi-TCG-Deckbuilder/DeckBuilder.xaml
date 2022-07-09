@@ -54,7 +54,7 @@
         </Grid.ColumnDefinitions>
         <Menu Grid.ColumnSpan="3">
             <MenuItem Header="_File">
-                <MenuItem Header="_New"/>
+                <MenuItem Header="_New" Click="MenuItem_New_Click"/>
                 <MenuItem Header="_Open"/>
                 <MenuItem Header="_Save"/>
                 <MenuItem Header="_SaveAs"/>
@@ -73,8 +73,7 @@
         <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
         <Border Grid.Row="1" Grid.Column="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
         <Border Grid.Row="1" Grid.Column="2" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
-        <Grid x:Name="grid_ViewCard" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-              DataContext="{Binding ElementName=listBox_CardResults, Path=SelectedItem}">
+        <Grid x:Name="grid_ViewCard" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="172*"/>
                 <RowDefinition Height="40"/>
@@ -116,7 +115,8 @@
                 <Image Source="{StaticResource ResourceKey=FilterRemoveImage}"/>
             </Button>
             <ListBox x:Name="listBox_CardResults" Grid.Row="1" d:ItemsSource="{d:SampleData ItemCount=20}" Margin="1,1,1,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                     Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}" BorderThickness="0" BorderBrush="Transparent" ItemTemplate="{StaticResource ResourceKey=ImageControl_Results}">
+                     Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}" BorderThickness="0" BorderBrush="Transparent" ItemTemplate="{StaticResource ResourceKey=ImageControl_Results}"
+                     SelectionChanged="listBox_SelectionChanged" GotFocus="listBox_GotFocus">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <UniformGrid Columns="4" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportWidth}" Height="auto" VerticalAlignment="Top" />
