@@ -88,9 +88,9 @@ namespace FECipher
             formatList = new Format[2]
             {
                  new Format("unlimited", "Unlimited", Properties.Resources.UnlimitedIcon, "All cards are allowed in this format from Series 1 to Series 22.",
-                    this.CardList, new Deck[2] { mainCharacter, mainDeck }, "main"),
+                    this.CardList, new Deck[2] { mainCharacter, mainDeck }, "main", ValidateMaximum),
                  new Format("standard", "Standard", Properties.Resources.StandardIcon, "The last Official Format of Fire Emblem Cipher, cards from Series 1 to Series 4 are not allowed in this format.",
-                    this.cardList.Values.Where(item => item.seriesNo > 4).ToArray(), new Deck[2] { mainCharacter, mainDeck }, "main")
+                    this.cardList.Values.Where(item => item.seriesNo > 4).ToArray(), new Deck[2] { mainCharacter, mainDeck }, "main", ValidateMaximum)
             };
 
             // Create Search Fields
@@ -113,11 +113,11 @@ namespace FECipher
         }
 
         // Functions
-        private bool ValidateMainCharacterAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck, IEnumerable<IEnumerable<DeckBuilderCard>> otherDecks)
+        private bool ValidateMainCharacterAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
         {
             if (deck.Count() > 0) { return false; }
             FECard? feCard = this.cardList.GetValueOrDefault(card.CardID);
-            return deck.Count() == 0 && feCard != null && feCard.cost == "1" && this.ValidateAdd(card, deck, otherDecks);
+            return deck.Count() == 0 && feCard != null && feCard.cost == "1";
         }
 
         private bool ValidateMainCharacterDeck(IEnumerable<DeckBuilderCard> deck)
@@ -127,20 +127,25 @@ namespace FECipher
             return feCard != null && feCard.cost == "1";
         }
 
-        private bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck, IEnumerable<IEnumerable<DeckBuilderCard>> otherDecks)
+        private static bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
         {
-            int count = deck.Count(predicate: item => item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name);
-            foreach (IEnumerable<DeckBuilderCard> decklist in otherDecks)
-            {
-                count += decklist.Count(predicate: item => item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name);
-                if (count >= 4) return false;
-            }
             return true;
         }
 
         private static bool ValidateDeck(IEnumerable<DeckBuilderCard> deck)
         {
             return deck.Count() >= 49;
+        }
+
+        private bool ValidateMaximum(DeckBuilderCard card, Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks)
+        {
+            int count = 0;
+            foreach (KeyValuePair<string, IEnumerable<DeckBuilderCard>> decklist in allDecks)
+            {
+                count += decklist.Value.Count(predicate: item => item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name);
+                if (count >= 4) { return true; }
+            }
+            return false;
         }
 
         private bool MatchFields(FECard card, SearchField[] searchFields)

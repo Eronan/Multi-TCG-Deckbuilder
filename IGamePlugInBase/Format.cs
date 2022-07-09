@@ -22,7 +22,8 @@
         /// <param name="cards">Cards Available for the Format</param>
         /// <param name="decks">All Decks that appear in the Format</param>
         /// <param name="defaultDeckName">Name of the Deck that is always used as the Default</param>
-        public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks, string defaultDeckName)
+        /// <param name="validateMaximum">A Function that determines whether a card has reached the maximum number of copies allowed.</param>
+        public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks, string defaultDeckName, Func<DeckBuilderCard, Dictionary<string, IEnumerable<DeckBuilderCard>>, bool> validateMaximum)
         {
             this.name = name;
             this.longName = longName;
@@ -30,10 +31,11 @@
             this.description = description;
             this.cardList = cards;
             this.decks = decks;
-            this.DefaultDeckName = delegate(DeckBuilderCard card)
+            this.DefaultDeckName = delegate (DeckBuilderCard card)
             {
                 return defaultDeckName;
             };
+            this.ValidateMaximum = validateMaximum;
         }
 
         /// <summary>
@@ -45,8 +47,9 @@
         /// <param name="description">Description of the Format</param>
         /// <param name="cards">Cards Available for the Format</param>
         /// <param name="decks">All Decks that appear in the Format</param>
-        /// <param name="defaultDeckName">A Function that determines which Deck a Card goes into by default.</param>
-        public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks, Func<DeckBuilderCard, string> defaultDeckFunction)
+        /// <param name="defaultDeckFunction">A Function that determines which Deck a Card goes into by default.</param>
+        /// <param name="validateMaximum">A Function that determines whether a card has reached the maximum number of copies allowed.</param>
+        public Format(string name, string longName, byte[] iconImage, string description, Card[] cards, Deck[] decks, Func<DeckBuilderCard, string> defaultDeckFunction, Func<DeckBuilderCard, Dictionary<string, IEnumerable<DeckBuilderCard>>, bool> validateMaximum)
         {
             this.name = name;
             this.longName = longName;
@@ -55,6 +58,7 @@
             this.cardList = cards;
             this.decks = decks;
             this.DefaultDeckName = defaultDeckFunction;
+            this.ValidateMaximum = validateMaximum;
         }
 
         /// <summary>
@@ -112,5 +116,13 @@
         /// The Default Deck that a card is added to when Right-Clicked.
         /// </summary>
         public Func<DeckBuilderCard, string> DefaultDeckName { get; set; }
+
+        /// <summary>
+        /// Determines whether the Card has already reached the Maximum number of copies allowed in a Deck.
+        /// This can be determined by any card field. The Function can contain statements for specific cards to allow more copies.
+        /// The Function should take in the Card that is being added.
+        /// The Function should take in a Dictionary, where each List of Cards (Deck) is assigned to the name of a Deck.
+        /// </summary>
+        public Func<DeckBuilderCard, Dictionary<string, IEnumerable<DeckBuilderCard>>, bool> ValidateMaximum { get; set; }
     }
 }

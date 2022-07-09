@@ -28,6 +28,7 @@ namespace Multi_TCG_Deckbuilder
         List<DeckBuilderCardArt> fullList;
         List<DeckBuilderCardArt> advancedSearchList;
         List<DeckBuilderCardArt> searchList;
+        Dictionary<string, TextBlock> deckLabels;
         Dictionary<string, ListBox> deckListBoxes;
 
         public DeckBuilder(IGamePlugIn gamePlugIn, Format format)
@@ -41,6 +42,7 @@ namespace Multi_TCG_Deckbuilder
             this.advancedSearchList = this.fullList;
             this.searchList = new List<DeckBuilderCardArt>();
 
+            this.deckLabels = new Dictionary<string, TextBlock>();
             this.deckListBoxes = new Dictionary<string, ListBox>();
             this.CreateDeckListBoxes(format.Decks);
         }
@@ -68,6 +70,7 @@ namespace Multi_TCG_Deckbuilder
             TextBlock textblock_Label = new TextBlock();
             textblock_Label.Name = "labelDeck_" + deck.Name;
             textblock_Label.Text = deck.Label + ": (0)";
+            this.deckLabels.Add(deck.Name, textblock_Label);
 
             // Uniform Grid
             System.Windows.Controls.Primitives.UniformGrid uniform = new System.Windows.Controls.Primitives.UniformGrid();
@@ -91,6 +94,7 @@ namespace Multi_TCG_Deckbuilder
             listBox_Deck.HorizontalAlignment = HorizontalAlignment.Stretch;
             listBox_Deck.VerticalAlignment = VerticalAlignment.Top;
             listBox_Deck.Width = double.NaN;
+            // listBox_Deck.MinHeight = Math.Ceiling(deck.ExpectedDeckSize / 10.0d) * 40;
             if (onlyDeck)
             {
                 listBox_Deck.VerticalAlignment = VerticalAlignment.Stretch;
@@ -104,7 +108,6 @@ namespace Multi_TCG_Deckbuilder
             listBox_Deck.ItemTemplate = this.FindResource("ImageControl_Deck") as DataTemplate;
             listBox_Deck.ItemsPanel = panelTemplate;
             listBox_Deck.AllowDrop = true;
-            listBox_Deck.MinHeight = deck.ExpectedDeckSize % 10 * 50;
             listBox_Deck.DragOver += this.ListBox_Deck_DragOver;
             listBox_Deck.Drop += this.ListBox_Deck_Drop;
 
@@ -130,15 +133,15 @@ namespace Multi_TCG_Deckbuilder
             Deck? deck = listbox_Deck.Tag as Deck;
             if (deck != null)
             {
-                List<IEnumerable<DeckBuilderCardArt>> otherDecks = new List<IEnumerable<DeckBuilderCardArt>>();
+                // Convert ListBox Items to Cardlist Format
+                Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks = new Dictionary<string, IEnumerable<DeckBuilderCard>>();
                 foreach (KeyValuePair<string, ListBox> valuePair in this.deckListBoxes)
                 {
-                    if (valuePair.Key != deck.Name)
-                    {
-                        otherDecks.Add(valuePair.Value.Items.Cast<DeckBuilderCardArt>());
-                    }
+                    allDecks.Add(valuePair.Key, valuePair.Value.Items.Cast<DeckBuilderCardArt>());
                 }
-                if (deck.ValidateAdd(card, listbox_Deck.Items.Cast<DeckBuilderCardArt>(), otherDecks))
+
+                // Verify whether card has not reached its maximum allowable copies and can be added to the Deck
+                if (!format.ValidateMaximum(card, allDecks) && deck.ValidateAdd(card, listbox_Deck.Items.Cast<DeckBuilderCardArt>()))
                 {
                     listbox_Deck.Items.Add(card);
                     return true;
@@ -152,6 +155,20 @@ namespace Multi_TCG_Deckbuilder
         {
             listbox_Deck.Items.Remove(card);
             return true;
+        }
+
+        // Sub-Routine for Moving a Card from a ListBox Item Collection to Another
+        private bool MoveCard(DeckBuilderCardArt card, ListBox listbox_From, ListBox listbox_To)
+        {
+            Deck? deckTo = listbox_To.Tag as Deck;
+
+            if (deckTo != null && deckTo.ValidateAdd(card, listbox_To.Items.Cast<DeckBuilderCardArt>()))
+            {
+                listbox_To.Items.Add(card);
+                listbox_From.Items.Remove(card);
+                return true;
+            }
+            return false;
         }
 
         // Remove Placeholder Text
@@ -301,9 +318,9 @@ namespace Multi_TCG_Deckbuilder
                     {
                         Deck? originalDeck = e.Data.GetData("listTag") as Deck;
                         ListBox? originalList = this.deckListBoxes.GetValueOrDefault(originalDeck != null ? originalDeck.Name : "");
-                        if (originalList != null && AddCard(card, listbox))
+                        if (originalList != null)
                         {
-                            RemoveCard(card, originalList);
+                            MoveCard(card, originalList, listbox);
                         }
                     }
                     else

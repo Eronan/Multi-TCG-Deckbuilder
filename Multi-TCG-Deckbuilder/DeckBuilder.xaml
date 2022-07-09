@@ -119,7 +119,7 @@
                      Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}" BorderThickness="0" BorderBrush="Transparent" ItemTemplate="{StaticResource ResourceKey=ImageControl_Results}">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <UniformGrid Columns="4" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportWidth}" Height="auto" VerticalAlignment="Top"/>
+                        <UniformGrid Columns="4" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportWidth}" Height="auto" VerticalAlignment="Top" />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
             </ListBox>
