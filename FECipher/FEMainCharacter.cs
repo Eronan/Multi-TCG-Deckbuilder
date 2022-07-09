@@ -24,11 +24,22 @@ namespace FECipher
             return deck.Count() == 0 && feCard != null && feCard.cost == "1";
         }
 
-        public bool ValidateDeck(IEnumerable<DeckBuilderCard> deck)
+        public string[] ValidateDeck(IEnumerable<DeckBuilderCard> deck)
         {
-            if (deck.Count() != 1) { return false; }
-            FECard feCard = this.cardList.Where(listCard => listCard.ID == deck.First().CardID).First();
-            return feCard != null && feCard.cost == "1";
+            if (deck.Count() != 1)
+            {
+                return new string[1] { "You must choose a card to be your Main Character, and only have 1 Main Character." };
+            }
+            else
+            {
+                FECard feCard = this.cardList.Where(listCard => listCard.ID == deck.First().CardID).First();
+                if (feCard != null && feCard.cost != "1")
+                {
+                    return new string[1] { "Your Main Character must be a 1 Cost Card." };
+                }
+            }
+
+            return new string[0];
         }
     }
 }

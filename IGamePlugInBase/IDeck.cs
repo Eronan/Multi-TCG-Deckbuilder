@@ -36,7 +36,7 @@
         /// The Function should output a boolean value. True if it is valid, and False if it is not.
         /// </summary>
         /// <param name="deck"></param>
-        /// <returns>Deck follows the rules of the Game.</returns>
-        public bool ValidateDeck(IEnumerable<DeckBuilderCard> deck);
+        /// <returns>A list of Messages saying what's wrong with the Deck.</returns>
+        public string[] ValidateDeck(IEnumerable<DeckBuilderCard> deck);
     }
 }

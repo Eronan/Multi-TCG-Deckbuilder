@@ -15,9 +15,10 @@ namespace FECipher
             return true;
         }
 
-        public bool ValidateDeck(IEnumerable<DeckBuilderCard> deck)
+        public string[] ValidateDeck(IEnumerable<DeckBuilderCard> deck)
         {
-            return deck.Count() >= 49;
+            if (deck.Count() < 49) { return new string[1] { "You must have 50 cards in the Deck including the Main Character." }; }
+            return new string[0];
         }
     }
 }

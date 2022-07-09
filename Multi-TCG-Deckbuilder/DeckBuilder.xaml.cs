@@ -63,7 +63,7 @@ namespace Multi_TCG_Deckbuilder
             // Deck Label
             TextBlock textblock_Label = new TextBlock();
             textblock_Label.Name = "labelDeck_" + deck.Name;
-            textblock_Label.Text = deck.Label + ": (0)";
+            textblock_Label.Text = deck.Label + ": (0) ❌";
             this.deckLabels.Add(deck.Name, textblock_Label);
 
             // Uniform Grid
@@ -142,7 +142,7 @@ namespace Multi_TCG_Deckbuilder
                 if (!format.ValidateMaximum(card, allDecks) && deck.ValidateAdd(card, listbox_Deck.Items.Cast<DeckBuilderCardArt>()))
                 {
                     listbox_Deck.Items.Add(card);
-                    label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\)$", string.Format("({0})", listbox_Deck.Items.Count));
+                    label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\) [✔❌]$", string.Format("({0}) {1}", listbox_Deck.Items.Count, deck.ValidateDeck(listbox_Deck.Items.Cast<DeckBuilderCardArt>()).Length == 0 ? "✔" : "❌"));
                     return true;
                 }
             }
@@ -157,7 +157,7 @@ namespace Multi_TCG_Deckbuilder
             if (label != null)
             {
                 listbox_Deck.Items.Remove(card);
-                label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\)$", string.Format("({0})", listbox_Deck.Items.Count));
+                label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\) [✔❌]$", string.Format("({0}) {1}", listbox_Deck.Items.Count, deck.ValidateDeck(listbox_Deck.Items.Cast<DeckBuilderCardArt>()).Length == 0 ? "✔" : "❌"));
                 return true;
             }
             return false;
@@ -171,14 +171,14 @@ namespace Multi_TCG_Deckbuilder
             IDeck? deckFrom = listbox_From.Tag as IDeck;
             TextBlock? labelFrom = deckLabels.GetValueOrDefault(deckFrom != null ? deckFrom.Name : "");
 
-            if (deckTo != null && labelFrom != null && labelTo != null
+            if (deckFrom != null && deckTo != null && labelFrom != null && labelTo != null
                 && deckTo.ValidateAdd(card, listbox_To.Items.Cast<DeckBuilderCardArt>()))
             {
                 listbox_To.Items.Add(card);
                 listbox_From.Items.Remove(card);
 
-                labelTo.Text = Regex.Replace(labelTo.Text, "\\(([0-9]+)\\)$", string.Format("({0})", listbox_To.Items.Count));
-                labelFrom.Text = Regex.Replace(labelFrom.Text, "\\(([0-9]+)\\)$", string.Format("({0})", listbox_From.Items.Count));
+                labelTo.Text = Regex.Replace(labelTo.Text, "\\(([0-9]+)\\) [✔❌]$", string.Format("({0}) {1}", listbox_To.Items.Count, deckTo.ValidateDeck(listbox_To.Items.Cast<DeckBuilderCardArt>()).Length == 0 ? "✔" : "❌"));
+                labelFrom.Text = Regex.Replace(labelFrom.Text, "\\(([0-9]+)\\) [✔❌]$", string.Format("({0}) {1}", listbox_To.Items.Count, deckFrom.ValidateDeck(listbox_From.Items.Cast<DeckBuilderCardArt>()).Length == 0 ? "✔" : "❌"));
                 return true;
             }
             return false;
@@ -187,14 +187,20 @@ namespace Multi_TCG_Deckbuilder
         // Check Deck is Valid
         private bool CheckDecksValid()
         {
+            List<string> errorMessages = new List<string>();
             foreach (ListBox listbox_Deck in this.deckListBoxes.Values)
             {
                 IDeck? deckInstance = listbox_Deck.Tag as IDeck;
-                if (deckInstance == null || !deckInstance.ValidateDeck(listbox_Deck.Items.Cast<DeckBuilderCardArt>()))
+                if (deckInstance != null)
                 {
-                    //MessageBox.Show(deckInstance);
-                    return false;
+                    errorMessages.AddRange(deckInstance.ValidateDeck(listbox_Deck.Items.Cast<DeckBuilderCardArt>()));
                 }
+            }
+
+            if (errorMessages.Count > 0)
+            {
+                MessageBox.Show(string.Join("\n", errorMessages), "Invalid Deck!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
             }
 
             return true;
@@ -452,13 +458,19 @@ namespace Multi_TCG_Deckbuilder
         // Save File
         private void MenuItem_Save_Click(object sender, RoutedEventArgs e)
         {
+            if (CheckDecksValid())
+            {
 
+            }
         }
 
         // Save As
         private void MenuItem_SaveAs_Click(object sender, RoutedEventArgs e)
         {
+            if (CheckDecksValid())
+            {
 
+            }
         }
 
         // Open View Stats
@@ -470,7 +482,10 @@ namespace Multi_TCG_Deckbuilder
         // Check Deck is Valid
         private void MenuItem_CheckValid_Click(object sender, RoutedEventArgs e)
         {
-
+            if (CheckDecksValid())
+            {
+                MessageBox.Show(string.Format("This Deck is allowed for {0}!", this.format.LongName), "Pass!", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
     }
 }
