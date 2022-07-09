@@ -18,11 +18,11 @@
         /// <summary>
         /// A List of Formats the Game Plug-In Supports
         /// </summary>
-        public Format[] Formats { get; }
+        public IFormat[] Formats { get; }
         /// <summary>
         /// The Card List for the Plug-In, can be loaded from an external file or internally created by the plug-in.
         /// </summary>
-        Card[] CardList { get; }
+        ICard[] CardList { get; }
         /// <summary>
         /// Fields used by the Deck Builder to build the Advanced Search
         /// </summary>
@@ -32,7 +32,7 @@
         /// </summary>
         /// <param name="cards">The List of Cards to be Filtered.</param>
         /// <param name="searchFields">All the Search Fields and their Values.</param>
-        /// <returns>cards List but only with Cards matching searchFields.</returns>
+        /// <returns>List of Cards from cards that matching searchFields.</returns>
         public List<DeckBuilderCard> AdvancedFilterSearchList(IEnumerable<DeckBuilderCard> cards, SearchField[] searchFields);
     }
 }

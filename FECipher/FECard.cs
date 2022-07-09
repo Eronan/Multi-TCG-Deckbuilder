@@ -8,7 +8,7 @@ using IGamePlugInBase;
 
 namespace FECipher
 {
-    public class FECard : Card
+    public class FECard : ICard
     {
         [JsonPropertyName("CardID")]
         [JsonPropertyOrder(0)]

@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Multi_TCG_Deckbuilder"
         xmlns:localModels="clr-namespace:Multi_TCG_Deckbuilder.Models"
-        xmlns:plugin="clr-namespace:IGamePlugInBase;assembly=IGamePlugInBase"
         mc:Ignorable="d"
         Title="Deck Builder" Height="450" Width="800" MinHeight="450" MinWidth="800"
         AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver"
@@ -55,13 +54,13 @@
         <Menu Grid.ColumnSpan="3">
             <MenuItem Header="_File">
                 <MenuItem Header="_New" Click="MenuItem_New_Click"/>
-                <MenuItem Header="_Open"/>
-                <MenuItem Header="_Save"/>
-                <MenuItem Header="_SaveAs"/>
+                <MenuItem Header="_Open" Click="MenuItem_Open_Click"/>
+                <MenuItem Header="_Save" Click="MenuItem_Save_Click"/>
+                <MenuItem Header="_SaveAs" Click="MenuItem_SaveAs_Click"/>
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem Header="_View Stats"/>
-                <MenuItem Header="_Check Deck"/>
+                <MenuItem Header="_View Stats" Click="MenuItem_ViewStats_Click"/>
+                <MenuItem Header="_Check Deck" Click="MenuItem_CheckValid_Click"/>
                 <Separator/>
                 <MenuItem Header="_Preferences"/>
             </MenuItem>
@@ -73,7 +72,8 @@
         <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
         <Border Grid.Row="1" Grid.Column="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
         <Border Grid.Row="1" Grid.Column="2" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
-        <Grid x:Name="grid_ViewCard" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+        <Grid x:Name="grid_ViewCard" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+              DataContext="{Binding ElementName=listBox_CardResults, Path=SelectedItem}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="172*"/>
                 <RowDefinition Height="40"/>
@@ -95,7 +95,7 @@
             <ScrollViewer x:Name="scroll_Decks" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" Width="Auto" Margin="1,0,1,0">
                 <StackPanel x:Name="panel_Decks" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto" Height="auto" Margin="0,0,0,0" />
             </ScrollViewer>
-            <Button Grid.Row="1" Background="Transparent" BorderThickness="0" BorderBrush="Transparent">
+            <Button Grid.Row="1" Background="Transparent" BorderThickness="0" BorderBrush="Transparent" Click="MenuItem_ViewStats_Click">
                 <TextBlock x:Name="label_SummaryCounts" Text="Main Deck: 0   Side Deck: 0&#x0a;Fliers: 0             Archers: 0"/>
             </Button>
         </Grid>

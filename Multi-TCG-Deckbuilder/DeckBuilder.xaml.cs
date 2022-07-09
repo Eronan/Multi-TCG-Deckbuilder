@@ -18,14 +18,14 @@ namespace Multi_TCG_Deckbuilder
     public partial class DeckBuilder : Window
     {
         IGamePlugIn game;
-        Format format;
+        IFormat format;
         List<DeckBuilderCardArt> fullList;
         List<DeckBuilderCardArt> advancedSearchList;
         List<DeckBuilderCardArt> searchList;
         Dictionary<string, TextBlock> deckLabels;
         Dictionary<string, ListBox> deckListBoxes;
 
-        public DeckBuilder(IGamePlugIn gamePlugIn, Format format)
+        public DeckBuilder(IGamePlugIn gamePlugIn, IFormat format)
         {
             InitializeComponent();
             this.Title = gamePlugIn.LongName + " Deck Builder";
@@ -42,7 +42,7 @@ namespace Multi_TCG_Deckbuilder
         }
 
         // Creates all the Deck List Boxes from an Array of Decks
-        private void CreateDeckListBoxes(Deck[] decks)
+        private void CreateDeckListBoxes(IDeck[] decks)
         {
             if (decks.Length == 1)
             {
@@ -50,7 +50,7 @@ namespace Multi_TCG_Deckbuilder
             }
             else
             {
-                foreach (Deck deck in decks)
+                foreach (IDeck deck in decks)
                 {
                     this.CreateDeckListBox(deck, false);
                 }
@@ -58,7 +58,7 @@ namespace Multi_TCG_Deckbuilder
         }
         
         // Creates a List Box with all of its Children by using a Deck Class
-        private ListBox CreateDeckListBox(Deck deck, bool onlyDeck)
+        private ListBox CreateDeckListBox(IDeck deck, bool onlyDeck)
         {
             // Deck Label
             TextBlock textblock_Label = new TextBlock();
@@ -127,7 +127,7 @@ namespace Multi_TCG_Deckbuilder
         // Sub-Routine for Adding a Card to a ListBox Item Collection
         private bool AddCard(DeckBuilderCardArt card, ListBox listbox_Deck)
         {
-            Deck? deck = listbox_Deck.Tag as Deck;
+            IDeck? deck = listbox_Deck.Tag as IDeck;
             TextBlock? label = deckLabels.GetValueOrDefault(deck != null ? deck.Name : "");
             if (deck != null && label != null)
             {
@@ -152,7 +152,7 @@ namespace Multi_TCG_Deckbuilder
         // Sub-Routine for Removing a Card from a ListBox Item Collection
         private bool RemoveCard(DeckBuilderCardArt card, ListBox listbox_Deck)
         {
-            Deck? deck = listbox_Deck.Tag as Deck;
+            IDeck? deck = listbox_Deck.Tag as IDeck;
             TextBlock? label = deckLabels.GetValueOrDefault(deck != null ? deck.Name : "");
             if (label != null)
             {
@@ -166,9 +166,9 @@ namespace Multi_TCG_Deckbuilder
         // Sub-Routine for Moving a Card from a ListBox Item Collection to Another
         private bool MoveCard(DeckBuilderCardArt card, ListBox listbox_From, ListBox listbox_To)
         {
-            Deck? deckTo = listbox_To.Tag as Deck;
+            IDeck? deckTo = listbox_To.Tag as IDeck;
             TextBlock? labelTo = deckLabels.GetValueOrDefault(deckTo != null ? deckTo.Name : "");
-            Deck? deckFrom = listbox_From.Tag as Deck;
+            IDeck? deckFrom = listbox_From.Tag as IDeck;
             TextBlock? labelFrom = deckLabels.GetValueOrDefault(deckFrom != null ? deckFrom.Name : "");
 
             if (deckTo != null && labelFrom != null && labelTo != null
@@ -182,6 +182,22 @@ namespace Multi_TCG_Deckbuilder
                 return true;
             }
             return false;
+        }
+
+        // Check Deck is Valid
+        private bool CheckDecksValid()
+        {
+            foreach (ListBox listbox_Deck in this.deckListBoxes.Values)
+            {
+                IDeck? deckInstance = listbox_Deck.Tag as IDeck;
+                if (deckInstance == null || !deckInstance.ValidateDeck(listbox_Deck.Items.Cast<DeckBuilderCardArt>()))
+                {
+                    //MessageBox.Show(deckInstance);
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         // Remove Placeholder Text
@@ -256,7 +272,8 @@ namespace Multi_TCG_Deckbuilder
         {
             Image image = (Image) sender;
             DeckBuilderCardArt? card = image.DataContext as DeckBuilderCardArt;
-            ListBox? deck = card != null ? this.deckListBoxes.GetValueOrDefault(this.format.DefaultDeckName(card)) : null;
+            string defaultDeckName = this.format.DefaultDeckName(card);
+            ListBox? deck = card != null ? this.deckListBoxes.GetValueOrDefault(defaultDeckName) : null;
             if (card != null && deck != null)
             {
                 this.AddCard(card, deck);
@@ -279,7 +296,7 @@ namespace Multi_TCG_Deckbuilder
         private void ImageCardDeck_MouseRightDown(object sender, MouseButtonEventArgs e)
         {
             Image image = (Image)sender;
-            Deck deck = (Deck)image.Tag;
+            IDeck deck = (IDeck)image.Tag;
             ListBox? listbox_Deck = this.deckListBoxes.GetValueOrDefault(deck.Name);
             DeckBuilderCardArt? card = image.DataContext as DeckBuilderCardArt;
             if (card != null && listbox_Deck != null)
@@ -296,7 +313,7 @@ namespace Multi_TCG_Deckbuilder
                 Image imageControl = (Image)sender;
                 DataObject dragData = new DataObject();
                 dragData.SetData("myFormat", imageControl.DataContext);
-                dragData.SetData("listTag", (Deck) imageControl.Tag);
+                dragData.SetData("listTag", (IDeck) imageControl.Tag);
                 DragDrop.DoDragDrop(imageControl, dragData, DragDropEffects.Move | DragDropEffects.Copy);
             }
         }
@@ -324,9 +341,9 @@ namespace Multi_TCG_Deckbuilder
         // Determine Valid Drop for ListBox Deck
         private void ListBox_Deck_DragOver(object sender, DragEventArgs e)
         {
-            Deck? imageTag = e.Data.GetData("listTag") as Deck;
+            IDeck? imageTag = e.Data.GetData("listTag") as IDeck;
             if (!e.Data.GetDataPresent("myFormat") || sender == e.OriginalSource ||
-                (!e.KeyStates.HasFlag(DragDropKeyStates.ControlKey) && imageTag != null && imageTag.Name == ((Deck)((ListBox)sender).Tag).Name))
+                (!e.KeyStates.HasFlag(DragDropKeyStates.ControlKey) && imageTag != null && imageTag.Name == ((IDeck)((ListBox)sender).Tag).Name))
             {
                 e.Effects = DragDropEffects.None;
                 e.Handled = true;
@@ -349,7 +366,7 @@ namespace Multi_TCG_Deckbuilder
                     if (e.Effects.HasFlag(DragDropEffects.Move) && !e.KeyStates.HasFlag(DragDropKeyStates.ControlKey)
                         && e.Data.GetDataPresent("listTag"))
                     {
-                        Deck? originalDeck = e.Data.GetData("listTag") as Deck;
+                        IDeck? originalDeck = e.Data.GetData("listTag") as IDeck;
                         ListBox? originalList = this.deckListBoxes.GetValueOrDefault(originalDeck != null ? originalDeck.Name : "");
                         if (originalList != null)
                         {
@@ -392,7 +409,7 @@ namespace Multi_TCG_Deckbuilder
         {
             if (e.Data.GetDataPresent("listTag") && e.Data.GetDataPresent("myFormat"))
             {
-                Deck? deck = e.Data.GetData("listTag") as Deck;
+                IDeck? deck = e.Data.GetData("listTag") as IDeck;
                 ListBox? originalList = deck != null ? this.deckListBoxes.GetValueOrDefault(deck.Name) : null;
                 DeckBuilderCardArt? card = e.Data.GetData("myFormat") as DeckBuilderCardArt;
                 if (originalList != null && card != null)
@@ -424,6 +441,36 @@ namespace Multi_TCG_Deckbuilder
             {
                 label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\)$", "(0)");
             }
+        }
+
+        // Open Deck File
+        private void MenuItem_Open_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        // Save File
+        private void MenuItem_Save_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        // Save As
+        private void MenuItem_SaveAs_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        // Open View Stats
+        private void MenuItem_ViewStats_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        // Check Deck is Valid
+        private void MenuItem_CheckValid_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

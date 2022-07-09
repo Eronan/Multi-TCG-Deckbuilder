@@ -21,7 +21,7 @@ namespace Multi_TCG_Deckbuilder.Models
             this.imageFile = new BitmapImage(new Uri(this.fileLocation));
         }
 
-        public DeckBuilderCardArt(Card card, string altArtID, string applicationPath) : base(card.ID, altArtID)
+        public DeckBuilderCardArt(ICard card, string altArtID, string applicationPath) : base(card.ID, altArtID)
         {
             this.name = card.Name;
             this.viewDetails = card.ViewDetails;
@@ -37,13 +37,13 @@ namespace Multi_TCG_Deckbuilder.Models
             }
         }
 
-        public DeckBuilderCardArt(Card gameCard, DeckBuilderCard dbCard) : this(gameCard, dbCard.CardID, dbCard.ArtID) {}
+        public DeckBuilderCardArt(ICard gameCard, DeckBuilderCard dbCard) : this(gameCard, dbCard.CardID, dbCard.ArtID) {}
 
-        public static List<DeckBuilderCardArt> GetFromCards(IEnumerable<Card> cards, string applicationPath)
+        public static List<DeckBuilderCardArt> GetFromCards(IEnumerable<ICard> cards, string applicationPath)
         {
             List<DeckBuilderCardArt> allArts = new List<DeckBuilderCardArt>();
 
-            foreach (Card card in cards)
+            foreach (ICard card in cards)
             {
                 foreach (AlternateArt art in card.AltArts.Values)
                 {

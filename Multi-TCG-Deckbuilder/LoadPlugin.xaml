@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="_File">
-                <MenuItem Header="_New Deck"/>
+                <MenuItem Header="_New Deck" Click="button_Select_Click"/>
                 <MenuItem Header="_Open Deck"/>
             </MenuItem>
             <MenuItem Header="_Plug-Ins">

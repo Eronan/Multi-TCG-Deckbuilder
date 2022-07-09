@@ -3,7 +3,7 @@
     /// <summary>
     /// The Information of a Card that defines Information in the Deck Builder
     /// </summary>
-    public interface Card
+    public interface ICard
     {
         /// <summary>
         /// ID of the Card to be saved in the Deck File.

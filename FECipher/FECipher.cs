@@ -6,7 +6,7 @@ namespace FECipher
     public class FECipher : IGamePlugIn
     {
         //Variables
-        Format[] formatList;
+        IFormat[] formatList;
         Dictionary<string, FECard> cardList;
         SearchField[] searchFieldList;
 
@@ -83,14 +83,10 @@ namespace FECipher
             this.cardList = feCards;
 
             // Create Valid Formats
-            Deck mainDeck = new Deck("main", "Main Deck", 49, ValidateAdd, ValidateDeck);
-            Deck mainCharacter = new Deck("character", "Main Character", 1, ValidateMainCharacterAdd, ValidateMainCharacterDeck);
-            formatList = new Format[2]
+            formatList = new IFormat[2]
             {
-                 new Format("unlimited", "Unlimited", Properties.Resources.UnlimitedIcon, "All cards are allowed in this format from Series 1 to Series 22.",
-                    this.CardList, new Deck[2] { mainCharacter, mainDeck }, "main", ValidateMaximum),
-                 new Format("standard", "Standard", Properties.Resources.StandardIcon, "The last Official Format of Fire Emblem Cipher, cards from Series 1 to Series 4 are not allowed in this format.",
-                    this.cardList.Values.Where(item => item.seriesNo > 4).ToArray(), new Deck[2] { mainCharacter, mainDeck }, "main", ValidateMaximum)
+                new FEUnlimited(this.cardList.Values.ToArray()),
+                new FEStandard(this.cardList.Values.ToArray()),
             };
 
             // Create Search Fields
@@ -113,41 +109,6 @@ namespace FECipher
         }
 
         // Functions
-        private bool ValidateMainCharacterAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
-        {
-            if (deck.Count() > 0) { return false; }
-            FECard? feCard = this.cardList.GetValueOrDefault(card.CardID);
-            return deck.Count() == 0 && feCard != null && feCard.cost == "1";
-        }
-
-        private bool ValidateMainCharacterDeck(IEnumerable<DeckBuilderCard> deck)
-        {
-            if (deck.Count() != 1) { return false; }
-            FECard? feCard = this.cardList.GetValueOrDefault(deck.ElementAt(0).CardID);
-            return feCard != null && feCard.cost == "1";
-        }
-
-        private static bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
-        {
-            return true;
-        }
-
-        private static bool ValidateDeck(IEnumerable<DeckBuilderCard> deck)
-        {
-            return deck.Count() >= 49;
-        }
-
-        private bool ValidateMaximum(DeckBuilderCard card, Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks)
-        {
-            int count = 0;
-            foreach (KeyValuePair<string, IEnumerable<DeckBuilderCard>> decklist in allDecks)
-            {
-                count += decklist.Value.Count(predicate: item => item.CardID == card.CardID || this.cardList.GetValueOrDefault(item.CardID).Name == this.cardList.GetValueOrDefault(card.CardID).Name);
-                if (count >= 4) { return true; }
-            }
-            return false;
-        }
-
         private bool MatchFields(FECard card, SearchField[] searchFields)
         {
             foreach (SearchField field in searchFields)
@@ -179,16 +140,17 @@ namespace FECipher
                         if (!card.types.Any(item => item.Contains(field.Value))) return false;
                         break;
                     case "range":
-                        if (card.minRange < field.Value || card.maxRange > field.Value) return false;
+                        int fieldValue = int.Parse(field.Value);
+                        if (card.minRange < fieldValue || card.maxRange > fieldValue) return false;
                         break;
                     case "attack":
                         if (card.attack != field.Value) return false;
                         break;
                     case "support":
-                        if (card.attack != field.Value) return false;
+                        if (card.support != field.Value) return false;
                         break;
                     case "series":
-                        if (card.seriesNo != field.Value) return false;
+                        if (card.seriesNo != int.Parse(field.Value)) return false;
                         break;
                 }
             }
@@ -199,8 +161,8 @@ namespace FECipher
         public string Name { get => "FECipher"; }
         public string LongName { get => "Fire Emblem Cipher"; }
         public byte[] IconImage { get => Properties.Resources.Icon; }
-        public Format[] Formats { get => this.formatList; }
-        public Card[] CardList { get => this.cardList.Values.ToArray(); }
+        public IFormat[] Formats { get => this.formatList; }
+        public ICard[] CardList { get => this.cardList.Values.ToArray(); }
         public SearchField[] SearchFields { get => this.searchFieldList; }
 
         // Public Functions

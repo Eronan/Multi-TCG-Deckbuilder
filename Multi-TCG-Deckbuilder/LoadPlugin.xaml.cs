@@ -90,11 +90,15 @@ namespace Multi_TCG_Deckbuilder
         private void button_Select_Click(object sender, RoutedEventArgs e)
         {
             IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
-            Format? format = listBox_FormatList.SelectedItem as Format;
+            IFormat? format = listBox_FormatList.SelectedItem as IFormat;
             if (game != null && format != null)
             {
                 deckbuilderWindow = new DeckBuilder(game, format);
                 deckbuilderWindow.Show();
+            }
+            else
+            {
+                MessageBox.Show("Please select a Game and a Format!", "Please Select!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
