@@ -41,6 +41,20 @@
             </DrawingImage.Drawing>
         </DrawingImage>
     </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="CommandBinding_New_Executed"/>
+        <CommandBinding Command="Open" Executed="CommandBinding_Open_Executed"/>
+        <CommandBinding Command="Save" Executed="CommandBinding_Save_Executed" CanExecute="CommandBinding_Save_CanExecute"/>
+        <CommandBinding Command="SaveAs" Executed="CommandBinding_SaveAs_Executed" CanExecute="CommandBinding_Save_CanExecute"/>
+        <CommandBinding Command="Properties" Executed="CommandBinding_Preferenes_Executed"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Ctrl" Command="New"/>
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="Open"/>
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="Save"/>
+        <KeyBinding Key="S" Modifiers="Ctrl+Shift" Command="SaveAs"/>
+        <KeyBinding Key="P" Modifiers="Ctrl" Command="Properties"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
@@ -53,16 +67,20 @@
         </Grid.ColumnDefinitions>
         <Menu Grid.ColumnSpan="3">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" Click="MenuItem_New_Click"/>
-                <MenuItem Header="_Open" Click="MenuItem_Open_Click"/>
-                <MenuItem Header="_Save" Click="MenuItem_Save_Click"/>
-                <MenuItem Header="_SaveAs" Click="MenuItem_SaveAs_Click"/>
+                <MenuItem Header="_New" InputGestureText="Ctrl+N" Command="New"/>
+                <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="Open"/>
+                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="Save"/>
+                <MenuItem Header="_Save As" InputGestureText="Ctrl+Shift+S" Command="SaveAs"/>
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem Header="_View Stats" Click="MenuItem_ViewStats_Click"/>
                 <MenuItem Header="_Check Deck" Click="MenuItem_CheckValid_Click"/>
+                <MenuItem Header="_Sort Deck" Click="MenuItem_Sort_Click"/>
+                <MenuItem Header="_View Stats" Click="MenuItem_ViewStats_Click"/>
+                <MenuItem x:Name="MenuItem_Export" Header="_Export">
+                    <MenuItem Header="_Export Image" Click="MenuItem_ExportImage_Click"/>
+                </MenuItem>
                 <Separator/>
-                <MenuItem Header="_Preferences"/>
+                <MenuItem Header="_Preferences" InputGestureText="Ctrl+P" Command="Properties"/>
             </MenuItem>
             <MenuItem Header="_About">
                 <MenuItem Header="_Plug In About"/>
@@ -95,9 +113,7 @@
             <ScrollViewer x:Name="scroll_Decks" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" Width="Auto" Margin="1,0,1,0">
                 <StackPanel x:Name="panel_Decks" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto" Height="auto" Margin="0,0,0,0" />
             </ScrollViewer>
-            <Button Grid.Row="1" Background="Transparent" BorderThickness="0" BorderBrush="Transparent" Click="MenuItem_ViewStats_Click">
-                <TextBlock x:Name="label_SummaryCounts" Text="Main Deck: 0   Side Deck: 0&#x0a;Fliers: 0             Archers: 0"/>
-            </Button>
+            <Button x:Name="button_ViewStats" Grid.Row="1" Background="Transparent" BorderThickness="0" BorderBrush="Transparent" Click="MenuItem_ViewStats_Click" />
         </Grid>
         <Grid Grid.Column="2" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" >
             <Grid.RowDefinitions>

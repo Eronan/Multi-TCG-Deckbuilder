@@ -52,5 +52,19 @@
         /// <param name="decks">All Cards in each Deck.</param>
         /// <returns></returns>
         public bool ValidateMaximum(DeckBuilderCard card, Dictionary<string, IEnumerable<DeckBuilderCard>> decks);
+
+        /// <summary>
+        /// Returns Text detailing the types of cards in the Decks.
+        /// </summary>
+        /// <param name="decks">All the Cards in the Deck List separated by which Deck they are in.</param>
+        /// <returns>The Text that is displayed with Labels and Counts. It should be smaller, and fit on the Deck Builder Window's Button.</returns>
+        public string GetStats(Dictionary<string, IEnumerable<DeckBuilderCard>> decks);
+
+        /// <summary>
+        /// Returns Text detailing the types of cards in the Decks.
+        /// </summary>
+        /// <param name="decks">All the Cards in the Deck List separated by which Deck they are in.</param>
+        /// <returns>The Text that is displayed with Labels and Counts. The text will show on a separate Window.</returns>
+        public string GetDetailedStats(Dictionary<string, IEnumerable<DeckBuilderCard>> decks);
     }
 }

@@ -34,5 +34,12 @@
         /// <param name="searchFields">All the Search Fields and their Values.</param>
         /// <returns>List of Cards from cards that matching searchFields.</returns>
         public List<DeckBuilderCard> AdvancedFilterSearchList(IEnumerable<DeckBuilderCard> cards, SearchField[] searchFields);
+        /// <summary>
+        /// Used to Sort Card Lists
+        /// </summary>
+        /// <param name="x">First Card</param>
+        /// <param name="y">Second Card</param>
+        /// <returns>If x precedes y, it returns a number less than 0, if x and y are the same it returns 0, and if y precedes x it returns a number greater than 0.</returns>
+        public int CompareCards(DeckBuilderCard x, DeckBuilderCard y);
     }
 }

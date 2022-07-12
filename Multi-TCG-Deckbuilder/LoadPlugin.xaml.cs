@@ -15,8 +15,6 @@ namespace Multi_TCG_Deckbuilder
     /// </summary>
     public partial class LoadPlugin : Window
     {
-        private DeckBuilder? deckbuilderWindow;
-
         public LoadPlugin()
         {
             InitializeComponent();
@@ -93,7 +91,7 @@ namespace Multi_TCG_Deckbuilder
             IFormat? format = listBox_FormatList.SelectedItem as IFormat;
             if (game != null && format != null)
             {
-                deckbuilderWindow = new DeckBuilder(game, format);
+                DeckBuilder deckbuilderWindow = new DeckBuilder(game, format);
                 deckbuilderWindow.Show();
             }
             else
@@ -104,14 +102,7 @@ namespace Multi_TCG_Deckbuilder
 
         private void button_Cancel_Click(object sender, RoutedEventArgs e)
         {
-            if (deckbuilderWindow != null)
-            {
-                deckbuilderWindow.Show();
-            }
-            else
-            {
-                Environment.Exit(0);
-            }
+            Environment.Exit(0);
         }
     }
 }

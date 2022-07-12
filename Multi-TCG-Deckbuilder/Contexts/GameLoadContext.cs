@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Multi_TCG_Deckbuilder.Contexts
 {
-    class GameLoadContext : AssemblyLoadContext
+    internal class GameLoadContext : AssemblyLoadContext
     {
         private AssemblyDependencyResolver _resolver;
 

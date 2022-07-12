@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Multi_TCG_Deckbuilder"
         xmlns:plugin="clr-namespace:IGamePlugInBase;assembly=IGamePlugInBase"
         mc:Ignorable="d" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-        Title="Advanced Search" Height="auto" Width="250" MinWidth="250" MaxWidth="250"
+        Title="Advanced Search" Height="auto" Width="300" MinWidth="300" MaxWidth="300"
         DataContext="{Binding RelativeSource={RelativeSource Self}}" WindowStyle="ToolWindow"
         Loaded="Window_Loaded">
     <StackPanel x:Name="stack_Search" Width="auto" Height="auto" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="5,0,5,0">

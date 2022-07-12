@@ -85,8 +85,10 @@ namespace FECipher
             // Create Valid Formats
             formatList = new IFormat[2]
             {
-                new FEUnlimited(this.cardList.Values.ToArray()),
-                new FEStandard(this.cardList.Values.ToArray()),
+                new FEFormats("unlimited", "Unlimited", Properties.Resources.UnlimitedIcon, "All cards are allowed in this format from Series 1 to Series 22.", this.cardList.Values.ToArray()),
+                new FEFormats("standard", "Standard", Properties.Resources.StandardIcon,
+                "The last Official Format of Fire Emblem Cipher, cards from Series 1 to Series 4 are not allowed in this format.",
+                this.cardList.Values.ToArray().Where(item => item.seriesNo > 4).ToArray()),
             };
 
             // Create Search Fields
@@ -118,39 +120,54 @@ namespace FECipher
                 switch (field.Id)
                 {
                     case "character":
-                        if (!card.characterName.Contains(field.Value)) return false;
+                        // Comparison is Equals or Name Contains Value
+                        if (field.Comparison == SearchFieldComparison.Equals ^ card.characterName.Contains(field.Value)) { return false; }
                         break;
                     case "title":
-                        if (!card.characterTitle.Contains(field.Value)) return false;
+                        if (field.Comparison == SearchFieldComparison.Equals ^ card.characterTitle.Contains(field.Value)) return false;
                         break;
                     case "color1":
                     case "color2":
-                        if (Array.IndexOf(card.colors, field.Value) == -1) return false;
+                        if (field.Comparison == SearchFieldComparison.Equals ^ Array.IndexOf(card.colors, field.Value) != -1) return false;
                         break;
                     case "cost":
-                        if (card.cost != field.Value) return false;
+                        if (field.Comparison == SearchFieldComparison.Equals ^ card.cost == field.Value) return false;
                         break;
                     case "cccost":
-                        if (card.classChangeCost != field.Value) return false;
+                        if (field.Comparison == SearchFieldComparison.Equals ^ card.classChangeCost == field.Value) return false;
                         break;
                     case "class":
-                        if (!card.cardClass.Contains(field.Value)) return false;
+                        if (field.Comparison == SearchFieldComparison.Equals ^ card.cardClass.Contains(field.Value)) return false;
                         break;
                     case "type":
-                        if (!card.types.Any(item => item.Contains(field.Value))) return false;
+                        if (field.Comparison == SearchFieldComparison.Equals ^ card.types.Any(item => item.Contains(field.Value))) return false;
                         break;
                     case "range":
                         int fieldValue = int.Parse(field.Value);
-                        if (card.minRange < fieldValue || card.maxRange > fieldValue) return false;
+                        switch (field.Comparison)
+                        {
+                            case SearchFieldComparison.Equals:
+                                if (card.minRange < fieldValue || card.maxRange > fieldValue) return false;
+                                break;
+                            case SearchFieldComparison.NotEquals:
+                                if (card.minRange > fieldValue || card.maxRange < fieldValue) return false;
+                                break;
+                            case SearchFieldComparison.LessThan:
+                                if (card.minRange > fieldValue) return false;
+                                break;
+                            case SearchFieldComparison.GreaterThan:
+                                if (card.maxRange < fieldValue) return false;
+                                break;
+                        }
                         break;
                     case "attack":
-                        if (card.attack != field.Value) return false;
+                        if (field.Comparison == SearchFieldComparison.Equals ^ card.attack == field.Value) return false;
                         break;
                     case "support":
-                        if (card.support != field.Value) return false;
+                        if (field.Comparison == SearchFieldComparison.Equals ^ card.support == field.Value) return false;
                         break;
                     case "series":
-                        if (card.seriesNo != int.Parse(field.Value)) return false;
+                        if (field.Comparison == SearchFieldComparison.Equals ^ card.seriesNo == int.Parse(field.Value)) return false;
                         break;
                 }
             }
@@ -178,6 +195,62 @@ namespace FECipher
                 }
             }
             return returnList;
+        }
+
+        public int CompareCards(DeckBuilderCard x, DeckBuilderCard y)
+        {
+            if (x.CardID == y.CardID)
+            {
+                return string.Compare(x.ArtID, y.ArtID);
+            }
+
+            // Get FECards
+            FECard? feCardX = this.cardList.GetValueOrDefault(x.CardID);
+            FECard? feCardY = this.cardList.GetValueOrDefault(y.CardID);
+
+            if (feCardX == null || feCardY == null)
+            {
+                return 0;
+            }
+
+            if (feCardX.characterName != feCardY.characterName)
+            {
+                // First Comparison: Character Name
+                return string.Compare(feCardX.characterName, feCardY.characterName);
+            }
+            else if (feCardX.cost != feCardY.cost)
+            {
+                // Third Comparison: Deployment Cost
+                if (feCardX.cost == "X") { return 1; }
+                if (feCardY.cost == "X") { return -1; }
+
+                return string.Compare(feCardX.cost, feCardY.cost);
+            }
+            else if (feCardX.classChangeCost != feCardY.classChangeCost)
+            {
+                // Third Comparison: Class Change Cost
+                return string.Compare(feCardX.classChangeCost, feCardY.classChangeCost);
+            }
+            else if (feCardX.attack != feCardY.attack)
+            {
+                // Fourth Comparison: Attack
+                return string.Compare(feCardX.attack, feCardY.attack);
+            }
+            else if (feCardX.support != feCardY.support)
+            {
+                // Fourth Comparison: Attack
+                return string.Compare(feCardX.support, feCardY.support);
+            }
+            else if (feCardX.characterTitle != feCardY.characterTitle)
+            {
+                // Fifth Comparison: Character Title
+                return string.Compare(feCardX.characterTitle, feCardY.characterTitle);
+            }
+            else
+            {
+                // Sixth Comparison: Card ID
+                return string.Compare(feCardX.ID, feCardY.ID);
+            }
         }
     }
 }

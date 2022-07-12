@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 
 namespace IGamePlugInBase
 {
+    public enum SearchFieldComparison
+    { 
+        Equals = '=',
+        NotEquals = '≠',
+        LessThan = '≤',
+        GreaterThan = '≥',
+    }
+
     public enum SearchFieldType
     { 
         Text = 0,
@@ -20,11 +28,13 @@ namespace IGamePlugInBase
     {
         string id;
         string label;
+        SearchFieldComparison comparison;
         SearchFieldType fieldType;
         int? min;
         int? max;
         string[]? options;
         dynamic? value;
+        dynamic? defaultValue;
 
         /// <summary>
         /// Constructor that creates a Text Field
@@ -37,7 +47,7 @@ namespace IGamePlugInBase
             this.id = id;
             this.label = label;
             this.fieldType = SearchFieldType.Text;
-
+            this.comparison = SearchFieldComparison.Equals;
 
             this.max = max != null ? max : 255;
         }
@@ -54,8 +64,10 @@ namespace IGamePlugInBase
             this.id = id;
             this.label = label;
             this.fieldType = SearchFieldType.Selection;
+            this.comparison = SearchFieldComparison.Equals;
             this.options = options;
             this.value = defaultValue;
+            this.defaultValue = defaultValue;
         }
 
         /// <summary>
@@ -70,6 +82,7 @@ namespace IGamePlugInBase
             this.id = id;
             this.label = label;
             this.fieldType = SearchFieldType.Number;
+            this.comparison = SearchFieldComparison.Equals;
             this.min = min;
             this.max = max;
 
@@ -89,6 +102,15 @@ namespace IGamePlugInBase
         public string Label
         {
             get { return this.label; }
+        }
+
+        /// <summary>
+        /// The Comparison to be selected by the User in the Deck Builder Window
+        /// </summary>
+        public SearchFieldComparison Comparison
+        {
+            get { return this.comparison; }
+            set { this.comparison = value; }
         }
 
         /// <summary>
@@ -130,6 +152,14 @@ namespace IGamePlugInBase
         {
             get { return this.value; }
             set { this.value = value; }
+        }
+
+        /// <summary>
+        /// The Original Value retrieved from the Advanced Search used for Clearing Option Fields
+        /// </summary>
+        public dynamic? DefaultValue
+        {
+            get { return this.defaultValue; }
         }
     }
 }

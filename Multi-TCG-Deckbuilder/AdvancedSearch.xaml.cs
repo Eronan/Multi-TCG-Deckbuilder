@@ -22,12 +22,14 @@ namespace Multi_TCG_Deckbuilder
     public partial class AdvancedSearch : Window
     {
         private SearchField[] searchFields;
+        private ComboBox[] searchComparisons;
         private dynamic[] inputBoxes;
         public AdvancedSearch(SearchField[] fields)
         {
             InitializeComponent();
 
             this.searchFields = fields;
+            this.searchComparisons = new ComboBox[searchFields.Length];
             this.inputBoxes = new dynamic[searchFields.Length];
             this.CreateFields();
         }
@@ -52,12 +54,17 @@ namespace Multi_TCG_Deckbuilder
 
             // Grid Column 2
             ColumnDefinition secondColumn = new ColumnDefinition();
-            secondColumn.Width = new GridLength(75, GridUnitType.Star);
+            secondColumn.Width = new GridLength(27, GridUnitType.Star);
+
+            // Grid Column 3
+            ColumnDefinition thirdColumn = new ColumnDefinition();
+            thirdColumn.Width = new GridLength(75, GridUnitType.Star);
 
             // Grid
             Grid grid = new Grid();
             grid.ColumnDefinitions.Add(firstColumn);
             grid.ColumnDefinitions.Add(secondColumn);
+            grid.ColumnDefinitions.Add(thirdColumn);
             grid.VerticalAlignment = VerticalAlignment.Top;
             grid.HorizontalAlignment = HorizontalAlignment.Stretch;
             grid.Height = double.NaN;
@@ -75,6 +82,24 @@ namespace Multi_TCG_Deckbuilder
             label.Height = double.NaN;
             grid.Children.Add(label);
 
+            // Comparison
+            ComboBox comparison = new ComboBox();
+            comparison.HorizontalAlignment = HorizontalAlignment.Stretch;
+            comparison.VerticalAlignment = VerticalAlignment.Center;
+            comparison.Height = double.NaN;
+            comparison.Width = double.NaN;
+            comparison.Items.Add('=');
+            comparison.Items.Add('≠');
+            if (field.FieldType == SearchFieldType.Number)
+            {
+                comparison.Items.Add('≤');
+                comparison.Items.Add('≥');
+            }
+            comparison.SetValue(Grid.ColumnProperty, 1);
+            comparison.SelectedValue = ((char)field.Comparison);
+            searchComparisons[index] = comparison;
+            grid.Children.Add(comparison);
+
             // Value Input
             if (field.FieldType == SearchFieldType.Text)
             {
@@ -84,8 +109,8 @@ namespace Multi_TCG_Deckbuilder
                 textBox.VerticalAlignment = VerticalAlignment.Center;
                 textBox.Height = double.NaN;
                 textBox.Width = double.NaN;
-                textBox.MaxLength = field.Maximum.HasValue ? field.Maximum.Value: 255;
-                textBox.SetValue(Grid.ColumnProperty, 1);
+                textBox.MaxLength = field.Maximum.HasValue ? field.Maximum.Value : 255;
+                textBox.SetValue(Grid.ColumnProperty, 2);
                 textBox.Text = field.Value;
                 textBox.DataContext = field;
                 this.inputBoxes[index] = textBox;
@@ -98,8 +123,8 @@ namespace Multi_TCG_Deckbuilder
                 textBox.VerticalAlignment = VerticalAlignment.Center;
                 textBox.Height = double.NaN;
                 textBox.Width = double.NaN;
-                textBox.MaxLength = field.Maximum.HasValue ? field.Maximum.Value % 10 : 255;
-                textBox.SetValue(Grid.ColumnProperty, 1);
+                textBox.MaxLength = field.Maximum.HasValue && field.Minimum.HasValue ? field.Maximum.Value / 10 + (field.Minimum.Value < 0 ? 2 : 1) : 255;
+                textBox.SetValue(Grid.ColumnProperty, 2);
                 textBox.PreviewTextInput += TextBox_PreviewTextInput;
                 textBox.Text = field.Value;
                 textBox.DataContext = field;
@@ -114,7 +139,7 @@ namespace Multi_TCG_Deckbuilder
                 comboBox.Height = double.NaN;
                 comboBox.Width = double.NaN;
                 comboBox.ItemsSource = field.Options;
-                comboBox.SetValue(Grid.ColumnProperty, 1);
+                comboBox.SetValue(Grid.ColumnProperty, 2);
                 comboBox.Margin = new Thickness(1);
                 comboBox.SelectedValue = field.Value;
                 comboBox.DataContext = field;
@@ -136,7 +161,19 @@ namespace Multi_TCG_Deckbuilder
             SearchField? field = numberbox != null ? numberbox.DataContext as SearchField : null;
             if (numberbox != null && field != null)
             {
-                e.Handled = int.Parse(numberbox.Text + e.Text) < field.Minimum || int.Parse(numberbox.Text + e.Text) > field.Maximum;
+                string text = "";
+                if (numberbox.SelectedText.Length > 0)
+                {
+                    text = numberbox.Text.Replace(numberbox.SelectedText, e.Text);
+                }
+                else
+                {
+                    text = numberbox.Text;
+                    text = text.Insert(numberbox.CaretIndex, e.Text);
+                }
+
+                int value;
+                e.Handled = !int.TryParse(text, out value) || value < field.Minimum || value > field.Maximum;
             }
         }
 
@@ -147,52 +184,68 @@ namespace Multi_TCG_Deckbuilder
             this.MaxHeight = stack_Search.ActualHeight + SystemParameters.WindowCaptionHeight * 2;
         }
 
-        // Stop Window from Closing, and Hide it instead
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private bool UpdateValues()
         {
-            //e.Cancel = true;
-            //this.Visibility = Visibility.Collapsed;
-        }
-
-        private void UpdateValues()
-        {
+            bool existsNonDefault = false;
             for (int i = 0; i < this.inputBoxes.Length; i++)
             {
                 SearchField searchField = this.searchFields[i];
-                dynamic control = this.inputBoxes[i];
-                
-                switch(searchField.FieldType)
+                string? comparisonValue = this.searchComparisons[i].SelectedValue.ToString();
+                searchField.Comparison = comparisonValue != null ? (SearchFieldComparison)comparisonValue[0] : SearchFieldComparison.Equals;
+                var control = this.inputBoxes[i];
+
+                switch (searchField.FieldType)
                 {
                     case SearchFieldType.Text:
+                        if (control.Text.Length > 0) { existsNonDefault = true; }
                         searchField.Value = control.Text;
                         break;
                     case SearchFieldType.Number:
+                        if (control.Text.Length > 0) { existsNonDefault = true; }
                         searchField.Value = control.Text;
                         break;
                     case SearchFieldType.Selection:
+                        if (control.SelectedValue != searchField.DefaultValue) { existsNonDefault = true; }
                         searchField.Value = control.SelectedValue;
                         break;
                 }
             }
+
+            return existsNonDefault;
         }
 
         private void button_Search_Click(object sender, RoutedEventArgs e)
         {
-            this.UpdateValues();
-            //this.Visibility = Visibility.Collapsed;
-            this.DialogResult = true;
+            this.DialogResult = this.UpdateValues();
             this.Close();
         }
 
         private void button_Cancel_Click(object sender, RoutedEventArgs e)
         {
-            this.Visibility = Visibility.Collapsed;
             this.DialogResult = false;
+            this.Close();
         }
 
         private void button_Clear_Click(object sender, RoutedEventArgs e)
         {
+            for (int i = 0; i < this.inputBoxes.Length; i++)
+            {
+                SearchField searchField = this.searchFields[i];
+                this.searchComparisons[i].SelectedValue = '=';
 
+                switch (searchField.FieldType)
+                {
+                    case SearchFieldType.Text:
+                        this.inputBoxes[i].Text = "";
+                        break;
+                    case SearchFieldType.Number:
+                        this.inputBoxes[i].Text = "";
+                        break;
+                    case SearchFieldType.Selection:
+                        this.inputBoxes[i].SelectedValue = searchField.DefaultValue;
+                        break;
+                }
+            }
         }
     }
 }
