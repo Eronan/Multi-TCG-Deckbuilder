@@ -46,7 +46,7 @@
         <CommandBinding Command="Open" Executed="CommandBinding_Open_Executed"/>
         <CommandBinding Command="Save" Executed="CommandBinding_Save_Executed" CanExecute="CommandBinding_Save_CanExecute"/>
         <CommandBinding Command="SaveAs" Executed="CommandBinding_SaveAs_Executed" CanExecute="CommandBinding_Save_CanExecute"/>
-        <CommandBinding Command="Properties" Executed="CommandBinding_Preferenes_Executed"/>
+        <CommandBinding Command="Properties" Executed="CommandBinding_Preferences_Executed"/>
     </Window.CommandBindings>
     <Window.InputBindings>
         <KeyBinding Key="N" Modifiers="Ctrl" Command="New"/>
@@ -71,20 +71,22 @@
                 <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="Open"/>
                 <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="Save"/>
                 <MenuItem Header="_Save As" InputGestureText="Ctrl+Shift+S" Command="SaveAs"/>
+                <MenuItem x:Name="MenuItem_Import" Header="_Import"/>
+                <MenuItem x:Name="MenuItem_Export" Header="_Export">
+                    <MenuItem Header="_Image" Click="MenuItem_ExportImage_Click"/>
+                    <MenuItem Header="_TableTop Simulator" Click="MenuItem_TableTop_Click"/>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="_Edit">
                 <MenuItem Header="_Check Deck" Click="MenuItem_CheckValid_Click"/>
                 <MenuItem Header="_Sort Deck" Click="MenuItem_Sort_Click"/>
                 <MenuItem Header="_View Stats" Click="MenuItem_ViewStats_Click"/>
-                <MenuItem x:Name="MenuItem_Export" Header="_Export">
-                    <MenuItem Header="_Export Image" Click="MenuItem_ExportImage_Click"/>
-                </MenuItem>
                 <Separator/>
                 <MenuItem Header="_Preferences" InputGestureText="Ctrl+P" Command="Properties"/>
             </MenuItem>
             <MenuItem Header="_About">
-                <MenuItem Header="_Plug In About"/>
-                <MenuItem Header="_Program About"/>
+                <MenuItem Header="_Plug In About" Click="MenuItem_PlugInAbout_Click"/>
+                <MenuItem Header="_Program About" Click="MenuItem_ProgramAbout_Click"/>
             </MenuItem>
         </Menu>
         <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>

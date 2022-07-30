@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using Multi_TCG_Deckbuilder.Dialogs;
 
 namespace Multi_TCG_Deckbuilder
 {
@@ -25,25 +26,52 @@ namespace Multi_TCG_Deckbuilder
         Dictionary<string, Tuple<TextBlock, ListBox, IDeck>> deckControls;
         string openedFile;
 
-        public DeckBuilder(IGamePlugIn gamePlugIn, IFormat format, string openFilePath = "")
+        public DeckBuilder(IGamePlugIn gamePlugIn, IFormat format, DeckBuilderDeckFile? deckFile = null, string openFile = "")
         {
             InitializeComponent();
 
             // Set Up Variables
             this.game = gamePlugIn;
             this.format = format;
-            this.openedFile = openFilePath;
 
             // Create Necessary Lists
             this.fullList = new List<DeckBuilderCardArt>();
             this.searchList = new List<DeckBuilderCardArt>();
             this.deckControls = new Dictionary<string, Tuple<TextBlock, ListBox, IDeck>>();
-            //this.deckLabels = new Dictionary<string, TextBlock>();
-            //this.deckListBoxes = new Dictionary<string, ListBox>();
             this.advancedSearchList = new List<DeckBuilderCardArt>();
 
-            // Set Up Format Decks and Card Lists
-            ChangeFormat(format);
+            // Create Import Menu Items
+            if (this.game.ImportFunctions.Length == 0)
+            {
+                MenuItem_Import.IsEnabled = false;
+            }
+            else
+            {
+                foreach (ImportMenuItem importMenu in this.game.ImportFunctions)
+                {
+                    AddImportMenuItem(importMenu);
+                }
+            }
+
+            // Create Export Menu Items
+            foreach (ExportMenuItem exportMenu in this.game.ExportFunctions)
+            {
+                AddExportMenuItem(exportMenu);
+            }
+
+            if (deckFile != null)
+            {
+                // Automatically Open Deck From File
+                ChangeFormat(format);
+                LoadFromDeckFile(deckFile);
+                this.openedFile = openFile;
+            }
+            else
+            {
+                // Set Up Format Decks and Card Lists
+                this.openedFile = "";
+                ChangeFormat(format);
+            }
         }
 
         // Change Format
@@ -115,6 +143,8 @@ namespace Multi_TCG_Deckbuilder
                     }
                 }
             }
+
+            button_ViewStats.Content = this.format.GetStats(this.GetAllDecks());
         }
 
         // Creates all the Deck List Boxes from an Array of Decks
@@ -304,8 +334,8 @@ namespace Multi_TCG_Deckbuilder
             return true;
         }
 
-        // Sort 
-        public ItemCollection SortListBoxDeck(ItemCollection array, int leftIndex, int rightIndex)
+        // Sort ListBox Items based on DeckBuilderCard
+        private ItemCollection SortListBoxDeck(ItemCollection array, int leftIndex, int rightIndex)
         {
             var i = leftIndex;
             var j = rightIndex;
@@ -341,6 +371,68 @@ namespace Multi_TCG_Deckbuilder
 
             return array;
         }
+
+        // Add Import MenuItem
+        private void AddImportMenuItem(ImportMenuItem importMenu)
+        {
+            // Instantiate Function
+            void importMenuItem_Click(object sender, RoutedEventArgs e)
+            {
+                var openDialog = new Microsoft.Win32.OpenFileDialog();
+                openDialog.FileName = System.IO.Path.GetFileNameWithoutExtension(this.openedFile);
+                openDialog.InitialDirectory = System.IO.Path.GetDirectoryName(this.openedFile);
+                openDialog.DefaultExt = importMenu.DefaultExtension;
+                openDialog.Filter = importMenu.FileFilter;
+
+                if (openDialog.ShowDialog() == true)
+                {
+                    var deckFile = importMenu.Import(openDialog.FileName);
+
+                    if (deckFile.Game != this.game.Name)
+                    {
+                        MessageBox.Show("There was a problem loading this Deck File. Make sure the Game is correct.",
+                            "Problem Loading Deck File", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    LoadFromDeckFile(deckFile);
+                }
+            }
+
+            // Create Menu Item
+            MenuItem menuItem = new MenuItem();
+            menuItem.Header = importMenu.Header;
+            menuItem.Click += importMenuItem_Click;
+            MenuItem_Import.Items.Add(menuItem);
+        }
+
+        // Add Export MenuItem
+        private void AddExportMenuItem(ExportMenuItem exportMenu)
+        {
+            // Instantiate Function
+            void exportMenuItem_Click(object sender, RoutedEventArgs e)
+            {
+                if (!CheckDecksValid()) { return; }
+
+                var saveDialog = new Microsoft.Win32.SaveFileDialog();
+                saveDialog.FileName = System.IO.Path.GetFileNameWithoutExtension(this.openedFile);
+                saveDialog.InitialDirectory = System.IO.Path.GetDirectoryName(this.openedFile);
+                saveDialog.DefaultExt = exportMenu.DefaultExtension;
+                saveDialog.Filter = exportMenu.FileFilter;
+
+                if (saveDialog.ShowDialog() == true)
+                {
+                    exportMenu.Export(saveDialog.FileName, Contexts.FileLoadContext.CreateDeckFile(this.game.Name, this.format.Name, this.deckControls));
+                }
+            }
+
+            // Create Menu Item
+            MenuItem menuItem = new MenuItem();
+            menuItem.Header = exportMenu.Header;
+            menuItem.Click += exportMenuItem_Click;
+            MenuItem_Export.Items.Add(menuItem);
+        }
+
+        // Control Events
 
         // Remove Placeholder Text
         private void searchBox_GotFocus(object sender, RoutedEventArgs e)
@@ -574,7 +666,20 @@ namespace Multi_TCG_Deckbuilder
 
                 if (filePaths.Length == 1 && (file = filePaths[0]).EndsWith(".mtdk"))
                 {
-                    
+                    string? jsonText = Contexts.FileLoadContext.ReadFromFile(file);
+
+                    if (jsonText == null) { return; }
+
+                    DeckBuilderDeckFile? deckFile = Contexts.FileLoadContext.ConvertFromJson(jsonText);
+
+                    if (deckFile == null || deckFile.Game != this.game.Name)
+                    {
+                        MessageBox.Show("There was a problem loading this Deck File. Make sure the Game is correct.",
+                            "Problem Loading Deck File", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    LoadFromDeckFile(deckFile);
                 }
             }
         }
@@ -621,6 +726,7 @@ namespace Multi_TCG_Deckbuilder
             e.CanExecute = CheckDecksValid(false);
         }
         
+        // Save Deck
         private void CommandBinding_Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             if (!CheckDecksValid()) { return; }
@@ -631,6 +737,7 @@ namespace Multi_TCG_Deckbuilder
                 var saveDialog = new Microsoft.Win32.SaveFileDialog();
                 saveDialog.FileName = "New Deck";
                 saveDialog.DefaultExt = ".mtdk";
+                saveDialog.InitialDirectory = System.IO.Path.GetDirectoryName(this.openedFile);
                 saveDialog.Filter = "Multi-TCG Deck Builder File (.mtdk)|*.mtdk";
 
                 bool? result = saveDialog.ShowDialog();
@@ -695,18 +802,65 @@ namespace Multi_TCG_Deckbuilder
         // Open View Stats
         private void MenuItem_ViewStats_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(this.format.GetDetailedStats(this.GetAllDecks()));
+            MessageBox.Show(this.format.GetDetailedStats(this.GetAllDecks()), "Deck Statistics", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
+        }
+
+        // Export to Image
+        private void MenuItem_ExportImage_Click(object sender, RoutedEventArgs e)
+        {
+            var exportWindow = new ExportImage(
+                this.game.LongName,
+                this.format.LongName,
+                this.deckControls.Select(x => new KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>(x.Key, x.Value.Item2.Items.Cast<DeckBuilderCardArt>()))
+            );
+            exportWindow.Show();
         }
 
         // Export to Image in Tabletop Simulator Custom Deck Format
-        private void MenuItem_ExportImage_Click(object sender, RoutedEventArgs e)
+        private void MenuItem_TableTop_Click(object sender, RoutedEventArgs e)
         {
+            var saveDialog = new Microsoft.Win32.SaveFileDialog();
+            saveDialog.Filter = "Images|*.png;*.bmp;*.jpg";
+            saveDialog.FileName = System.IO.Path.GetFileNameWithoutExtension(this.openedFile);
+            saveDialog.InitialDirectory = System.IO.Path.GetDirectoryName(this.openedFile);
 
+            if (saveDialog.ShowDialog() == true)
+            {
+                
+            }
         }
 
-        private void CommandBinding_Preferenes_Executed(object sender, ExecutedRoutedEventArgs e)
+        // Set Preferences for the Application
+        private void CommandBinding_Preferences_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             
+        }
+
+        // Open About Window for Plug-In
+        private void MenuItem_PlugInAbout_Click(object sender, RoutedEventArgs e)
+        {
+            string programAbout = this.game.AboutInformation;
+            About aboutWindow = new About(programAbout);
+            aboutWindow.ShowDialog();
+        }
+
+        // Open About Window for Program
+        private void MenuItem_ProgramAbout_Click(object sender, RoutedEventArgs e)
+        {
+            Version? version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            string ProgramAbout = "Multi-TCG Deck Builder\n" + 
+                (version != null ? string.Format("Version {0}\n", version.ToString()) : "") +
+                "Developed by Eronan\n" +
+                "-\n" +
+                "The Program is free and released under the \"GNU General Public License v3.0\". Any iterations on the program must be open-sourced.\n" +
+                "https://github.com/Eronan/Multi-TCG-Deckbuilder/blob/master/LICENSE.md\n" +
+                "-\n" +
+                "Check for New Releases on GitHub:\n" +
+                "https://github.com/Eronan/Multi-TCG-Deckbuilder/releases\n"+
+                "-\n" + 
+                "To find Verified Plug-Ins that work with the latest versions of the Application, please visit: ";
+            About aboutWindow = new About(ProgramAbout);
+            aboutWindow.ShowDialog();
         }
     }
 }

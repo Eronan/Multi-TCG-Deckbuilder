@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Multi-TCG-Deckbuilder": {
+      "commandName": "Project"
+    },
+    "Multi-TCG-Deckbuilder Open File": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\Ernest's Folder\\GitUpdate Repos\\Multi-TCG-Deckbuilder\\Multi-TCG-Deckbuilder\\bin\\Debug\\net6.0-windows\\decks\\Fire Emblem Cipher\\Dimitri Deck Sorted.mtdk\""
+    }
+  }
+}

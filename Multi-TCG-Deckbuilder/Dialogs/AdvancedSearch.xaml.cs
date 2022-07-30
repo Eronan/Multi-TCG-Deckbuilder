@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using IGamePlugInBase;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using IGamePlugInBase;
 
-namespace Multi_TCG_Deckbuilder
+namespace Multi_TCG_Deckbuilder.Dialogs
 {
     /// <summary>
     /// Interaction logic for AdvancedSearch.xaml

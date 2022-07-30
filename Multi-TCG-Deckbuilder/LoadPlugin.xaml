@@ -7,6 +7,16 @@
         mc:Ignorable="d"
         Title="Load Plug-In" Height="450" Width="800"
         MinHeight="450" MinWidth="800">
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="CommandBinding_New_Executed" CanExecute="CommandBinding_New_CanExecute"/>
+        <CommandBinding Command="Open" Executed="CommandBinding_Open_Executed"/>
+        <CommandBinding Command="Properties" Executed="CommandBinding_Preferences_Executed"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Ctrl" Command="New"/>
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="Open"/>
+        <KeyBinding Key="P" Modifiers="Ctrl" Command="Properties"/>
+    </Window.InputBindings>
     <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>
@@ -16,8 +26,9 @@
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="_File">
-                <MenuItem Header="_New Deck" Click="button_Select_Click"/>
-                <MenuItem Header="_Open Deck"/>
+                <MenuItem Header="_New Deck" Command="New"/>
+                <MenuItem Header="_Open Deck" Command="Open"/>
+                <MenuItem Header="_Exit" Click="button_Cancel_Click"/>
             </MenuItem>
             <MenuItem Header="_Plug-Ins">
                 <MenuItem Header="_Install Plug-In"/>
@@ -71,7 +82,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button x:Name="button_Select" Content="OK" HorizontalAlignment="Right" Margin="0,7,55,0" Grid.Row="3" VerticalAlignment="Top" Height="20" Width="40" Click="button_Select_Click"/>
+        <Button x:Name="button_Select" Content="OK" HorizontalAlignment="Right" Margin="0,7,55,0" Grid.Row="3" VerticalAlignment="Top" Height="20" Width="40" Command="New"/>
         <Button x:Name="button_Cancel" Content="Cancel" HorizontalAlignment="Right" Margin="0,7,10,0" Grid.Row="3" VerticalAlignment="Top" Height="20" Width="40" Click="button_Cancel_Click"/>
     </Grid>
 </Window>

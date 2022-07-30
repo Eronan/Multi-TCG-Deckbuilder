@@ -24,6 +24,19 @@
         /// </summary>
         ICard[] CardList { get; }
         /// <summary>
+        /// A List of Menu Item Functions that the Plug-In can Import from.
+        /// </summary>
+        public ImportMenuItem[] ImportFunctions { get; }
+        /// <summary>
+        /// A List of Menu Item Functions that the Plug-In can Export to.
+        /// </summary>
+        public ExportMenuItem[] ExportFunctions{ get; }
+        /// <summary>
+        /// The Text that shows when the User presses on the "About Plug-In" Menu Item.
+        /// It is recommended to place links to important websites to update the Plug-In here.
+        /// </summary>
+        public string AboutInformation { get; }
+        /// <summary>
         /// Fields used by the Deck Builder to build the Advanced Search
         /// </summary>
         public SearchField[] SearchFields { get; }

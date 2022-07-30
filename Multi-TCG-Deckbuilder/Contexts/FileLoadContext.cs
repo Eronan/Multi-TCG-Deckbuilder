@@ -13,7 +13,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
     internal class FileLoadContext
     {
 
-        public static string ConvertToJSON(string gameName, string formatName,
+        public static DeckBuilderDeckFile CreateDeckFile(string gameName, string formatName,
             Dictionary<string, Tuple<System.Windows.Controls.TextBlock, System.Windows.Controls.ListBox, IDeck>> deckListBoxes)
         {
             List<DeckBuilderDeck> decks = new List<DeckBuilderDeck>();
@@ -23,6 +23,13 @@ namespace Multi_TCG_Deckbuilder.Contexts
             }
 
             DeckBuilderDeckFile deckFile = new DeckBuilderDeckFile(gameName, formatName, decks.ToArray());
+            return deckFile;
+        }
+
+        public static string ConvertToJSON(string gameName, string formatName,
+            Dictionary<string, Tuple<System.Windows.Controls.TextBlock, System.Windows.Controls.ListBox, IDeck>> deckListBoxes)
+        {
+            DeckBuilderDeckFile deckFile = CreateDeckFile(gameName, formatName, deckListBoxes);
             return JsonSerializer.Serialize<DeckBuilderDeckFile>(deckFile);
         }
 

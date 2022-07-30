@@ -20,6 +20,8 @@ namespace FECipher
         [JsonPropertyName("LackeyCCGName")]
         [JsonPropertyOrder(4)]
         public string LackeyCCGName { get; set; }
+        [JsonIgnore]
+        public CardArtOrientation ArtOrientation { get => CardArtOrientation.Portrait; }
 
         [JsonConstructor]
         public FEAlternateArts(string CardCode, string SetCode, string ImageFile, string LackeyCCGId, string LackeyCCGName)

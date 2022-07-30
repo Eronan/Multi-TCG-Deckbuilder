@@ -92,13 +92,13 @@ namespace FECipher
             };
 
             // Create Search Fields
-            string[] colours = new string[10] { "", "Red", "Blue", "Yellow", "Purple", "Green", "Black", "White", "Brown", "Colorless" };
+            string[] colours = new string[10] { "All", "Red", "Blue", "Yellow", "Purple", "Green", "Black", "White", "Brown", "Colorless" };
             this.searchFieldList = new SearchField[12]
             {
                 new SearchField("character", "Character"),
                 new SearchField("title", "Title"),
-                new SearchField("color1", "Color", colours, ""),
-                new SearchField("color2", "Color", colours, ""),
+                new SearchField("color1", "Color", colours, "All"),
+                new SearchField("color2", "Color", colours, "All"),
                 new SearchField("cost", "Cost", 1),
                 new SearchField("cccost", "Class Change Cost", 1),
                 new SearchField("class", "Class"),
@@ -108,6 +108,17 @@ namespace FECipher
                 new SearchField("support", "Support", 3),
                 new SearchField("series", "Series", 0, 12),
             };
+
+            // Create Menu Items
+            this.ImportFunctions = new ImportMenuItem[1]
+            {
+                new LackeyCCGImport()
+            };
+
+            this.ExportFunctions = new ExportMenuItem[1]
+            {
+                new LackeyCCGExport()
+            };
         }
 
         // Functions
@@ -115,7 +126,7 @@ namespace FECipher
         {
             foreach (SearchField field in searchFields)
             {
-                if (string.IsNullOrEmpty(field.Value)) continue;
+                if (string.IsNullOrEmpty(field.Value) || (field.Value == "All" && (field.Id == "color1" || field.Id == "color2"))) continue;
 
                 switch (field.Id)
                 {
@@ -181,6 +192,19 @@ namespace FECipher
         public IFormat[] Formats { get => this.formatList; }
         public ICard[] CardList { get => this.cardList.Values.ToArray(); }
         public SearchField[] SearchFields { get => this.searchFieldList; }
+
+        public ImportMenuItem[] ImportFunctions { get; }
+
+        public ExportMenuItem[] ExportFunctions { get; }
+
+        public string AboutInformation
+        {
+            get
+            {
+                Version? version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                return "";
+            }
+        }
 
         // Public Functions
         public List<DeckBuilderCard> AdvancedFilterSearchList(IEnumerable<DeckBuilderCard> cards, SearchField[] searchFields)

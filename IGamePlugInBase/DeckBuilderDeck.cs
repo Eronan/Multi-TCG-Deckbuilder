@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using IGamePlugInBase;
+﻿using System.Text.Json.Serialization;
 
-namespace Multi_TCG_Deckbuilder.Models
+namespace IGamePlugInBase
 {
-    internal class DeckBuilderDeck
+    public class DeckBuilderDeck
     {
         public string DeckName { get; set; }
         public DeckBuilderCard[] Cards { get; set; }

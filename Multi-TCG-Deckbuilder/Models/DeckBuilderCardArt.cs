@@ -11,15 +11,8 @@ namespace Multi_TCG_Deckbuilder.Models
         string name = "";
         string fileLocation = "";
         BitmapImage imageFile;
+        CardArtOrientation orientation;
         string viewDetails;
-
-        public DeckBuilderCardArt(string id, string name, string viewDetails, string artID, string fileLocation, string applicationPath) : base(id, artID)
-        {
-            this.name = name;
-            this.viewDetails = viewDetails;
-            this.fileLocation = applicationPath + fileLocation;
-            this.imageFile = new BitmapImage(new Uri(this.fileLocation));
-        }
 
         public DeckBuilderCardArt(ICard card, string altArtID, string applicationPath) : base(card.ID, altArtID)
         {
@@ -28,7 +21,8 @@ namespace Multi_TCG_Deckbuilder.Models
             AlternateArt? altArt;
             if ((altArt = card.AltArts.GetValueOrDefault(altArtID)) != null)
             {
-                this.fileLocation = Path.Combine(applicationPath, altArt.ImageLocation);
+                this.fileLocation = applicationPath + altArt.ImageLocation;
+                this.orientation = altArt.ArtOrientation;
                 this.imageFile = new BitmapImage(new Uri(this.fileLocation));
             }
             else
@@ -47,7 +41,7 @@ namespace Multi_TCG_Deckbuilder.Models
             {
                 foreach (AlternateArt art in card.AltArts.Values)
                 {
-                    allArts.Add(new DeckBuilderCardArt(card.ID, card.Name, card.ViewDetails, art.Id, art.ImageLocation, applicationPath));
+                    allArts.Add(new DeckBuilderCardArt(card, art.Id, applicationPath));
                 }
             }
 
@@ -67,6 +61,11 @@ namespace Multi_TCG_Deckbuilder.Models
         public BitmapImage ImageFile
         {
             get { return this.imageFile; }
+        }
+
+        public CardArtOrientation Orientation
+        {
+            get { return this.orientation; }
         }
 
         public string ViewDetails
