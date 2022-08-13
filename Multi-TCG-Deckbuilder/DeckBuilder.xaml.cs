@@ -811,7 +811,7 @@ namespace Multi_TCG_Deckbuilder
             var exportWindow = new ExportImage(
                 this.game.LongName,
                 this.format.LongName,
-                this.deckControls.Select(x => new KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>(x.Key, x.Value.Item2.Items.Cast<DeckBuilderCardArt>()))
+                this.deckControls.Select(x => new KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>(this.format.Decks.Where(deck => deck.Name == x.Key).First().Label, x.Value.Item2.Items.Cast<DeckBuilderCardArt>()))
             );
             exportWindow.Show();
         }
@@ -819,15 +819,7 @@ namespace Multi_TCG_Deckbuilder
         // Export to Image in Tabletop Simulator Custom Deck Format
         private void MenuItem_TableTop_Click(object sender, RoutedEventArgs e)
         {
-            var saveDialog = new Microsoft.Win32.SaveFileDialog();
-            saveDialog.Filter = "Images|*.png;*.bmp;*.jpg";
-            saveDialog.FileName = System.IO.Path.GetFileNameWithoutExtension(this.openedFile);
-            saveDialog.InitialDirectory = System.IO.Path.GetDirectoryName(this.openedFile);
-
-            if (saveDialog.ShowDialog() == true)
-            {
-                
-            }
+            //Contexts.FileLoadContext.ExportImageDialog(this.openedFile);
         }
 
         // Set Preferences for the Application

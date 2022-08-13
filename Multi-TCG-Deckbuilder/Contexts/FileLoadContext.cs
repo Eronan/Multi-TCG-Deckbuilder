@@ -7,6 +7,7 @@ using IGamePlugInBase;
 using Multi_TCG_Deckbuilder.Models;
 using System.Text.Json;
 using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace Multi_TCG_Deckbuilder.Contexts
 {
@@ -57,6 +58,47 @@ namespace Multi_TCG_Deckbuilder.Contexts
         public static DeckBuilderDeckFile? ConvertFromJson(string deckFile)
         {
             return JsonSerializer.Deserialize<DeckBuilderDeckFile>(deckFile);
+        }
+
+        public static bool ExportImageDialog(RenderTargetBitmap bitmap, string openedFile = "")
+        {
+            // Create Save Dialog
+            var saveDialog = new Microsoft.Win32.SaveFileDialog();
+            saveDialog.Filter = "PNG Image (.png)|*.png|JPEG Image (.jpg)|*.jpg|Bitmap Image (.bmp)|*.bmp";
+            saveDialog.FileName = Path.GetFileNameWithoutExtension(openedFile);
+            saveDialog.InitialDirectory = Path.GetDirectoryName(openedFile);
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                // Save to Image File
+                using (var fileStream = new FileStream(saveDialog.FileName, FileMode.CreateNew))
+                {
+                    switch (saveDialog.FilterIndex)
+                    {
+                        case 0:
+                            BitmapEncoder pngEncoder = new PngBitmapEncoder();
+                            pngEncoder.Frames.Add(BitmapFrame.Create(bitmap));
+                            pngEncoder.Save(fileStream);
+                            break;
+                        case 1:
+                            BitmapEncoder jpgEncoder = new JpegBitmapEncoder();
+                            jpgEncoder.Frames.Add(BitmapFrame.Create(bitmap));
+                            jpgEncoder.Save(fileStream);
+                            break;
+                        case 2:
+                            BitmapEncoder bmpEncoder = new BmpBitmapEncoder();
+                            bmpEncoder.Frames.Add(BitmapFrame.Create(bitmap));
+                            bmpEncoder.Save(fileStream);
+                            break;
+                    }
+
+                    fileStream.Close();
+                }
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

@@ -7,25 +7,23 @@
         xmlns:xctk="http://schemas/xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        Title="ExportImage" Height="510" Width="450">
+        Title="ExportImage" Height="510" Width="510" MinHeight="510" MinWidth="510">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Copy" Executed="CommandBinding_Copy_Executed"/>
+        <CommandBinding Command="Save" Executed="CommandBinding_Save_Executed" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="C" Modifiers="Ctrl" Command="ApplicationCommands.Copy"/>
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="Save"/>
+    </Window.InputBindings>
     <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="450*"/>
-            <RowDefinition Height="30*"/>
-            <RowDefinition Height="30*"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <Image x:Name="image_Deck" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Source="{Binding CreatedImage}"/>
-        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Stretch">
-            <Label x:Name="label_Theme" Content="Theme" Margin="0,0,0,0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-            <ComboBox x:Name="comboBox_Theme" Margin="0,0,0,0" Width="120" SelectedIndex="0" VerticalAlignment="Center">
-                <ComboBox.Items>
-                    <ComboBoxItem Content="White" />
-                    <ComboBoxItem Content="Black" />
-                </ComboBox.Items>
-            </ComboBox>
-        </StackPanel>
-        <Button x:Name="button_Copy" Content="Copy" HorizontalAlignment="Center" Margin="0,5,120,5" Grid.Row="2" Width="50" />
-        <Button x:Name="button_Save" Content="Save" HorizontalAlignment="Center" Margin="0,5,0,5" Grid.Row="2" Width="50" />
-        <Button x:Name="button_Cancel" Content="Cancel" HorizontalAlignment="Center" Margin="120,5,0,5" Grid.Row="2" Width="50" IsCancel="True"/>
+        <Image x:Name="image_Deck" Source="{Binding CreatedImage}" Grid.Row="0" Margin="10,10,10,10" />
+        <Button x:Name="button_Copy" Content="Copy" HorizontalAlignment="Center" Margin="0,0,120,0" VerticalAlignment="Center" Grid.Row="1" Width="50" Command="ApplicationCommands.Copy" />
+        <Button x:Name="button_Save" Content="Save" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" Grid.Row="1" Width="50" Command="Save"/>
+        <Button x:Name="button_Cancel" Content="Cancel" HorizontalAlignment="Center" Margin="120,0,0,0" VerticalAlignment="Center" Grid.Row="1" Width="50" IsCancel="True" />
     </Grid>
 </Window>

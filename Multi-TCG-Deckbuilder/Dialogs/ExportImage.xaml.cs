@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -22,69 +23,115 @@ namespace Multi_TCG_Deckbuilder.Dialogs
     /// </summary>
     public partial class ExportImage : Window
     {
-        public BitmapImage CreatedImage { get; }
+        const double cardWidth = 250;
+        const double textSize = 50;
+        public RenderTargetBitmap CreatedImage { get; }
 
         public ExportImage(string game, string format, IEnumerable<KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>> decks)
         {
             InitializeComponent();
 
+            // Store Created BitmapRender
             this.CreatedImage = CreateImage(game, format, decks);
         }
 
-        private BitmapImage CreateImage(string game, string format, IEnumerable<KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>> decks)
+        private RenderTargetBitmap CreateImage(string game, string format, IEnumerable<KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>> decks)
         {
-            var drawingVisual = new DrawingVisual();
+            DrawingVisual drawingVisual = new DrawingVisual();
             DrawingContext drawingContext = drawingVisual.RenderOpen();
 
-            int height = 0;
-            int y = 0;
-
+            double height = 0;
+            double y = 0;
             foreach (var deck in decks)
             {
-                drawingContext.DrawText(new FormattedText(deck.Key,
-                        System.Globalization.CultureInfo.GetCultureInfo("en-au"),
-                        FlowDirection.LeftToRight,
-                        new Typeface(""),
-                        20,
-                        Brushes.Black,
-                        1.0),
-                    new Point(0, y));
+                // Draw Deck Name Text
+                FormattedText deckName = new FormattedText(deck.Key,
+                    System.Globalization.CultureInfo.GetCultureInfo("en-au"),
+                    FlowDirection.LeftToRight,
+                    new Typeface(""),
+                    textSize,
+                    Brushes.White,
+                    1.0);
 
-                int x = 0;
-                y += 20;
+                var _textGeometry = deckName.BuildGeometry(new System.Windows.Point(0, y));
+                drawingContext.DrawGeometry(Brushes.Black, new System.Windows.Media.Pen(Brushes.White, 1.5), _textGeometry);
+
+                // Increment Y Point by Text Size
+                y += textSize;
+
+                double cardInRow = 0;
                 foreach (var card in deck.Value)
                 {
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {
-                        drawingContext.DrawImage(card.ImageFile, new Rect(x, y, 308, height));
-                        x += 308;
+                        // Initialize Height Variable
+                        if (height == 0)
+                        {
+                            height = card.ImageFile.Height * (cardWidth / card.ImageFile.Width);
+                        }
+
+                        // Draw Image
+                        drawingContext.DrawImage(card.ImageFile, new Rect(cardInRow * cardWidth, y, cardWidth, height));
+                        cardInRow++;
                     }
                     else
                     {
+                        // Initialize Height Variable
+                        if (height == 0)
+                        {
+                            height = card.ImageFile.Width * (cardWidth / card.ImageFile.Height);
+                        }
 
+                        // Rotate Bitmap Image
+                        RotateTransform transform = new RotateTransform(90);
+                        BitmapImage rotatedImage = card.ImageFile.Clone();
+                        rotatedImage.Rotation = Rotation.Rotate90;
+
+                        // Draw Image
+                        drawingContext.DrawImage(rotatedImage, new Rect(cardInRow * cardWidth, y, cardWidth, height));
+                        drawingContext.Pop();
+                        cardInRow++;
                     }
+
+                    // If 10 Cards have been drawn in the Row, go to the next Row.
+                    if (cardInRow > 10)
+                    {
+                        cardInRow = 0;
+                        y += height;
+                    }
+                }
+
+                // Increment Y Point, if Row was not filled
+                if (cardInRow != 0)
+                {
+                    y += height;
                 }
             }
 
-            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(3080, 0, 72, 72, PixelFormats.Default);
-            renderTargetBitmap.Render(drawingVisual);
+            // Close Drawing Context
+            drawingContext.Close();
 
-            var bitmapImage = new BitmapImage();
-            var bitmapEncoder = new PngBitmapEncoder();
-            bitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+            // Get Bitmap Width and Height
+            int bmpWidth = (int)(cardWidth * 10);
+            int bmpHeight = (int)y;
 
-            using (var stream = new MemoryStream())
-            {
-                bitmapEncoder.Save(stream);
-                stream.Seek(0, SeekOrigin.Begin);
+            // Create Bitmap Render and Set to Image
+            RenderTargetBitmap bmp = new RenderTargetBitmap(bmpWidth, bmpHeight, 96, 96, PixelFormats.Pbgra32);
+            bmp.Render(drawingVisual);
+            image_Deck.Source = bmp;
 
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = stream;
-                bitmapImage.EndInit();
-            }
+            return bmp;
+        }
 
-            return bitmapImage;
+        private void CommandBinding_Copy_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            Clipboard.SetImage(this.CreatedImage);
+            MessageBox.Show("Image has been copied to your Clipboard!", "Copied!", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void CommandBinding_Save_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            Contexts.FileLoadContext.ExportImageDialog(this.CreatedImage);
         }
     }
 }
