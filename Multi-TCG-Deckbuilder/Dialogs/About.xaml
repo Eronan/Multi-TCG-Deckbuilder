@@ -11,7 +11,7 @@
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="393*"/>
-            <RowDefinition Height="41*"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
 
         <ScrollViewer HorizontalScrollBarVisibility="Disabled" Margin="10,10,10,10" Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}">

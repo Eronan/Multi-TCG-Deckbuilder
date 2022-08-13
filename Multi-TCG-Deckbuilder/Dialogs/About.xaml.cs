@@ -19,10 +19,29 @@ namespace Multi_TCG_Deckbuilder.Dialogs
     /// </summary>
     public partial class About : Window
     {
-        public About(string text)
+
+        public About(string text = null)
         {
             InitializeComponent();
+
+            // Program About
+            if (text == null)
+            {
+                Version? version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+                text = "Multi-TCG Deck Builder\n" +
+                    (version != null ? string.Format("Version {0}\n", version.ToString()) : "") +
+                    "Developed by Eronan\n" +
+                    "-\n" +
+                    "The Program is free and released under the \"GNU General Public License v3.0\". Any iterations on the program must be open-sourced.\n" +
+                    "https://github.com/Eronan/Multi-TCG-Deckbuilder/blob/master/LICENSE.md\n" +
+                    "-\n" +
+                    "Check for New Releases on GitHub:\n" +
+                    "https://github.com/Eronan/Multi-TCG-Deckbuilder/releases\n" +
+                    "-\n" +
+                    "To find Verified Plug-Ins that work with the latest versions of the Application, please visit: ";
+            }
             
+            // Create About Text
             foreach(string line in text.Split('\n'))
             {
                 // If text is only lines, replace with a separator and go to next line

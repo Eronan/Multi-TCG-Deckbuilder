@@ -811,7 +811,10 @@ namespace Multi_TCG_Deckbuilder
             var exportWindow = new ExportImage(
                 this.game.LongName,
                 this.format.LongName,
-                this.deckControls.Select(x => new KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>(this.format.Decks.Where(deck => deck.Name == x.Key).First().Label, x.Value.Item2.Items.Cast<DeckBuilderCardArt>()))
+                this.deckControls.Select(x => new KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>(
+                    this.format.Decks.Where(deck => deck.Name == x.Key).First().Label, //Get Label instead of Key
+                    x.Value.Item2.Items.Cast<DeckBuilderCardArt>()) // Get Items
+                )
             );
             exportWindow.Show();
         }
@@ -839,20 +842,7 @@ namespace Multi_TCG_Deckbuilder
         // Open About Window for Program
         private void MenuItem_ProgramAbout_Click(object sender, RoutedEventArgs e)
         {
-            Version? version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            string ProgramAbout = "Multi-TCG Deck Builder\n" + 
-                (version != null ? string.Format("Version {0}\n", version.ToString()) : "") +
-                "Developed by Eronan\n" +
-                "-\n" +
-                "The Program is free and released under the \"GNU General Public License v3.0\". Any iterations on the program must be open-sourced.\n" +
-                "https://github.com/Eronan/Multi-TCG-Deckbuilder/blob/master/LICENSE.md\n" +
-                "-\n" +
-                "Check for New Releases on GitHub:\n" +
-                "https://github.com/Eronan/Multi-TCG-Deckbuilder/releases\n"+
-                "-\n" + 
-                "To find Verified Plug-Ins that work with the latest versions of the Application, please visit: ";
-            About aboutWindow = new About(ProgramAbout);
-            aboutWindow.ShowDialog();
+            new About().ShowDialog();
         }
     }
 }

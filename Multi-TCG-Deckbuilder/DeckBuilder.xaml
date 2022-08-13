@@ -85,8 +85,8 @@
                 <MenuItem Header="_Preferences" InputGestureText="Ctrl+P" Command="Properties"/>
             </MenuItem>
             <MenuItem Header="_About">
-                <MenuItem Header="_Plug In About" Click="MenuItem_PlugInAbout_Click"/>
-                <MenuItem Header="_Program About" Click="MenuItem_ProgramAbout_Click"/>
+                <MenuItem Header="_About Plug-In" Click="MenuItem_PlugInAbout_Click"/>
+                <MenuItem Header="_About Multi-TCG Deck Builder" Click="MenuItem_ProgramAbout_Click" />
             </MenuItem>
         </Menu>
         <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>

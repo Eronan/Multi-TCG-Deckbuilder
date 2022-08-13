@@ -159,6 +159,12 @@ namespace Multi_TCG_Deckbuilder
 
         }
 
+        // Open About Window for Program
+        private void MenuItem_ProgramAbout_Click(object sender, RoutedEventArgs e)
+        {
+            new Dialogs.About().ShowDialog();
+        }
+
         private void button_Cancel_Click(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);
