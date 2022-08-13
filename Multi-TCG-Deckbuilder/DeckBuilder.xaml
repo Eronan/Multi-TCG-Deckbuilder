@@ -69,13 +69,13 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_New" InputGestureText="Ctrl+N" Command="New"/>
                 <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="Open"/>
-                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="Save"/>
-                <MenuItem Header="_Save As" InputGestureText="Ctrl+Shift+S" Command="SaveAs"/>
                 <MenuItem x:Name="MenuItem_Import" Header="_Import"/>
                 <MenuItem x:Name="MenuItem_Export" Header="_Export">
                     <MenuItem Header="_Image" Click="MenuItem_ExportImage_Click"/>
                     <MenuItem Header="_TableTop Simulator" Click="MenuItem_TableTop_Click"/>
                 </MenuItem>
+                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="Save"/>
+                <MenuItem Header="_Save As" InputGestureText="Ctrl+Shift+S" Command="SaveAs"/>
             </MenuItem>
             <MenuItem Header="_Edit">
                 <MenuItem Header="_Check Deck" Click="MenuItem_CheckValid_Click"/>

@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Xml.Linq;
+using System.Xml;
 
 namespace Multi_TCG_Deckbuilder
 {
@@ -21,15 +21,22 @@ namespace Multi_TCG_Deckbuilder
             InitializeComponent();
 
             // Find Installed Plug-Ins
-            XDocument pluginPathDoc = XDocument.Load(@".\PlugInLocations.xml");
-            var root = pluginPathDoc.Root;
-            if (root == null) throw new NullReferenceException();
-            var descendants = root.Descendants("Plugin");
+            XmlDocument pluginPathDoc = new XmlDocument();
+            pluginPathDoc.Load(@".\PlugInLocations.xml");
+            if (pluginPathDoc.DocumentElement == null) { throw new NullReferenceException(); }
+
+            var descendants = pluginPathDoc.DocumentElement.SelectNodes("Plugin");
+            if (descendants == null) { throw new NullReferenceException(); }
 
             // Load Installed Plug-Ins
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            var pluginPaths = descendants.Select(e => e.Attribute("Path") != null ? e.Attribute("Path").Value : "").ToArray();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            string[] pluginPaths = new string[descendants.Count];
+            for (int i = 0; i < descendants.Count; i++)
+            {
+                var node = descendants[i];
+                var attribute = node != null && node.Attributes != null ? node.Attributes["Path"] : null;
+                if (attribute == null) { continue; }
+                pluginPaths[i] = attribute.InnerText;
+            }
 
             IEnumerable<IGamePlugIn> gamePlugIns = pluginPaths.SelectMany(pluginPath => 
             {
