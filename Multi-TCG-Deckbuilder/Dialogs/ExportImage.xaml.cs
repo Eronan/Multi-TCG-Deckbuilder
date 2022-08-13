@@ -25,22 +25,26 @@ namespace Multi_TCG_Deckbuilder.Dialogs
     {
         const double cardWidth = 250;
         const double textSize = 50;
+        string openedFile;
         public RenderTargetBitmap CreatedImage { get; }
 
-        public ExportImage(string game, string format, IEnumerable<KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>> decks)
+        public ExportImage(string game, string format, IEnumerable<KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>> decks, string openedFile)
         {
             InitializeComponent();
 
-            // Store Created BitmapRender
+            // Store Created BitmapRender as Global Variable
             this.CreatedImage = CreateImage(game, format, decks);
+            this.openedFile = openedFile;
         }
 
         private RenderTargetBitmap CreateImage(string game, string format, IEnumerable<KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>> decks)
         {
+            // Create Drawiong Canvas
             DrawingVisual drawingVisual = new DrawingVisual();
             DrawingContext drawingContext = drawingVisual.RenderOpen();
 
-            double height = 0;
+            // Initialize Variables
+            double cardHeight = 0;
             double y = 0;
             foreach (var deck in decks)
             {
@@ -65,21 +69,21 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {
                         // Initialize Height Variable
-                        if (height == 0)
+                        if (cardHeight == 0)
                         {
-                            height = card.ImageFile.Height * (cardWidth / card.ImageFile.Width);
+                            cardHeight = card.ImageFile.Height * (cardWidth / card.ImageFile.Width);
                         }
 
                         // Draw Image
-                        drawingContext.DrawImage(card.ImageFile, new Rect(cardInRow * cardWidth, y, cardWidth, height));
+                        drawingContext.DrawImage(card.ImageFile, new Rect(cardInRow * cardWidth, y, cardWidth, cardHeight));
                         cardInRow++;
                     }
                     else
                     {
                         // Initialize Height Variable
-                        if (height == 0)
+                        if (cardHeight == 0)
                         {
-                            height = card.ImageFile.Width * (cardWidth / card.ImageFile.Height);
+                            cardHeight = card.ImageFile.Width * (cardWidth / card.ImageFile.Height);
                         }
 
                         // Rotate Bitmap Image
@@ -88,23 +92,23 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                         rotatedImage.Rotation = Rotation.Rotate90;
 
                         // Draw Image
-                        drawingContext.DrawImage(rotatedImage, new Rect(cardInRow * cardWidth, y, cardWidth, height));
+                        drawingContext.DrawImage(rotatedImage, new Rect(cardInRow * cardWidth, y, cardWidth, cardHeight));
                         drawingContext.Pop();
                         cardInRow++;
                     }
 
                     // If 10 Cards have been drawn in the Row, go to the next Row.
-                    if (cardInRow > 10)
+                    if (cardInRow >= 10)
                     {
                         cardInRow = 0;
-                        y += height;
+                        y += cardHeight;
                     }
                 }
 
                 // Increment Y Point, if Row was not filled
                 if (cardInRow != 0)
                 {
-                    y += height;
+                    y += cardHeight;
                 }
             }
 
@@ -131,7 +135,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
 
         private void CommandBinding_Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            Contexts.FileLoadContext.ExportImageDialog(this.CreatedImage);
+            Contexts.FileLoadContext.ExportImageDialog(this.CreatedImage, this.openedFile);
         }
     }
 }

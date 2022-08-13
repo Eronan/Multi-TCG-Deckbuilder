@@ -71,7 +71,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
             if (saveDialog.ShowDialog() == true)
             {
                 // Save to Image File
-                using (var fileStream = new FileStream(saveDialog.FileName, FileMode.CreateNew))
+                using (var fileStream = new FileStream(saveDialog.FileName, FileMode.Create))
                 {
                     switch (saveDialog.FilterIndex)
                     {

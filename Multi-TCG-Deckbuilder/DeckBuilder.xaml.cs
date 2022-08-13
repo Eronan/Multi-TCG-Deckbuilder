@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using Multi_TCG_Deckbuilder.Dialogs;
+using System.Windows.Media;
 
 namespace Multi_TCG_Deckbuilder
 {
@@ -814,7 +815,8 @@ namespace Multi_TCG_Deckbuilder
                 this.deckControls.Select(x => new KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>(
                     this.format.Decks.Where(deck => deck.Name == x.Key).First().Label, //Get Label instead of Key
                     x.Value.Item2.Items.Cast<DeckBuilderCardArt>()) // Get Items
-                )
+                ),
+                this.openedFile
             );
             exportWindow.Show();
         }
@@ -822,7 +824,72 @@ namespace Multi_TCG_Deckbuilder
         // Export to Image in Tabletop Simulator Custom Deck Format
         private void MenuItem_TableTop_Click(object sender, RoutedEventArgs e)
         {
-            //Contexts.FileLoadContext.ExportImageDialog(this.openedFile);
+            double cardWidth = 350;
+
+            // Create Drawiong Canvas
+            DrawingVisual drawingVisual = new DrawingVisual();
+            DrawingContext drawingContext = drawingVisual.RenderOpen();
+
+            // Initialize Variables
+            double cardHeight = 0;
+            double x = 0;
+            double y = 0;
+            foreach (var deck in this.deckControls.Values)
+            {
+                foreach (var card in deck.Item2.Items.Cast<DeckBuilderCardArt>())
+                {
+                    if (card.Orientation == CardArtOrientation.Portrait)
+                    {
+                        // Initialize Height Variable
+                        if (cardHeight == 0)
+                        {
+                            cardHeight = card.ImageFile.Height * (cardWidth / card.ImageFile.Width);
+                        }
+
+                        // Draw Image
+                        drawingContext.DrawImage(card.ImageFile, new Rect(x, y, cardWidth, cardHeight));
+                        x += cardWidth;
+                    }
+                    else
+                    {
+                        // Initialize Height Variable
+                        if (cardHeight == 0)
+                        {
+                            cardHeight = card.ImageFile.Width * (cardWidth / card.ImageFile.Height);
+                        }
+
+                        // Rotate Bitmap Image
+                        RotateTransform transform = new RotateTransform(90);
+                        System.Windows.Media.Imaging.BitmapImage rotatedImage = card.ImageFile.Clone();
+                        rotatedImage.Rotation = System.Windows.Media.Imaging.Rotation.Rotate90;
+
+                        // Draw Image
+                        drawingContext.DrawImage(rotatedImage, new Rect(x, y, cardWidth, cardHeight));
+                        drawingContext.Pop();
+                        x += cardWidth;
+                    }
+
+                    // If 10 Cards have been drawn in the Row, go to the next Row.
+                    if (x >= cardWidth * 10)
+                    {
+                        x = 0;
+                        y += cardHeight;
+                    }
+                }
+            }
+
+            // Close Drawing Context
+            drawingContext.Close();
+
+            // Get Bitmap Width and Height
+            int bmpWidth = (int)(cardWidth * 10);
+            int bmpHeight = (int)(x == 0 ? y : y + cardHeight);
+
+            // Create Bitmap Render and Set to Image
+            System.Windows.Media.Imaging.RenderTargetBitmap bmp = new System.Windows.Media.Imaging.RenderTargetBitmap(bmpWidth, bmpHeight, 96, 96, PixelFormats.Pbgra32);
+            bmp.Render(drawingVisual);
+
+            Contexts.FileLoadContext.ExportImageDialog(bmp, this.openedFile);
         }
 
         // Set Preferences for the Application
