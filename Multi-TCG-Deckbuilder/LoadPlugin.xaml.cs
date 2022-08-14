@@ -66,8 +66,8 @@ namespace Multi_TCG_Deckbuilder
                 return;
             }
 
-            IGamePlugIn? game = listBox_GameList.Items.Cast<IGamePlugIn>().Where(item => item.Name == deckFile.Game).FirstOrDefault();
-            IFormat? format = game != null ? game.Formats.Where(item => item.Name == deckFile.Format).FirstOrDefault() : null;
+            IGamePlugIn? game = listBox_GameList.Items.Cast<IGamePlugIn>().FirstOrDefault(item => item.Name == deckFile.Game);
+            IFormat? format = game != null ? game.Formats.FirstOrDefault(item => item.Name == deckFile.Format) : null;
 
             if (game == null || format == null)
             {

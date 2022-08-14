@@ -118,7 +118,7 @@ namespace Multi_TCG_Deckbuilder
                 }
 
                 // Change Format
-                IFormat newFormat = this.game.Formats.Where(item => item.Name == deckFile.Format).First();
+                IFormat newFormat = this.game.Formats.First(item => item.Name == deckFile.Format);
                 ChangeFormat(newFormat);
             }
             else
@@ -138,7 +138,7 @@ namespace Multi_TCG_Deckbuilder
                     IDeck deckTag = controls_Deck.Item3;
                     foreach (DeckBuilderCard card in deck.Cards)
                     {
-                        DeckBuilderCardArt cardArt = this.fullList.Where(item => item.CardID == card.CardID && item.ArtID == card.ArtID).First();
+                        DeckBuilderCardArt cardArt = this.fullList.First(item => item.CardID == card.CardID && item.ArtID == card.ArtID);
                         listBox.Items.Add(cardArt);
                         label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\) [✔❌]$", string.Format("({0}) {1}", listBox.Items.Count, deckTag.ValidateDeck(listBox.Items.Cast<DeckBuilderCardArt>()).Length == 0 ? "✔" : "❌"));
                     }
@@ -387,15 +387,22 @@ namespace Multi_TCG_Deckbuilder
 
                 if (openDialog.ShowDialog() == true)
                 {
-                    var deckFile = importMenu.Import(openDialog.FileName);
-
-                    if (deckFile.Game != this.game.Name)
+                    try
                     {
-                        MessageBox.Show("There was a problem loading this Deck File. Make sure the Game is correct.",
-                            "Problem Loading Deck File", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
+                        var deckFile = importMenu.Import(openDialog.FileName, this.format.Name);
+
+                        if (deckFile.Game != this.game.Name)
+                        {
+                            MessageBox.Show("There was a problem loading this Deck File. Make sure the Game is correct.",
+                                "Problem Loading Deck File", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                        LoadFromDeckFile(deckFile);
                     }
-                    LoadFromDeckFile(deckFile);
+                    catch (Exception error)
+                    {
+                        MessageBox.Show("Error Importing File. Please check that it is the correct file and game.\n" + error.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
 
@@ -813,7 +820,7 @@ namespace Multi_TCG_Deckbuilder
                 this.game.LongName,
                 this.format.LongName,
                 this.deckControls.Select(x => new KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>(
-                    this.format.Decks.Where(deck => deck.Name == x.Key).First().Label, //Get Label instead of Key
+                    this.format.Decks.First(deck => deck.Name == x.Key).Label, //Get Label instead of Key
                     x.Value.Item2.Items.Cast<DeckBuilderCardArt>()) // Get Items
                 ),
                 this.openedFile

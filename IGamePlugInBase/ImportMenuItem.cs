@@ -22,6 +22,6 @@
         /// The Function performed in order to Import a File and Convert it into (.mtdk) file.
         /// </summary>
         /// <param name="filePath">The File Location that it Imports from.</param>
-        public DeckBuilderDeckFile Import(string filePath);
+        public DeckBuilderDeckFile Import(string filePath, string currentFormat);
     }
 }

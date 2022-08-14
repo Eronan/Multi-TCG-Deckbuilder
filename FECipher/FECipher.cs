@@ -112,12 +112,12 @@ namespace FECipher
             // Create Menu Items
             this.ImportFunctions = new ImportMenuItem[1]
             {
-                new LackeyCCGImport()
+                new LackeyCCGImport(this.cardList.Values)
             };
 
             this.ExportFunctions = new ExportMenuItem[1]
             {
-                new LackeyCCGExport()
+                new LackeyCCGExport(this.cardList.Values)
             };
         }
 
