@@ -30,9 +30,12 @@ namespace FECipher
             decks[0] = new DeckBuilderDeck("maincharacter", new List<DeckBuilderCard>());
             decks[1] = new DeckBuilderDeck("main", new List<DeckBuilderCard>());
 
-            // Find Installed Plug-Ins
+            // Load XML File
             XmlDocument lackeyCCGDeck = new XmlDocument();
             lackeyCCGDeck.Load(filePath);
+
+            // Change Format
+            string changeFormat = currentFormat;
 
             try
             {
@@ -58,6 +61,11 @@ namespace FECipher
 
                             if (altArt != null)
                             {
+                                if (changeFormat == "standard" && feCard.seriesNo < 5)
+                                {
+                                    changeFormat = "unlimited";
+                                }
+
                                 cards.Add(new DeckBuilderCard(feCard.ID, altArt.Id));
                                 break;
                             }
@@ -80,7 +88,7 @@ namespace FECipher
                 throw new FileLoadException("File is in the incorrect Format.", filePath, e.InnerException);
             }
 
-            DeckBuilderDeckFile file = new DeckBuilderDeckFile("FECipher", currentFormat, decks);
+            DeckBuilderDeckFile file = new DeckBuilderDeckFile("FECipher", changeFormat, decks);
             return file;
         }
     }
@@ -105,7 +113,66 @@ namespace FECipher
 
         public void Export(string filePath, DeckBuilderDeckFile decks)
         {
-            throw new NotImplementedException();
+            var xmlWriter = new XmlTextWriter(filePath, System.Text.Encoding.UTF8);
+            xmlWriter.WriteStartDocument(true);
+            xmlWriter.Formatting = Formatting.None;
+            xmlWriter.Indentation = 1;
+
+            // Create First Element
+            xmlWriter.WriteStartElement("deck");
+            xmlWriter.WriteAttributeString("version", "0.8");
+
+            // First Node: Meta
+            xmlWriter.WriteStartElement("meta");
+            xmlWriter.WriteStartElement("game");
+            xmlWriter.WriteString("FECipher0");
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteEndElement();
+
+            // Write Decks in a Particular Order
+            WriteDeck(xmlWriter, decks.Decks.First(deck => deck.DeckName == "main"));
+            WriteDeck(xmlWriter, decks.Decks.First(deck => deck.DeckName == "maincharacter"));
+
+
+            // Close Document
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteEndDocument();
+            xmlWriter.Close();
+        }
+
+        private void WriteDeck(XmlTextWriter xmlWriter, DeckBuilderDeck deck)
+        {
+            // SuperZone Element
+            xmlWriter.WriteStartElement("superzone");
+            // SuperZone Deck Attribute
+            if (deck.DeckName == "maincharacter")
+            {
+                xmlWriter.WriteAttributeString("deck", "MC");
+            }
+            else if (deck.DeckName == "main")
+            {
+                xmlWriter.WriteAttributeString("deck", "Deck");
+            }
+
+            // Write All Cards
+            foreach (DeckBuilderCard deckCard in deck.Cards)
+            {
+                FECard feCard = this.CardList.First(card => card.ID == deckCard.CardID);
+                FEAlternateArts altArt = feCard.altArts.First(art => art.Id == deckCard.ArtID);
+
+                // Write Card
+                xmlWriter.WriteStartElement("card");
+                xmlWriter.WriteStartElement("name");
+                xmlWriter.WriteAttributeString("id", altArt.LackeyCCGId);
+                xmlWriter.WriteString(altArt.LackeyCCGName);
+                xmlWriter.WriteEndElement();
+                xmlWriter.WriteStartElement("set");
+                xmlWriter.WriteString(altArt.SetCode);
+                xmlWriter.WriteEndElement();
+                xmlWriter.WriteEndElement();
+            }
+
+            xmlWriter.WriteEndElement();
         }
     }
 }

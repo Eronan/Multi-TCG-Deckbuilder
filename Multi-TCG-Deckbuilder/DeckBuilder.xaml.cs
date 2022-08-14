@@ -430,6 +430,7 @@ namespace Multi_TCG_Deckbuilder
                 if (saveDialog.ShowDialog() == true)
                 {
                     exportMenu.Export(saveDialog.FileName, Contexts.FileLoadContext.CreateDeckFile(this.game.Name, this.format.Name, this.deckControls));
+                    MessageBox.Show("Export Completed!");
                 }
             }
 
