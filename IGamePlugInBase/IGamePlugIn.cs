@@ -54,5 +54,10 @@
         /// <param name="y">Second Card</param>
         /// <returns>If x precedes y, it returns a number less than 0, if x and y are the same it returns 0, and if y precedes x it returns a number greater than 0.</returns>
         public int CompareCards(DeckBuilderCard x, DeckBuilderCard y);
+        /// <summary>
+        /// Updates the Plug-In
+        /// </summary>
+        /// <returns>The URL to find the Update</returns>
+        public string UpdatePlugIn();
     }
 }

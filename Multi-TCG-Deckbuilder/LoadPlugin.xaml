@@ -31,7 +31,7 @@
                 <MenuItem Header="_Exit" Click="button_Cancel_Click"/>
             </MenuItem>
             <MenuItem Header="_Plug-Ins">
-                <MenuItem Header="_Install Plug-In"/>
+                <MenuItem Header="_Install Plug-In" Click="MenuItem_InstallNewPlugIn_Click"/>
                 <MenuItem Header="_Uninstall Plug-In"/>
             </MenuItem>
             <MenuItem Header="_Check for Updates">
