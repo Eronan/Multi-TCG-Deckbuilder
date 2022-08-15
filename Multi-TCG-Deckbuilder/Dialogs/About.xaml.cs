@@ -38,7 +38,8 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                     "Check for New Releases on GitHub:\n" +
                     "https://github.com/Eronan/Multi-TCG-Deckbuilder/releases\n" +
                     "-\n" +
-                    "To find Verified Plug-Ins that work with the latest versions of the Application, please visit: ";
+                    "To find Verified Plug-Ins that work with the latest versions of the Application, please visit: \n" +
+                    "https://github.com/Eronan/Multi-TCG-Deckbuilder/releases";
             }
             
             // Create About Text
