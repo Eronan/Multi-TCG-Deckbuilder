@@ -2,6 +2,7 @@
 using Multi_TCG_Deckbuilder.Contexts;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
@@ -21,23 +22,9 @@ namespace Multi_TCG_Deckbuilder
             InitializeComponent();
 
             // Find Installed Plug-Ins
-            XmlDocument pluginPathDoc = new XmlDocument();
-            pluginPathDoc.Load(@".\PlugInLocations.xml");
-            if (pluginPathDoc.DocumentElement == null) { throw new NullReferenceException(); }
+            string[] pluginPaths = Directory.GetFiles(@".\plug-ins\", "*.dll", SearchOption.AllDirectories);
 
-            var descendants = pluginPathDoc.DocumentElement.SelectNodes("Plugin");
-            if (descendants == null) { throw new NullReferenceException(); }
-
-            // Load Installed Plug-Ins
-            string[] pluginPaths = new string[descendants.Count];
-            for (int i = 0; i < descendants.Count; i++)
-            {
-                var node = descendants[i];
-                var attribute = node != null && node.Attributes != null ? node.Attributes["Path"] : null;
-                if (attribute == null) { continue; }
-                pluginPaths[i] = attribute.InnerText;
-            }
-
+            // Load Plug-Ins
             IEnumerable<IGamePlugIn> gamePlugIns = pluginPaths.SelectMany(pluginPath => 
             {
                 Assembly pluginAssembly = LoadPlugins(pluginPath);
@@ -170,6 +157,19 @@ namespace Multi_TCG_Deckbuilder
         private void MenuItem_ProgramAbout_Click(object sender, RoutedEventArgs e)
         {
             new Dialogs.About().ShowDialog();
+        }
+
+        // Install Plug-In From File
+        private void MenuItem_InstallNewPlugIn_Click(object sender, RoutedEventArgs e)
+        {
+            var openDialog = new Microsoft.Win32.OpenFileDialog();
+            openDialog.DefaultExt = ".mtcg";
+            openDialog.Filter = "Multi-TCG Deck Builder File (.mtcg)|*.mtcg";
+
+            if (openDialog.ShowDialog() == true)
+            {
+
+            }
         }
 
         private void button_Cancel_Click(object sender, RoutedEventArgs e)
