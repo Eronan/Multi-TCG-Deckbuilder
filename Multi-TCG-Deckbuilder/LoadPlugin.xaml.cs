@@ -25,11 +25,20 @@ namespace Multi_TCG_Deckbuilder
             string[] pluginPaths = Directory.GetFiles(@".\plug-ins\", "*.dll", SearchOption.AllDirectories);
 
             // Load Plug-Ins
-            IEnumerable<IGamePlugIn> gamePlugIns = pluginPaths.SelectMany(pluginPath => 
+            List<IGamePlugIn> gamePlugIns = new List<IGamePlugIn>();
+
+            foreach (string pluginPath in pluginPaths)
             {
-                Assembly pluginAssembly = LoadPlugins(pluginPath);
-                return GetGamePlugIns(pluginAssembly);
-            });
+                try
+                {
+                    Assembly pluginAssembly = LoadPlugins(pluginPath);
+                    gamePlugIns.AddRange(GetGamePlugIns(pluginAssembly));
+                }
+                catch (ApplicationException e)
+                {
+                    Console.WriteLine(pluginPath + " is not a valid Plug-In\n" + e.Message);
+                }
+            }
 
             listBox_GameList.ItemsSource = gamePlugIns;
 
@@ -157,19 +166,6 @@ namespace Multi_TCG_Deckbuilder
         private void MenuItem_ProgramAbout_Click(object sender, RoutedEventArgs e)
         {
             new Dialogs.About().ShowDialog();
-        }
-
-        // Install Plug-In From File
-        private void MenuItem_InstallNewPlugIn_Click(object sender, RoutedEventArgs e)
-        {
-            var openDialog = new Microsoft.Win32.OpenFileDialog();
-            openDialog.DefaultExt = ".mtcg";
-            openDialog.Filter = "Multi-TCG Deck Builder File (.mtcg)|*.mtcg";
-
-            if (openDialog.ShowDialog() == true)
-            {
-
-            }
         }
 
         private void button_Cancel_Click(object sender, RoutedEventArgs e)
