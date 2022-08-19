@@ -7,10 +7,16 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>deckbuilder_icon_lKN_icon.ico</ApplicationIcon>
+    <AssemblyVersion>0.0.0.1</AssemblyVersion>
+    <FileVersion>0.0.0.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Include="deckbuilder_icon_lKN_icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Octokit" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>

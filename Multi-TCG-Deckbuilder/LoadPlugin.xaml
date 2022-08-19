@@ -32,7 +32,7 @@
             </MenuItem>
             <MenuItem Header="_Check for Updates">
                 <MenuItem Header="_Check Plug-In Updates"/>
-                <MenuItem Header="_Check Application Updates"/>
+                <MenuItem Header="_Check Application Updates" Click="MenuItem_UpdateApp_Click"/>
             </MenuItem>
             <MenuItem Header="_About">
                 <MenuItem Header="_About Multi-TCG Deck Builder" Click="MenuItem_ProgramAbout_Click" />

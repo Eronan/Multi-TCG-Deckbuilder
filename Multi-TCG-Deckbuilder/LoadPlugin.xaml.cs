@@ -1,5 +1,6 @@
 ﻿using IGamePlugInBase;
 using Multi_TCG_Deckbuilder.Contexts;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +18,9 @@ namespace Multi_TCG_Deckbuilder
     /// </summary>
     public partial class LoadPlugin : Window
     {
+        GitHubClient? client;
+        Version? currentVersion;
+
         public LoadPlugin()
         {
             InitializeComponent();
@@ -160,6 +164,48 @@ namespace Multi_TCG_Deckbuilder
         private void CommandBinding_Preferences_Executed(object sender, ExecutedRoutedEventArgs e)
         {
 
+        }
+
+        // Open Update Link
+        private async void MenuItem_UpdateApp_Click(object sender, RoutedEventArgs e)
+        {
+            // Initialize Values
+            this.client = this.client ?? new GitHubClient(new ProductHeaderValue("tcg-deck-builder"));
+            this.currentVersion = this.currentVersion ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+
+            var releases = await this.client.Repository.Release.GetAll("Eronan", "Multi-TCG-Deckbuilder");
+            var latest = releases.FirstOrDefault(release => !release.Prerelease);
+
+            if (latest == null)
+            {
+                MessageBox.Show("Program is up to date!", "Up to Date!", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            Console.WriteLine(
+                "The latest release is tagged at {0} and is named {1}",
+                latest.TagName,
+                latest.Name);
+
+            var latestVersion = new Version(latest.TagName);
+
+            if (latestVersion.CompareTo(this.currentVersion) > 0)
+            {
+                var result = MessageBox.Show("There seems to be a new Version available, do you want to download it?", "New Version Available", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.No);
+                if (result == MessageBoxResult.Yes)
+                {
+                    var process = new System.Diagnostics.ProcessStartInfo(latest.HtmlUrl)
+                    {
+                        UseShellExecute = true,
+                        Verb = "open"
+                    };
+                    System.Diagnostics.Process.Start(process);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Program is up to date!", "Up to Date!", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
         // Open About Window for Program
