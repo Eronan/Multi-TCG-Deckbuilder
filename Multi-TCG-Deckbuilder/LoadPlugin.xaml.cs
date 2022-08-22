@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -31,17 +32,38 @@ namespace Multi_TCG_Deckbuilder
             // Load Plug-Ins
             List<IGamePlugIn> gamePlugIns = new List<IGamePlugIn>();
 
-            foreach (string pluginPath in pluginPaths)
+            if (true || pluginPaths.Length > 0 &&
+                    MessageBox.Show(
+                        "DLL files can be harmful to your computer, and cause irrepairable damage. Please only download Plug-Ins trusted sources.\nDo you trust all of the following Plug-Ins?\n\n\t" +
+                            string.Join("\n\t-", pluginPaths.Select(file => Path.GetFileName(file))),
+                        "Warning!",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning,
+                        MessageBoxResult.Yes
+                    ) == MessageBoxResult.Yes)
             {
-                try
+                foreach (string pluginPath in pluginPaths)
                 {
-                    Assembly pluginAssembly = LoadPlugins(pluginPath);
-                    gamePlugIns.AddRange(GetGamePlugIns(pluginAssembly));
+                    try
+                    {
+                        Assembly pluginAssembly = LoadPlugins(pluginPath);
+                        gamePlugIns.AddRange(GetGamePlugIns(pluginAssembly));
+                    }
+                    catch (ApplicationException e)
+                    {
+                        Console.WriteLine(pluginPath + " is not a valid Plug-In\n" + e.Message);
+                    }
+                    catch (ReflectionTypeLoadException e)
+                    {
+                        Console.WriteLine(pluginPath + " is outdated.\n" + e.Message);
+                        MessageBox.Show(pluginPath + " is outdated.\n" + e.Message, "Plug-In Outdated", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
-                catch (ApplicationException e)
-                {
-                    Console.WriteLine(pluginPath + " is not a valid Plug-In\n" + e.Message);
-                }
+            }
+            else
+            {
+                this.Close();
+                return;
             }
 
             listBox_GameList.ItemsSource = gamePlugIns;
@@ -140,8 +162,28 @@ namespace Multi_TCG_Deckbuilder
             IFormat? format = listBox_FormatList.SelectedItem as IFormat;
             if (game != null && format != null)
             {
-                DeckBuilder deckbuilderWindow = new DeckBuilder(game, format);
-                deckbuilderWindow.Show();
+                // Initialize Plug-In Information, if not previously initialized
+                if (!game.CardListInitialized)
+                {
+                    try
+                    {
+                        game.InitializePlugIn();
+
+                        DeckBuilder deckbuilderWindow = new DeckBuilder(game, format);
+                        deckbuilderWindow.Show();
+                    }
+                    catch (PlugInFilesMissingException error)
+                    {
+                        Console.WriteLine(error.Message);
+                        MessageBox.Show("Download the Latest Version of the Plug-In before continuing.");
+
+                        MenuItem_PlugInFiles_Click(sender, e);
+                    }
+                    catch (BadImageFormatException error)
+                    {
+                        MessageBox.Show(error.Message);
+                    }
+                }
             }
             else
             {
@@ -163,7 +205,51 @@ namespace Multi_TCG_Deckbuilder
 
         private void CommandBinding_Preferences_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            
+        }
 
+        // Run Update Method
+        private void MenuItem_UpdatePlugIn_Click(object sender, RoutedEventArgs e)
+        {
+            IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
+            if (game == null)
+            {
+                return;
+            }
+
+            var process = new System.Diagnostics.ProcessStartInfo(game.DownloadLink)
+            {
+                UseShellExecute = true,
+                Verb = "open"
+            };
+            System.Diagnostics.Process.Start(process);
+        }
+
+        // Allow Plug-In to Download Files
+        private void MenuItem_PlugInFiles_Click(object sender, RoutedEventArgs e)
+        {
+            IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
+            if (game == null || 
+                MessageBox.Show("Make sure that you have already previously downloaded files manually! If downloading takes too long, the program will time-out and corrupt the downloaded files.\nAre you sure you want to download Files, this can take a while?", "Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.No)
+            {
+                return;
+            }
+
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            try
+            {
+                var download = game.DownloadFiles();
+                download.Wait(new TimeSpan(0, 10, 0));
+
+                MessageBox.Show("Download Successful!", "Success!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show("Download Unsuccessful. Attempt to download the necessary files manually.\n" + error.Message, "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            Mouse.OverrideCursor = null;
         }
 
         // Open Update Link
@@ -171,7 +257,7 @@ namespace Multi_TCG_Deckbuilder
         {
             // Initialize Values
             this.client = this.client ?? new GitHubClient(new ProductHeaderValue("tcg-deck-builder"));
-            this.currentVersion = this.currentVersion ?? System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            this.currentVersion = this.currentVersion ?? Assembly.GetExecutingAssembly().GetName().Version;
 
             var releases = await this.client.Repository.Release.GetAll("Eronan", "Multi-TCG-Deckbuilder");
             var latest = releases.FirstOrDefault(release => !release.Prerelease);

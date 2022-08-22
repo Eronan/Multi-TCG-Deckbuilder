@@ -31,7 +31,30 @@
                 <MenuItem Header="_Exit" Click="button_Cancel_Click"/>
             </MenuItem>
             <MenuItem Header="_Check for Updates">
-                <MenuItem Header="_Check Plug-In Updates"/>
+                <MenuItem Header="_Download New Plug-In DLL" Click="MenuItem_UpdatePlugIn_Click">
+                    <MenuItem.Style>
+                        <Style TargetType="{x:Type MenuItem}">
+                            <Setter Property="IsEnabled" Value="True" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedIndex,ElementName=listBox_GameList}" Value="-1">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </MenuItem.Style>
+                </MenuItem>
+                <MenuItem Header="_Download Plug-In Files" Click="MenuItem_PlugInFiles_Click">
+                    <MenuItem.Style>
+                        <Style TargetType="{x:Type MenuItem}">
+                            <Setter Property="IsEnabled" Value="True" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedIndex,ElementName=listBox_GameList}" Value="-1">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </MenuItem.Style>
+                </MenuItem>
                 <MenuItem Header="_Check Application Updates" Click="MenuItem_UpdateApp_Click"/>
             </MenuItem>
             <MenuItem Header="_About">

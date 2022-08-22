@@ -20,7 +20,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
     public partial class About : Window
     {
 
-        public About(string text = null)
+        public About(string? text = null)
         {
             InitializeComponent();
 

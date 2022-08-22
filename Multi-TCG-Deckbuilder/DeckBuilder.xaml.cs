@@ -48,14 +48,14 @@ namespace Multi_TCG_Deckbuilder
             }
             else
             {
-                foreach (ImportMenuItem importMenu in this.game.ImportFunctions)
+                foreach (IImportMenuItem importMenu in this.game.ImportFunctions)
                 {
                     AddImportMenuItem(importMenu);
                 }
             }
 
             // Create Export Menu Items
-            foreach (ExportMenuItem exportMenu in this.game.ExportFunctions)
+            foreach (IExportMenuItem exportMenu in this.game.ExportFunctions)
             {
                 AddExportMenuItem(exportMenu);
             }
@@ -82,6 +82,7 @@ namespace Multi_TCG_Deckbuilder
 
             this.Title = string.Format("Multi-TCG Deck Builder: {0} - {1}", this.game.LongName, this.format.LongName);
 
+            
             this.fullList = DeckBuilderCardArt.GetFromCards(format.CardList, AppDomain.CurrentDomain.BaseDirectory);
             this.advancedSearchList = this.fullList;
             this.searchList.Clear();
@@ -374,7 +375,7 @@ namespace Multi_TCG_Deckbuilder
         }
 
         // Add Import MenuItem
-        private void AddImportMenuItem(ImportMenuItem importMenu)
+        private void AddImportMenuItem(IImportMenuItem importMenu)
         {
             // Instantiate Function
             void importMenuItem_Click(object sender, RoutedEventArgs e)
@@ -414,7 +415,7 @@ namespace Multi_TCG_Deckbuilder
         }
 
         // Add Export MenuItem
-        private void AddExportMenuItem(ExportMenuItem exportMenu)
+        private void AddExportMenuItem(IExportMenuItem exportMenu)
         {
             // Instantiate Function
             void exportMenuItem_Click(object sender, RoutedEventArgs e)

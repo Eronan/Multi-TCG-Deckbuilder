@@ -18,12 +18,21 @@ namespace Multi_TCG_Deckbuilder.Models
         {
             this.name = card.Name;
             this.viewDetails = card.ViewDetails;
-            AlternateArt? altArt;
+            IAlternateArt? altArt;
             if ((altArt = card.AltArts.GetValueOrDefault(altArtID)) != null)
             {
                 this.fileLocation = applicationPath + altArt.ImageLocation;
                 this.orientation = altArt.ArtOrientation;
-                this.imageFile = new BitmapImage(new Uri(this.fileLocation));
+
+                try
+                {
+                    this.imageFile = new BitmapImage(new Uri(this.fileLocation));
+                }
+                catch (NotSupportedException e)
+                {
+                    Console.WriteLine(e.Message);
+                    throw new BadImageFormatException(string.Format("{0} is corrupt. Please delete and re-download that file.", this.fileLocation));
+                }
             }
             else
             {
@@ -39,7 +48,7 @@ namespace Multi_TCG_Deckbuilder.Models
 
             foreach (ICard card in cards)
             {
-                foreach (AlternateArt art in card.AltArts.Values)
+                foreach (IAlternateArt art in card.AltArts.Values)
                 {
                     allArts.Add(new DeckBuilderCardArt(card, art.Id, applicationPath));
                 }

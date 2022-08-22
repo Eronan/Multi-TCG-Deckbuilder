@@ -10,7 +10,7 @@
     /// An instance of an Art for a Specific Card.
     /// It shows up as a separate Card Instance on the Deck Builder.
     /// </summary>
-    public interface AlternateArt
+    public interface IAlternateArt
     {
         /// <summary>
         /// ID of the Alternate Art to be saved into the Deck File.

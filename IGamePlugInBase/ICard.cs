@@ -16,7 +16,7 @@
         /// <summary>
         /// A set of Alternate Arts the card has. All cards must have at least 1 art.
         /// </summary>
-        public Dictionary<string, AlternateArt> AltArts { get; }
+        public Dictionary<string, IAlternateArt> AltArts { get; }
 
         /// <summary>
         /// The Text Details of the Card to be shown on the Deck Builder

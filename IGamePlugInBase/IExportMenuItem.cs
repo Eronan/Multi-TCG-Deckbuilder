@@ -3,7 +3,7 @@
     /// <summary>
     /// An Interface used to define a Menu Item and its Action
     /// </summary>
-    public interface ImportMenuItem
+    public interface IExportMenuItem
     {
         /// <summary>
         /// The Text for the Menu Item
@@ -19,9 +19,9 @@
         public string FileFilter { get; }
 
         /// <summary>
-        /// The Function performed in order to Import a File and Convert it into (.mtdk) file.
+        /// The Function performed in order to Export to a File.
         /// </summary>
-        /// <param name="filePath">The File Location that it Imports from.</param>
-        public DeckBuilderDeckFile Import(string filePath, string currentFormat);
+        /// <param name="filePath">The File Location that it Exports To.</param>
+        public void Export(string filePath, DeckBuilderDeckFile decks);
     }
 }
