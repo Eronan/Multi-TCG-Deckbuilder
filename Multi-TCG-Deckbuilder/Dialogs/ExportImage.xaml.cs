@@ -1,20 +1,10 @@
 ﻿using IGamePlugInBase;
-using Multi_TCG_Deckbuilder.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Multi_TCG_Deckbuilder.Dialogs
 {
@@ -66,16 +56,18 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                 double cardInRow = 0;
                 foreach (var card in deck.Value)
                 {
+                    var imageFile = new BitmapImage(new Uri(card.FileLocation));
+
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {
                         // Initialize Height Variable
                         if (cardHeight == 0)
                         {
-                            cardHeight = card.ImageFile.Height * (cardWidth / card.ImageFile.Width);
+                            cardHeight = imageFile.Height * (cardWidth / imageFile.Width);
                         }
 
                         // Draw Image
-                        drawingContext.DrawImage(card.ImageFile, new Rect(cardInRow * cardWidth, y, cardWidth, cardHeight));
+                        drawingContext.DrawImage(imageFile, new Rect(cardInRow * cardWidth, y, cardWidth, cardHeight));
                         cardInRow++;
                     }
                     else
@@ -83,12 +75,12 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                         // Initialize Height Variable
                         if (cardHeight == 0)
                         {
-                            cardHeight = card.ImageFile.Width * (cardWidth / card.ImageFile.Height);
+                            cardHeight = imageFile.Width * (cardWidth / imageFile.Height);
                         }
 
                         // Rotate Bitmap Image
                         RotateTransform transform = new RotateTransform(90);
-                        BitmapImage rotatedImage = card.ImageFile.Clone();
+                        BitmapImage rotatedImage = imageFile.Clone();
                         rotatedImage.Rotation = Rotation.Rotate90;
 
                         // Draw Image

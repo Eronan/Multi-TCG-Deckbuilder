@@ -1,4 +1,6 @@
 ﻿using IGamePlugInBase;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,23 +13,23 @@ namespace Multi_TCG_Deckbuilder.Dialogs
     /// </summary>
     public partial class AdvancedSearch : Window
     {
-        private SearchField[] searchFields;
+        private IList<SearchField> searchFields;
         private ComboBox[] searchComparisons;
         private dynamic[] inputBoxes;
-        public AdvancedSearch(SearchField[] fields)
+        public AdvancedSearch(IEnumerable<SearchField> fields)
         {
             InitializeComponent();
 
-            this.searchFields = fields;
-            this.searchComparisons = new ComboBox[searchFields.Length];
-            this.inputBoxes = new dynamic[searchFields.Length];
+            this.searchFields = fields.ToList();
+            this.searchComparisons = new ComboBox[searchFields.Count];
+            this.inputBoxes = new dynamic[searchFields.Count];
             this.CreateFields();
         }
 
         // Create all Fields from searchFields
         private void CreateFields()
         {
-            for (int i = 0; i < this.searchFields.Length; i++)
+            for (int i = 0; i < this.searchFields.Count; i++)
             {
                 CreateField(i);
             }

@@ -4,17 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Multi_TCG_Deckbuilder"
-        xmlns:localModels="clr-namespace:Multi_TCG_Deckbuilder.Models"
+        xmlns:plugin="clr-namespace:IGamePlugInBase;assembly=IGamePlugInBase"
         mc:Ignorable="d"
         Title="Deck Builder" Height="450" Width="800" MinHeight="450" MinWidth="800"
         AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.Resources>
-        <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type localModels:DeckBuilderCardArt}">
+        <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type plugin:DeckBuilderCardArt}">
             <Image Source="{Binding ImageFile}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
                    MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove" />
         </DataTemplate>
-        <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type localModels:DeckBuilderCardArt}">
+        <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type plugin:DeckBuilderCardArt}">
             <Image Source="{Binding ImageFile}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
                        MouseRightButtonDown="ImageCardDeck_MouseRightDown" MouseMove="ImageCardDeck_MouseMove"
                        Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}"/>
@@ -70,7 +70,7 @@
                 <MenuItem Header="_New" InputGestureText="Ctrl+N" Command="New"/>
                 <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="Open"/>
                 <MenuItem x:Name="MenuItem_Import" Header="_Import"/>
-                <MenuItem x:Name="MenuItem_Export" Header="_Export">
+                <MenuItem x:Name="MenuItem_Export" Header="_Export" Loaded="MenuItem_File_Opening">
                     <MenuItem Header="_To Image" Click="MenuItem_ExportImage_Click"/>
                     <MenuItem Header="_To Tabletop Simulator" Click="MenuItem_TableTop_Click"/>
                 </MenuItem>

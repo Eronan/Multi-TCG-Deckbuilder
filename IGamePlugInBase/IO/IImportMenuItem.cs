@@ -1,27 +1,31 @@
-﻿namespace IGamePlugInBase
+﻿namespace IGamePlugInBase.IO
 {
     /// <summary>
     /// An Interface used to define a Menu Item and its Action
     /// </summary>
-    public interface IExportMenuItem
+    public interface IImportMenuItem
     {
         /// <summary>
         /// The Text for the Menu Item
         /// </summary>
         public string Header { get; }
+
         /// <summary>
         /// The Default File Extension for the File. (e.g. *.mtdk)
         /// </summary>
         public string DefaultExtension { get; }
+
         /// <summary>
         /// Filter to get Specific Files (e.g. "Multi-TCG Deck Builder File (.mtdk)|*.mtdk")
         /// </summary>
         public string FileFilter { get; }
 
         /// <summary>
-        /// The Function performed in order to Export to a File.
+        /// The Function performed in order to Import a File and Convert it into (.mtdk) file.
         /// </summary>
-        /// <param name="filePath">The File Location that it Exports To.</param>
-        public void Export(string filePath, DeckBuilderDeckFile decks);
+        /// <param name="filePath">The File Location that it Imports from.</param>
+        /// <param name="currentFormat">The format that the Deck Builder is currently open as.</param>
+        /// <returns>A Deck Builder Deck File for the Deck Builder to Open.</returns>
+        public DeckBuilderDeckFile Import(string filePath, string currentFormat);
     }
 }

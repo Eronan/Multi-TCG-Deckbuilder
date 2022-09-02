@@ -1,5 +1,11 @@
-﻿namespace IGamePlugInBase
+﻿using IGamePlugInBase.IO;
+
+namespace IGamePlugInBase
 {
+    /// <summary>
+    /// The Information for the Plug-In.
+    /// Only one class with this interface should be defined.
+    /// </summary>
     public interface IGamePlugIn
     {
         //Variables
@@ -19,68 +25,29 @@
         public byte[] IconImage { get; }
 
         /// <summary>
-        /// A List of Formats the Game Plug-In Supports
-        /// </summary>
-        public IFormat[] Formats { get; }
-
-        /// <summary>
-        /// Determines whether the Card Lists and other necessary objects loaded from Files have been loaded.
-        /// </summary>
-        public bool CardListInitialized { get; }
-
-        /// <summary>
-        /// A List of Menu Item Functions that the Plug-In can Import from.
-        /// </summary>
-        public IImportMenuItem[] ImportFunctions { get; }
-
-        /// <summary>
-        /// A List of Menu Item Functions that the Plug-In can Export to.
-        /// </summary>
-        public IExportMenuItem[] ExportFunctions{ get; }
-
-        /// <summary>
         /// The Text that shows when the User presses on the "About Plug-In" Menu Item.
         /// It is recommended to place links to important websites to update the Plug-In here.
         /// </summary>
         public string AboutInformation { get; }
 
         /// <summary>
-        /// Fields used by the Deck Builder to build the Advanced Search
+        /// A List of Formats that are opened from the Plug-In.
         /// </summary>
-        public SearchField[] SearchFields { get; }
+        public IList<IFormat> Formats { get; }
 
         /// <summary>
-        /// The URL which users users should download new updates from. Please only use trusted Websites.
-        /// Preferably GitLab or GitHub with the Source Code.
+        /// A Service used to Download Necessary Files
         /// </summary>
-        public string DownloadLink { get; }
+        public IDownloader? Downloader { get; }
 
         /// <summary>
-        /// Loads the Card List and other Objects retrieved from Local Files.
+        /// All of the Import Menu Items that should be defined for the Plug-In.
         /// </summary>
-        public void InitializePlugIn();
+        public IEnumerable<IImportMenuItem>? ImportMenus { get; }
 
         /// <summary>
-        /// A Function that removes cards from the List based on searchFields.
+        /// All of the Export Menu Items that should be defined for the Plug-In.
         /// </summary>
-        /// <param name="cards">The List of Cards to be Filtered.</param>
-        /// <param name="searchFields">All the Search Fields and their Values.</param>
-        /// <returns>List of Cards from cards that matching searchFields.</returns>
-        public List<DeckBuilderCard> AdvancedFilterSearchList(IEnumerable<DeckBuilderCard> cards, SearchField[] searchFields);
-
-        /// <summary>
-        /// Used to Sort Card Lists
-        /// </summary>
-        /// <param name="x">First Card</param>
-        /// <param name="y">Second Card</param>
-        /// <returns>If x precedes y, it returns a number less than 0, if x and y are the same it returns 0, and if y precedes x it returns a number greater than 0.</returns>
-        public int CompareCards(DeckBuilderCard x, DeckBuilderCard y);
-
-        /// <summary>
-        /// Used to Download any necessary files for the Plug-In.
-        /// Make sure to use proper Exception-Handling and throwing.
-        /// </summary>
-        /// <returns>The Asynchronous Task that is run.</returns>
-        public Task DownloadFiles();
+        public IEnumerable<IExportMenuItem>? ExportMenus { get; }
     }
 }

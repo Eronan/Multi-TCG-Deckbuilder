@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace IGamePlugInBase
+namespace IGamePlugInBase.IO
 {
     public class DeckBuilderDeck
     {

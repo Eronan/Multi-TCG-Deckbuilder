@@ -1,4 +1,4 @@
-﻿namespace IGamePlugInBase
+﻿namespace IGamePlugInBase.IO
 {
     public class DeckBuilderDeckFile
     {

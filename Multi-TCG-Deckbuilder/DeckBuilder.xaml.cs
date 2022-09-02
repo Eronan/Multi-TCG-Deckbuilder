@@ -1,5 +1,4 @@
 ﻿using IGamePlugInBase;
-using Multi_TCG_Deckbuilder.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +9,9 @@ using System.Windows.Data;
 using System.Windows.Input;
 using Multi_TCG_Deckbuilder.Dialogs;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using IGamePlugInBase.IO;
+using Multi_TCG_Deckbuilder.Models;
 
 namespace Multi_TCG_Deckbuilder
 {
@@ -21,10 +23,11 @@ namespace Multi_TCG_Deckbuilder
     {
         IGamePlugIn game;
         IFormat format;
+        DeckBuilderFunctions deckBuilderService;
         List<DeckBuilderCardArt> fullList;
         List<DeckBuilderCardArt> advancedSearchList;
         List<DeckBuilderCardArt> searchList;
-        Dictionary<string, Tuple<TextBlock, ListBox, IDeck>> deckControls;
+        Dictionary<string, DeckGroup> deckControls;
         string openedFile;
 
         public DeckBuilder(IGamePlugIn gamePlugIn, IFormat format, DeckBuilderDeckFile? deckFile = null, string openFile = "")
@@ -35,29 +38,36 @@ namespace Multi_TCG_Deckbuilder
             this.game = gamePlugIn;
             this.format = format;
 
+            
+            this.deckBuilderService = format.DeckBuilderService;
+            
+
             // Create Necessary Lists
             this.fullList = new List<DeckBuilderCardArt>();
             this.searchList = new List<DeckBuilderCardArt>();
-            this.deckControls = new Dictionary<string, Tuple<TextBlock, ListBox, IDeck>>();
+            this.deckControls = new Dictionary<string, DeckGroup>();
             this.advancedSearchList = new List<DeckBuilderCardArt>();
 
             // Create Import Menu Items
-            if (this.game.ImportFunctions.Length == 0)
+            if (gamePlugIn.ImportMenus == null || gamePlugIn.ImportMenus.Count() == 0)
             {
                 MenuItem_Import.IsEnabled = false;
             }
             else
             {
-                foreach (IImportMenuItem importMenu in this.game.ImportFunctions)
+                foreach (var importMenu in gamePlugIn.ImportMenus)
                 {
                     AddImportMenuItem(importMenu);
                 }
             }
 
             // Create Export Menu Items
-            foreach (IExportMenuItem exportMenu in this.game.ExportFunctions)
+            if (gamePlugIn.ExportMenus != null)
             {
-                AddExportMenuItem(exportMenu);
+                foreach (var exportMenu in gamePlugIn.ExportMenus)
+                {
+                    AddExportMenuItem(exportMenu);
+                }
             }
 
             if (deckFile != null)
@@ -83,27 +93,26 @@ namespace Multi_TCG_Deckbuilder
             this.Title = string.Format("Multi-TCG Deck Builder: {0} - {1}", this.game.LongName, this.format.LongName);
 
             
-            this.fullList = DeckBuilderCardArt.GetFromCards(format.CardList, AppDomain.CurrentDomain.BaseDirectory);
+            this.fullList = format.CardList.ToList();
             this.advancedSearchList = this.fullList;
             this.searchList.Clear();
 
-            this.deckControls.Clear();
+            this.deckControls = new Dictionary<string, DeckGroup>();
 
             panel_Decks.Children.Clear();
 
             this.CreateDeckListBoxes(this.format.Decks);
-            button_ViewStats.Content = this.format.GetStats(this.GetAllDecks());
+            button_ViewStats.Content = this.deckBuilderService.GetStats(this.GetAllDecks());
         }
 
         // Clear Decks
         private void ClearDecks()
         {
-            foreach (Tuple<TextBlock, ListBox, IDeck> controls_Deck in this.deckControls.Values)
+            foreach (var controls_Deck in this.deckControls.Values)
             {
-                controls_Deck.Item1.Text = Regex.Replace(controls_Deck.Item1.Text, "\\(([0-9]+)\\) [✔❌]$", "(0) ❌");
-                controls_Deck.Item2.Items.Clear();
+                controls_Deck.Clear();
 
-                button_ViewStats.Content = this.format.GetStats(this.GetAllDecks());
+                button_ViewStats.Content = this.deckBuilderService.GetStats(this.GetAllDecks());
             }
         }
 
@@ -130,23 +139,19 @@ namespace Multi_TCG_Deckbuilder
 
             foreach (DeckBuilderDeck deck in deckFile.Decks)
             {
-                Tuple<TextBlock, ListBox, IDeck>? controls_Deck = this.deckControls.GetValueOrDefault(deck.DeckName);
+                DeckGroup? controls_Deck = this.deckControls.GetValueOrDefault(deck.DeckName);
 
                 if (controls_Deck != null)
                 {
-                    TextBlock label = controls_Deck.Item1;
-                    ListBox listBox = controls_Deck.Item2;
-                    IDeck deckTag = controls_Deck.Item3;
                     foreach (DeckBuilderCard card in deck.Cards)
                     {
                         DeckBuilderCardArt cardArt = this.fullList.First(item => item.CardID == card.CardID && item.ArtID == card.ArtID);
-                        listBox.Items.Add(cardArt);
-                        label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\) [✔❌]$", string.Format("({0}) {1}", listBox.Items.Count, deckTag.ValidateDeck(listBox.Items.Cast<DeckBuilderCardArt>()).Length == 0 ? "✔" : "❌"));
+                        controls_Deck.Add(cardArt);
                     }
                 }
             }
 
-            button_ViewStats.Content = this.format.GetStats(this.GetAllDecks());
+            button_ViewStats.Content = this.deckBuilderService.GetStats(this.GetAllDecks());
         }
 
         // Creates all the Deck List Boxes from an Array of Decks
@@ -226,7 +231,7 @@ namespace Multi_TCG_Deckbuilder
                 panel_Decks.Children.Add(listBox_Deck);
             }
 
-            this.deckControls.Add(deck.Name, new Tuple<TextBlock, ListBox, IDeck>(textblock_Label, listBox_Deck, deck));
+            this.deckControls.Add(deck.Name, new DeckGroup(textblock_Label, listBox_Deck, deck));
 
             return listBox_Deck;
         }
@@ -235,55 +240,25 @@ namespace Multi_TCG_Deckbuilder
         private Dictionary<string, IEnumerable<DeckBuilderCard>> GetAllDecks()
         {
             Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks = new Dictionary<string, IEnumerable<DeckBuilderCard>>();
-            foreach (KeyValuePair<string, Tuple<TextBlock, ListBox, IDeck>> valuePair in this.deckControls)
+            foreach (var deckGroup in this.deckControls)
             {
-                allDecks.Add(valuePair.Key, valuePair.Value.Item2.Items.Cast<DeckBuilderCardArt>());
+                allDecks.Add(deckGroup.Key, deckGroup.Value.Cardlist);
             }
 
             return allDecks;
         }
 
         // Sub-Routine for Adding a Card to a ListBox Item Collection
-        private bool AddCard(DeckBuilderCardArt card, Tuple<TextBlock, ListBox, IDeck> controls_Deck)
+        private bool AddCard(DeckBuilderCardArt card, DeckGroup controls_Deck)
         {
-            // Get Controls and Variables
-            TextBlock label = controls_Deck.Item1;
-            ListBox listbox_Deck = controls_Deck.Item2;
-            IDeck deck = controls_Deck.Item3;
-
             // Convert ListBox Items to Cardlist Format
             Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks = this.GetAllDecks();
 
             // Verify whether card has not reached its maximum allowable copies and can be added to the Deck
-            if (!format.ValidateMaximum(card, allDecks) && deck.ValidateAdd(card, listbox_Deck.Items.Cast<DeckBuilderCardArt>()))
+            if (!this.deckBuilderService.ValidateMaximum(card, allDecks) && controls_Deck.ValidateAdd(card))
             {
-                listbox_Deck.Items.Add(card);
-                label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\) [✔❌]$", string.Format("({0}) {1}", listbox_Deck.Items.Count, deck.ValidateDeck(listbox_Deck.Items.Cast<DeckBuilderCardArt>()).Length == 0 ? "✔" : "❌"));
-                button_ViewStats.Content = this.format.GetStats(allDecks);
-                return true;
-            }
-
-            return false;
-        }
-
-        // Sub-Routine for Removing a Card from a ListBox Item Collection
-        private bool RemoveCard(DeckBuilderCardArt card, Tuple<TextBlock, ListBox, IDeck> controls_Deck)
-        {
-            // Get Controls
-            TextBlock label = controls_Deck.Item1;
-            ListBox listBox_Deck = controls_Deck.Item2;
-            IDeck deck = controls_Deck.Item3;
-
-            // Remove Item
-            int previousCount = listBox_Deck.Items.Count;
-            listBox_Deck.Items.Remove(card);
-
-            // Check if Item was Removed
-            if (previousCount == listBox_Deck.Items.Count + 1)
-            {
-                // Update Text
-                label.Text = Regex.Replace(label.Text, "\\(([0-9]+)\\) [✔❌]$", string.Format("({0}) {1}", listBox_Deck.Items.Count, deck.ValidateDeck(listBox_Deck.Items.Cast<DeckBuilderCardArt>()).Length == 0 ? "✔" : "❌"));
-                button_ViewStats.Content = this.format.GetStats(GetAllDecks());
+                controls_Deck.Add(card);
+                button_ViewStats.Content = this.deckBuilderService.GetStats(allDecks);
                 return true;
             }
 
@@ -291,25 +266,13 @@ namespace Multi_TCG_Deckbuilder
         }
 
         // Sub-Routine for Moving a Card from a ListBox Item Collection to Another
-        private bool MoveCard(DeckBuilderCardArt card, Tuple<TextBlock, ListBox, IDeck> controls_DeckFrom, Tuple<TextBlock, ListBox, IDeck> controls_DeckTo)
+        private bool MoveCard(DeckBuilderCardArt card, DeckGroup controls_DeckFrom, DeckGroup controls_DeckTo)
         {
-            TextBlock labelFrom = controls_DeckFrom.Item1;
-            ListBox listbox_From = controls_DeckFrom.Item2;
-            IDeck deckFrom = controls_DeckFrom.Item3;
-            TextBlock labelTo = controls_DeckTo.Item1;
-            ListBox listbox_To = controls_DeckTo.Item2;
-            IDeck deckTo = controls_DeckTo.Item3;
-
-            if (deckFrom != null && deckTo != null && labelFrom != null && labelTo != null
-                && deckTo.ValidateAdd(card, listbox_To.Items.Cast<DeckBuilderCardArt>()))
+            if (controls_DeckTo.ValidateAdd(card) && controls_DeckFrom.Remove(card))
             {
-                listbox_To.Items.Add(card);
-                listbox_From.Items.Remove(card);
+                controls_DeckTo.Add(card);
 
-                labelTo.Text = Regex.Replace(labelTo.Text, "\\(([0-9]+)\\) [✔❌]$", string.Format("({0}) {1}", listbox_To.Items.Count, deckTo.ValidateDeck(listbox_To.Items.Cast<DeckBuilderCardArt>()).Length == 0 ? "✔" : "❌"));
-                labelFrom.Text = Regex.Replace(labelFrom.Text, "\\(([0-9]+)\\) [✔❌]$", string.Format("({0}) {1}", listbox_From.Items.Count, deckFrom.ValidateDeck(listbox_From.Items.Cast<DeckBuilderCardArt>()).Length == 0 ? "✔" : "❌"));
-
-                button_ViewStats.Content = this.format.GetStats(GetAllDecks());
+                button_ViewStats.Content = this.deckBuilderService.GetStats(GetAllDecks());
                 return true;
             }
             return false;
@@ -319,61 +282,36 @@ namespace Multi_TCG_Deckbuilder
         private bool CheckDecksValid(bool showMessages = true)
         {
             List<string> errorMessages = new List<string>();
-            foreach (Tuple<TextBlock, ListBox, IDeck> controls_Deck in this.deckControls.Values)
+
+            int cardsInDeck = 0;
+            foreach (var controls_Deck in this.deckControls.Values)
             {
-                errorMessages.AddRange(controls_Deck.Item3.ValidateDeck(controls_Deck.Item2.Items.Cast<DeckBuilderCardArt>()));
+                cardsInDeck += controls_Deck.Cardlist.Count;
+                try
+                {
+                    errorMessages.AddRange(controls_Deck.ValidateDeck());
+                }
+                catch (NotImplementedException error)
+                {
+                    Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
+                }
+
+                if (errorMessages.Count > 0 || cardsInDeck == 0)
+                {
+                    if (showMessages)
+                    {
+                        MessageBox.Show(string.Join("\n", errorMessages), "Invalid Deck!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    return false;
+                }
             }
 
-            if (errorMessages.Count > 0)
-            {
-                if (showMessages)
-                {
-                    MessageBox.Show(string.Join("\n", errorMessages), "Invalid Deck!", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                return false;
-            }
 
             return true;
         }
 
         // Sort ListBox Items based on DeckBuilderCard
-        private ItemCollection SortListBoxDeck(ItemCollection array, int leftIndex, int rightIndex)
-        {
-            var i = leftIndex;
-            var j = rightIndex;
-            var pivot = (DeckBuilderCardArt) array[leftIndex];
-
-            while (i <= j)
-            {
-                while (this.game.CompareCards((DeckBuilderCardArt) array[i], pivot) < 0)
-                {
-                    i++;
-                }
-
-                while (this.game.CompareCards((DeckBuilderCardArt)array[j], pivot) > 0)
-                {
-                    j--;
-                }
-
-                if (i <= j)
-                {
-                    DeckBuilderCardArt temp = (DeckBuilderCardArt) array[i];
-                    array[i] = array[j];
-                    array[j] = temp;
-                    i++;
-                    j--;
-                }
-            }
-
-            if (leftIndex < j)
-                SortListBoxDeck(array, leftIndex, j);
-
-            if (i < rightIndex)
-                SortListBoxDeck(array, i, rightIndex);
-
-            return array;
-        }
-
+        
         // Add Import MenuItem
         private void AddImportMenuItem(IImportMenuItem importMenu)
         {
@@ -481,22 +419,31 @@ namespace Multi_TCG_Deckbuilder
         // Filter Button Clicked
         private void button_AdvancedSearch_Click(object sender, RoutedEventArgs e)
         {
-            AdvancedSearch searchWindow = new AdvancedSearch(this.game.SearchFields);
-            if (searchWindow.ShowDialog() == true)
+            try
             {
-                this.advancedSearchList = game.AdvancedFilterSearchList(this.fullList.Cast<DeckBuilderCard>(), game.SearchFields).Cast<DeckBuilderCardArt>().ToList();
+                AdvancedSearch searchWindow = new AdvancedSearch(this.deckBuilderService.SearchFields);
+                if (searchWindow.ShowDialog() == true)
+                {
+                    this.advancedSearchList = deckBuilderService.AdvancedFilterSearchList(this.fullList.Cast<DeckBuilderCardArt>(), deckBuilderService.SearchFields).Cast<DeckBuilderCardArt>().ToList();
 
-                string searchText = textBox_SearchText.Text;
-                if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.fullList == null || searchText.Length < 4)
-                {
-                    this.searchList = this.advancedSearchList;
-                    this.listBox_CardResults.ItemsSource = this.searchList;
+                    string searchText = textBox_SearchText.Text;
+                    if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.fullList == null || searchText.Length < 4)
+                    {
+                        this.searchList = this.advancedSearchList;
+                        this.listBox_CardResults.ItemsSource = this.searchList;
+                    }
+                    else
+                    {
+                        this.searchList = this.advancedSearchList.Where(item => item.ViewDetails.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                        this.listBox_CardResults.ItemsSource = this.searchList;
+                    }
                 }
-                else
-                {
-                    this.searchList = this.advancedSearchList.Where(item => item.ViewDetails.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
-                    this.listBox_CardResults.ItemsSource = this.searchList;
-                }
+            }
+            catch (NotImplementedException error)
+            {
+                Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
+                MessageBox.Show("Advanced Search is not implemented for this Plug-In. Disabling button.", "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
+                button_AdvancedSearch.IsEnabled = false;
             }
         }
 
@@ -519,12 +466,11 @@ namespace Multi_TCG_Deckbuilder
             DeckBuilderCardArt? card = image.DataContext as DeckBuilderCardArt;
             if (card != null)
             {
-                string defaultDeckName = this.format.DefaultDeckName(card);
-                Tuple<TextBlock, ListBox, IDeck>? controls_Deck = this.deckControls.GetValueOrDefault(defaultDeckName);
-                if (controls_Deck != null)
-                {
-                    this.AddCard(card, controls_Deck);
-                }
+                string toDeck = this.deckBuilderService.DefaultDeckName(card);
+                // Add to Default or First Deck
+                DeckGroup controls_Deck = this.deckControls.GetValueOrDefault(toDeck) ?? this.deckControls.Values.First();
+                
+                this.AddCard(card, controls_Deck);
             }
         }
 
@@ -545,11 +491,11 @@ namespace Multi_TCG_Deckbuilder
         {
             Image image = (Image)sender;
             string deck = (string)image.Tag;
-            Tuple<TextBlock, ListBox, IDeck>? controls_Deck = this.deckControls.GetValueOrDefault(deck);
+            DeckGroup? controls_Deck = this.deckControls.GetValueOrDefault(deck);
             DeckBuilderCardArt? card = image.DataContext as DeckBuilderCardArt;
             if (card != null && controls_Deck != null)
             {
-                RemoveCard(card, controls_Deck);
+                controls_Deck.Remove(card);
             }
         }
 
@@ -612,14 +558,14 @@ namespace Multi_TCG_Deckbuilder
 
                 if (card != null && listbox != null)
                 {
-                    Tuple<TextBlock, ListBox, IDeck>? controlsTo = this.deckControls.GetValueOrDefault((string) listbox.Tag);
+                    DeckGroup? controlsTo = this.deckControls.GetValueOrDefault((string) listbox.Tag);
 
                     // Determine if Card is being Moved
                     if (e.Effects.HasFlag(DragDropEffects.Move) && !e.KeyStates.HasFlag(DragDropKeyStates.ControlKey)
                         && e.Data.GetDataPresent("listTag"))
                     {
                         string? originalDeck = e.Data.GetData("listTag") as string;
-                        Tuple<TextBlock, ListBox, IDeck>? originalControls = this.deckControls.GetValueOrDefault(originalDeck != null ? originalDeck : "");
+                        DeckGroup? originalControls = this.deckControls.GetValueOrDefault(originalDeck != null ? originalDeck : "");
                         if (originalControls != null && controlsTo != null)
                         {
                             MoveCard(card, originalControls, controlsTo);
@@ -662,11 +608,11 @@ namespace Multi_TCG_Deckbuilder
             if (e.Data.GetDataPresent("listTag") && e.Data.GetDataPresent("myFormat"))
             {
                 string? deck = e.Data.GetData("listTag") as string;
-                Tuple<TextBlock, ListBox, IDeck>? controls_Deck = deck != null ? this.deckControls.GetValueOrDefault(deck) : null;
+                DeckGroup? controls_Deck = deck != null ? this.deckControls.GetValueOrDefault(deck) : null;
                 DeckBuilderCardArt? card = e.Data.GetData("myFormat") as DeckBuilderCardArt;
                 if (controls_Deck != null && card != null)
                 {
-                    RemoveCard(card, controls_Deck);
+                    controls_Deck.Remove(card);
                 }
             }
             else if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -733,6 +679,7 @@ namespace Multi_TCG_Deckbuilder
         // Can Save Deck
         private void CommandBinding_Save_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
+            
             e.CanExecute = CheckDecksValid(false);
         }
         
@@ -800,19 +747,14 @@ namespace Multi_TCG_Deckbuilder
         {
             foreach (var controls_Deck in this.deckControls.Values)
             {
-                ListBox listBox = controls_Deck.Item2;
-
-                if (listBox.Items.Count > 1)
-                {
-                    SortListBoxDeck(listBox.Items, 0, listBox.Items.Count - 1);
-                }
+                controls_Deck.Sort(this.deckBuilderService.CompareCards);
             }
         }
 
         // Open View Stats
         private void MenuItem_ViewStats_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(this.format.GetDetailedStats(this.GetAllDecks()), "Deck Statistics", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
+            MessageBox.Show(this.deckBuilderService.GetDetailedStats(this.GetAllDecks()), "Deck Statistics", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
         }
 
         // Export to Image
@@ -823,7 +765,7 @@ namespace Multi_TCG_Deckbuilder
                 this.format.LongName,
                 this.deckControls.Select(x => new KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>(
                     this.format.Decks.First(deck => deck.Name == x.Key).Label, //Get Label instead of Key
-                    x.Value.Item2.Items.Cast<DeckBuilderCardArt>()) // Get Items
+                    x.Value.Cardlist) // Get Items
                 ),
                 this.openedFile
             );
@@ -845,18 +787,20 @@ namespace Multi_TCG_Deckbuilder
             double y = 0;
             foreach (var deck in this.deckControls.Values)
             {
-                foreach (var card in deck.Item2.Items.Cast<DeckBuilderCardArt>())
+                foreach (var card in deck.Cardlist)
                 {
+                    var imageFile = new BitmapImage(new Uri(card.FileLocation));
+
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {
                         // Initialize Height Variable
                         if (cardHeight == 0)
                         {
-                            cardHeight = card.ImageFile.Height * (cardWidth / card.ImageFile.Width);
+                            cardHeight = imageFile.Height * (cardWidth / imageFile.Width);
                         }
 
                         // Draw Image
-                        drawingContext.DrawImage(card.ImageFile, new Rect(x, y, cardWidth, cardHeight));
+                        drawingContext.DrawImage(imageFile, new Rect(x, y, cardWidth, cardHeight));
                         x += cardWidth;
                     }
                     else
@@ -864,12 +808,12 @@ namespace Multi_TCG_Deckbuilder
                         // Initialize Height Variable
                         if (cardHeight == 0)
                         {
-                            cardHeight = card.ImageFile.Width * (cardWidth / card.ImageFile.Height);
+                            cardHeight = imageFile.Width * (cardWidth / imageFile.Height);
                         }
 
                         // Rotate Bitmap Image
                         RotateTransform transform = new RotateTransform(90);
-                        System.Windows.Media.Imaging.BitmapImage rotatedImage = card.ImageFile.Clone();
+                        System.Windows.Media.Imaging.BitmapImage rotatedImage = imageFile.Clone();
                         rotatedImage.Rotation = System.Windows.Media.Imaging.Rotation.Rotate90;
 
                         // Draw Image
@@ -919,6 +863,18 @@ namespace Multi_TCG_Deckbuilder
         private void MenuItem_ProgramAbout_Click(object sender, RoutedEventArgs e)
         {
             new About().ShowDialog();
+        }
+
+        private void MenuItem_File_Opening(object sender, RoutedEventArgs e)
+        {
+            if (CheckDecksValid(false))
+            {
+                MenuItem_Export.IsEnabled = true;
+            }
+            else
+            {
+                MenuItem_Export.IsEnabled = false;
+            }
         }
     }
 }

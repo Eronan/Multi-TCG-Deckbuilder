@@ -1,4 +1,5 @@
 ﻿using IGamePlugInBase;
+using IGamePlugInBase.IO;
 using Multi_TCG_Deckbuilder.Contexts;
 using Octokit;
 using System;
@@ -46,17 +47,24 @@ namespace Multi_TCG_Deckbuilder
                 {
                     try
                     {
+                        // Load Plug-Ins
                         Assembly pluginAssembly = LoadPlugins(pluginPath);
                         gamePlugIns.AddRange(GetGamePlugIns(pluginAssembly));
                     }
                     catch (ApplicationException e)
                     {
-                        Console.WriteLine(pluginPath + " is not a valid Plug-In\n" + e.Message);
+                        Console.WriteLine("{0} is not a valid Plug-In\n{1}", pluginPath, e.Message);
+                        MessageBox.Show(string.Format("{0} is not a valid Plug-In DLL. Please delete it from the Plug-Ins Folder.\n{1}", pluginPath, e.Message), "Plug-In Invalid", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     catch (ReflectionTypeLoadException e)
                     {
-                        Console.WriteLine(pluginPath + " is outdated.\n" + e.Message);
-                        MessageBox.Show(pluginPath + " is outdated.\n" + e.Message, "Plug-In Outdated", MessageBoxButton.OK, MessageBoxImage.Error);
+                        Console.WriteLine("{0} is outdated.\n{1}", pluginPath, e.Message);
+                        MessageBox.Show(string.Format("{0} is outdated.\n{1}", pluginPath, e.Message), "Plug-In Outdated", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        MessageBox.Show(string.Format("Something is wrong with the Plug-In: {0}. Please fix or delete it from the Plug-Ins Folder.\n{1}", pluginPath, e.Message), "Plug-In Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
@@ -125,6 +133,32 @@ namespace Multi_TCG_Deckbuilder
                     IGamePlugIn? result = Activator.CreateInstance(type) as IGamePlugIn;
                     if (result != null)
                     {
+                        // Check Necessary Accessors are Implemented for the Plug-In
+                        try
+                        {
+                            // All Plug-Ins must at minimum specify:
+                            var name = result.Name; // Short Name for Saving Decks
+                            var longName = result.LongName; // Long Name for appearing in Load Plug-In Window
+                            var icon = result.IconImage; // Image for appearing in Load Plug-In Window
+                            var formats = result.Formats; // List of Valid Formats for appearing in Load Plug-In Window
+                            var firstFormat = formats[0]; // At least 1 Valid Format
+
+                            foreach (var format in formats)
+                            {
+                                // All Formats must at minimum specify:
+                                var image = format.Icon; // Icon for the Format to appear in Load Plug-In Window
+                                name = format.Name; // Short Name for Format to appear in Load Plug-In Window
+                                longName = format.LongName; // Long Name for the Format to appear in Load Plug-In Window
+                                var description = format.Description; // An Implemented Description
+                            }
+                        }
+                        catch (Exception e) when (e is IndexOutOfRangeException || e is NotImplementedException)
+                        {
+                            Console.Write(e.Message);
+                            continue;
+                        }
+
+                        // Return Plug-In
                         count++;
                         yield return result;
                     }
@@ -135,7 +169,7 @@ namespace Multi_TCG_Deckbuilder
             {
                 string availableTypes = string.Join(",", assembly.GetTypes().Select(t => t.FullName));
                 throw new ApplicationException(
-                    $"Can't find any type which implements ICommand in {assembly} from {assembly.Location}.\n" +
+                    $"Can't find any valid IGamePlugIn type in {assembly} from {assembly.Location}.\n" +
                     $"Available types: {availableTypes}");
             }
         }
@@ -163,26 +197,27 @@ namespace Multi_TCG_Deckbuilder
             if (game != null && format != null)
             {
                 // Initialize Plug-In Information, if not previously initialized
-                if (!game.CardListInitialized)
+                try
                 {
-                    try
-                    {
-                        game.InitializePlugIn();
+                    DeckBuilder deckbuilderWindow = new DeckBuilder(game, format);
+                    deckbuilderWindow.Show();
+                }
+                catch (NotImplementedException error)
+                {
+                    Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
+                    MessageBox.Show(string.Format("The Format for this Plug-In is not Implemented. Please choose a different format.\n{0}", (error.StackTrace ?? "").Split('\n')[0]), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (PlugInFilesMissingException error)
+                {
+                    Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
+                    MessageBox.Show("Download the Latest Version of the Plug-In before continuing.", "Files Missing", MessageBoxButton.OK, MessageBoxImage.Error);
 
-                        DeckBuilder deckbuilderWindow = new DeckBuilder(game, format);
-                        deckbuilderWindow.Show();
-                    }
-                    catch (PlugInFilesMissingException error)
-                    {
-                        Console.WriteLine(error.Message);
-                        MessageBox.Show("Download the Latest Version of the Plug-In before continuing.");
-
-                        MenuItem_PlugInFiles_Click(sender, e);
-                    }
-                    catch (BadImageFormatException error)
-                    {
-                        MessageBox.Show(error.Message);
-                    }
+                    MenuItem_PlugInFiles_Click(sender, e);
+                }
+                catch (BadImageFormatException error)
+                {
+                    Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
+                    MessageBox.Show(error.Message);
                 }
             }
             else
@@ -212,25 +247,32 @@ namespace Multi_TCG_Deckbuilder
         private void MenuItem_UpdatePlugIn_Click(object sender, RoutedEventArgs e)
         {
             IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
-            if (game == null)
+            if (game == null || game.Downloader == null)
             {
                 return;
             }
 
-            var process = new System.Diagnostics.ProcessStartInfo(game.DownloadLink)
+            try
             {
-                UseShellExecute = true,
-                Verb = "open"
-            };
-            System.Diagnostics.Process.Start(process);
+                var process = new System.Diagnostics.ProcessStartInfo(game.Downloader.DownloadLink)
+                {
+                    UseShellExecute = true,
+                    Verb = "open"
+                };
+                System.Diagnostics.Process.Start(process);
+            }
+            catch (NotImplementedException error)
+            {
+                Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
+                MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.\n{1}", error.Source, (error.StackTrace ?? "").Split('\n')[0]), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // Allow Plug-In to Download Files
         private void MenuItem_PlugInFiles_Click(object sender, RoutedEventArgs e)
         {
             IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
-            if (game == null || 
-                MessageBox.Show("Make sure that you have already previously downloaded files manually! If downloading takes too long, the program will time-out and corrupt the downloaded files.\nAre you sure you want to download Files, this can take a while?", "Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.No)
+            if (game == null || game.Downloader == null)
             {
                 return;
             }
@@ -239,14 +281,23 @@ namespace Multi_TCG_Deckbuilder
 
             try
             {
-                var download = game.DownloadFiles();
-                download.Wait(new TimeSpan(0, 10, 0));
+                var download = game.Downloader.DownloadFiles();
 
-                MessageBox.Show("Download Successful!", "Success!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                if (MessageBox.Show("Make sure that you have already previously downloaded files manually! If downloading takes too long, the program will time-out and corrupt the downloaded files.\nAre you sure you want to download Files, this can take a while?", "Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+                {
+                    download.Wait(new TimeSpan(0, 10, 0));
+
+                    MessageBox.Show("Download Successful!", "Success!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                }
+            }
+            catch (NotImplementedException error)
+            {
+                Console.WriteLine(error.Message);
+                MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception error)
             {
-                MessageBox.Show("Download Unsuccessful. Attempt to download the necessary files manually.\n" + error.Message, "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(String.Format("Download Unsuccessful. Attempt to download the necessary files manually.\n{0}",error.Message), "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             Mouse.OverrideCursor = null;

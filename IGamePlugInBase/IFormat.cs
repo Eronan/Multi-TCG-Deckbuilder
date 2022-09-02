@@ -1,7 +1,8 @@
 ﻿namespace IGamePlugInBase
 {
     /// <summary>
-    /// A Format within a Game.
+    /// A Format defined within a Plug-In.
+    /// Any number of Formats can be defined.
     /// </summary>
     public interface IFormat
     {
@@ -28,43 +29,19 @@
         public string Description { get; }
 
         /// <summary>
-        /// A Card List exclusive to the Format.
-        /// Should be grabbed from the Game Class.
-        /// </summary>
-        public ICard[] CardList { get; }
-
-        /// <summary>
         /// The Decks that Compromise a Proper Game Deck in the Format
         /// </summary>
         public IDeck[] Decks { get; }
 
         /// <summary>
-        /// Gets the Deck that the Card should be added to by Default.
+        /// A Card List exclusive to the Format.
+        /// Should be grabbed from the Game Class.
         /// </summary>
-        /// <param name="card">Card which is being added.</param>
-        /// <returns>The Deck Name that the card will be added to by Default.</returns>
-        public string DefaultDeckName(DeckBuilderCard card);
+        public DeckBuilderCardArt[] CardList { get; }
 
         /// <summary>
-        /// Determines whether a card has reached the Maximum Allowable number of copies in a Decklist.
+        /// An abstract class to implement the Functions used in Deck Building for the Format.
         /// </summary>
-        /// <param name="card">Card that is being added.</param>
-        /// <param name="decks">All Cards in each Deck.</param>
-        /// <returns></returns>
-        public bool ValidateMaximum(DeckBuilderCard card, Dictionary<string, IEnumerable<DeckBuilderCard>> decks);
-
-        /// <summary>
-        /// Returns Text detailing the types of cards in the Decks.
-        /// </summary>
-        /// <param name="decks">All the Cards in the Deck List separated by which Deck they are in.</param>
-        /// <returns>The Text that is displayed with Labels and Counts. It should be smaller, and fit on the Deck Builder Window's Button.</returns>
-        public string GetStats(Dictionary<string, IEnumerable<DeckBuilderCard>> decks);
-
-        /// <summary>
-        /// Returns Text detailing the types of cards in the Decks.
-        /// </summary>
-        /// <param name="decks">All the Cards in the Deck List separated by which Deck they are in.</param>
-        /// <returns>The Text that is displayed with Labels and Counts. The text will show on a separate Window.</returns>
-        public string GetDetailedStats(Dictionary<string, IEnumerable<DeckBuilderCard>> decks);
+        public DeckBuilderFunctions DeckBuilderService { get; }
     }
 }
