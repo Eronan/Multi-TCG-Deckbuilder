@@ -7,11 +7,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Xml;
 
 namespace Multi_TCG_Deckbuilder
 {
@@ -141,7 +139,11 @@ namespace Multi_TCG_Deckbuilder
                             var longName = result.LongName; // Long Name for appearing in Load Plug-In Window
                             var icon = result.IconImage; // Image for appearing in Load Plug-In Window
                             var formats = result.Formats; // List of Valid Formats for appearing in Load Plug-In Window
-                            var firstFormat = formats[0]; // At least 1 Valid Format
+
+                            if (formats.Count() == 0)
+                            {
+                                throw new NotImplementedException("Formats List is missing.");
+                            }
 
                             foreach (var format in formats)
                             {

@@ -31,17 +31,11 @@
         /// <summary>
         /// The Decks that Compromise a Proper Game Deck in the Format
         /// </summary>
-        public IDeck[] Decks { get; }
-
-        /// <summary>
-        /// A Card List exclusive to the Format.
-        /// Should be grabbed from the Game Class.
-        /// </summary>
-        public DeckBuilderCardArt[] CardList { get; }
+        public IEnumerable<IDeck> Decks { get; }
 
         /// <summary>
         /// An abstract class to implement the Functions used in Deck Building for the Format.
         /// </summary>
-        public DeckBuilderFunctions DeckBuilderService { get; }
+        public IDeckBuilderService DeckBuilderService { get => new NullDeckBuilderService(); }
     }
 }

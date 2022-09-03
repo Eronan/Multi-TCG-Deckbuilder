@@ -33,21 +33,21 @@ namespace IGamePlugInBase
         /// <summary>
         /// A List of Formats that are opened from the Plug-In.
         /// </summary>
-        public IList<IFormat> Formats { get; }
+        public IEnumerable<IFormat> Formats { get; }
 
         /// <summary>
         /// A Service used to Download Necessary Files
         /// </summary>
-        public IDownloader? Downloader { get; }
+        public IDownloader? Downloader { get => null; }
 
         /// <summary>
         /// All of the Import Menu Items that should be defined for the Plug-In.
         /// </summary>
-        public IEnumerable<IImportMenuItem>? ImportMenus { get; }
+        public IEnumerable<IImportMenuItem>? ImportMenus { get => null; }
 
         /// <summary>
         /// All of the Export Menu Items that should be defined for the Plug-In.
         /// </summary>
-        public IEnumerable<IExportMenuItem>? ExportMenus { get; }
+        public IEnumerable<IExportMenuItem>? ExportMenus { get => null; }
     }
 }

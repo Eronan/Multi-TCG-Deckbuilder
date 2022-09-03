@@ -6,9 +6,9 @@
         Landscape,
     }
 
-    public abstract class DeckBuilderCardArt : DeckBuilderCard
+    public class DeckBuilderCardArt : DeckBuilderCard
     {
-        protected DeckBuilderCardArt(string cardID, string artID, string name, string fileLocation, CardArtOrientation orientation, string viewDetails = "") : base(cardID, artID)
+        public DeckBuilderCardArt(string cardID, string artID, string name, string fileLocation, CardArtOrientation orientation, string viewDetails = "") : base(cardID, artID)
         {
             this.Name = name;
             this.FileLocation = fileLocation;
@@ -19,6 +19,8 @@
         public string Name { get; private set; }
 
         public string FileLocation { get; private set; }
+
+        public string FullFileLocation { get => Path.GetFullPath(FileLocation); }
 
         public CardArtOrientation Orientation { get; private set; }
 

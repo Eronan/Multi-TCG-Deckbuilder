@@ -2,16 +2,26 @@
 
 namespace IGamePlugInBase
 {
-    public abstract class DeckBuilderFunctions
+    /// <summary>
+    /// Defined by Format. The necessary Fields required for a Deck Builder to run a Format.
+    /// These variables and methods are not used until entering the Deck Builder Window.
+    /// </summary>
+    public interface IDeckBuilderService
     {
         /// <summary>
-        /// Fields used by the Deck Builder to build the Advanced Search
+        /// A Card List for a Format. Provides the Full List of Addable Cards for a Format.
         /// </summary>
-        public IEnumerable<SearchField> SearchFields { get; } = new SearchField[0];
+        public IEnumerable<DeckBuilderCardArt> CardList { get; }
 
         /// <summary>
-        /// Function called before opening a Format in the Deck Builder Window.
+        /// Fields used by the Deck Builder to build the Advanced Search.
+        /// </summary>
+        public IEnumerable<SearchField> SearchFields { get; }
+
+        /// <summary>
+        /// Function called when a Format in the Deck Builder Window.
         /// Any time-consuming actions should be run here.
+        /// Avoid running code again, if some fields have already been initialized the first tiem.
         /// </summary>
         public void InitializeService()
         {
@@ -80,7 +90,7 @@ namespace IGamePlugInBase
             return x.CardID.CompareTo(x.CardID);
         }
 
-        
+
         /// <summary>
         /// Gets the Deck that the Card should be added to by Default.
         /// </summary>

@@ -23,7 +23,7 @@ namespace Multi_TCG_Deckbuilder
     {
         IGamePlugIn game;
         IFormat format;
-        DeckBuilderFunctions deckBuilderService;
+        IDeckBuilderService deckBuilderService;
         List<DeckBuilderCardArt> fullList;
         List<DeckBuilderCardArt> advancedSearchList;
         List<DeckBuilderCardArt> searchList;
@@ -37,9 +37,9 @@ namespace Multi_TCG_Deckbuilder
             // Set Up Variables
             this.game = gamePlugIn;
             this.format = format;
-
             
             this.deckBuilderService = format.DeckBuilderService;
+            this.deckBuilderService.InitializeService();
             
 
             // Create Necessary Lists
@@ -92,8 +92,9 @@ namespace Multi_TCG_Deckbuilder
 
             this.Title = string.Format("Multi-TCG Deck Builder: {0} - {1}", this.game.LongName, this.format.LongName);
 
-            
-            this.fullList = format.CardList.ToList();
+            this.deckBuilderService = format.DeckBuilderService;
+            this.deckBuilderService.InitializeService();
+            this.fullList = deckBuilderService.CardList.ToList();
             this.advancedSearchList = this.fullList;
             this.searchList.Clear();
 
@@ -155,11 +156,11 @@ namespace Multi_TCG_Deckbuilder
         }
 
         // Creates all the Deck List Boxes from an Array of Decks
-        private void CreateDeckListBoxes(IDeck[] decks)
+        private void CreateDeckListBoxes(IEnumerable<IDeck> decks)
         {
-            if (decks.Length == 1)
+            if (decks.Count() == 1)
             {
-                this.CreateDeckListBox(decks[0], true);
+                this.CreateDeckListBox(decks.First(), true);
             }
             else
             {
