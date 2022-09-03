@@ -1,5 +1,8 @@
 ﻿namespace IGamePlugInBase.IO
 {
+    /// <summary>
+    /// Interface used to Download Necessary Files from the Internet
+    /// </summary>
     public interface IDownloader
     {
         /// <summary>

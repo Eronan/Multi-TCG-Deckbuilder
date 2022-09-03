@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace IGamePlugInBase
 {
+    /// <summary>
+    /// Determines the Comparison to be Performed
+    /// </summary>
     public enum SearchFieldComparison
     { 
         Equals = '=',
@@ -14,6 +17,12 @@ namespace IGamePlugInBase
         GreaterThan = '≥',
     }
 
+    /// <summary>
+    /// The Type of Search it is Determining.
+    /// Text (String),
+    /// Number (Int),
+    /// Selection (String),
+    /// </summary>
     public enum SearchFieldType
     { 
         Text = 0,
