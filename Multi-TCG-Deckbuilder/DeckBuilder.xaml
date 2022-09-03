@@ -4,18 +4,20 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Multi_TCG_Deckbuilder"
+        xmlns:convert="clr-namespace:Multi_TCG_Deckbuilder.Converters"
         xmlns:plugin="clr-namespace:IGamePlugInBase;assembly=IGamePlugInBase"
         mc:Ignorable="d"
         Title="Deck Builder" Height="450" Width="800" MinHeight="450" MinWidth="800"
         AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.Resources>
+        <convert:CardArtConverter x:Key="CardArtConverter" />
         <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type plugin:DeckBuilderCardArt}">
-            <Image Source="{Binding FullFileLocation}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+            <Image Source="{Binding FileLocation, Converter={StaticResource ResourceKey=CardArtConverter}}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
                    MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove" />
         </DataTemplate>
         <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type plugin:DeckBuilderCardArt}">
-            <Image Source="{Binding FullFileLocation}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+            <Image Source="{Binding FileLocation, Converter={StaticResource ResourceKey=CardArtConverter}}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
                        MouseRightButtonDown="ImageCardDeck_MouseRightDown" MouseMove="ImageCardDeck_MouseMove"
                        Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}"/>
         </DataTemplate>
@@ -99,7 +101,7 @@
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="223*"/>
             </Grid.RowDefinitions>
-            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" Source="{Binding ImageFile}" />
+            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" Source="{Binding FileLocation, Converter={StaticResource ResourceKey=CardArtConverter}}" />
             <TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" FontSize="15px" Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center"/>
             <Border Grid.Row="2" BorderThickness="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
             <ScrollViewer Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="1,1,1,1"

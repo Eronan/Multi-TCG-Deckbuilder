@@ -20,8 +20,6 @@
 
         public string FileLocation { get; private set; }
 
-        public string FullFileLocation { get => Path.GetFullPath(FileLocation); }
-
         public CardArtOrientation Orientation { get; private set; }
 
         public string ViewDetails { get; private set; }
