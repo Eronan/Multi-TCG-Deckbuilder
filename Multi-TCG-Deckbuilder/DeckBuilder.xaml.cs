@@ -27,7 +27,7 @@ namespace Multi_TCG_Deckbuilder
         List<DeckBuilderCardArt> fullList;
         List<DeckBuilderCardArt> advancedSearchList;
         List<DeckBuilderCardArt> searchList;
-        Dictionary<string, DeckGroup> deckControls;
+        Dictionary<string, DeckControls> deckControls;
         string openedFile;
 
         public DeckBuilder(IGamePlugIn gamePlugIn, IFormat format, DeckBuilderDeckFile? deckFile = null, string openFile = "")
@@ -45,7 +45,7 @@ namespace Multi_TCG_Deckbuilder
             // Create Necessary Lists
             this.fullList = new List<DeckBuilderCardArt>();
             this.searchList = new List<DeckBuilderCardArt>();
-            this.deckControls = new Dictionary<string, DeckGroup>();
+            this.deckControls = new Dictionary<string, DeckControls>();
             this.advancedSearchList = new List<DeckBuilderCardArt>();
 
             // Create Import Menu Items
@@ -98,7 +98,7 @@ namespace Multi_TCG_Deckbuilder
             this.advancedSearchList = this.fullList;
             this.searchList.Clear();
 
-            this.deckControls = new Dictionary<string, DeckGroup>();
+            this.deckControls = new Dictionary<string, DeckControls>();
 
             panel_Decks.Children.Clear();
 
@@ -140,7 +140,7 @@ namespace Multi_TCG_Deckbuilder
 
             foreach (DeckBuilderDeck deck in deckFile.Decks)
             {
-                DeckGroup? controls_Deck = this.deckControls.GetValueOrDefault(deck.DeckName);
+                DeckControls? controls_Deck = this.deckControls.GetValueOrDefault(deck.DeckName);
 
                 if (controls_Deck != null)
                 {
@@ -170,9 +170,14 @@ namespace Multi_TCG_Deckbuilder
                 }
             }
         }
-        
-        // Creates a List Box with all of its Children by using a Deck Class
-        private ListBox CreateDeckListBox(IDeck deck, bool onlyDeck)
+
+        /// <summary>
+        /// Creates a Collection of WPF Controls from a Deck Interface and Adds it to deckControls
+        /// </summary>
+        /// <param name="deck">The Deck Interface it is created From.</param>
+        /// <param name="onlyDeck">Determines whether the Deck Interface is the only Deck in a Format.</param>
+        /// <returns>The Collection of WPF Controls</returns>
+        private DeckControls CreateDeckListBox(IDeck deck, bool onlyDeck)
         {
             // Deck Label
             TextBlock textblock_Label = new TextBlock();
@@ -232,7 +237,7 @@ namespace Multi_TCG_Deckbuilder
                 panel_Decks.Children.Add(listBox_Deck);
             }
 
-            this.deckControls.Add(deck.Name, new DeckGroup(textblock_Label, listBox_Deck, deck));
+            this.deckControls.Add(deck.Name, new DeckControls(textblock_Label, listBox_Deck, deck));
 
             return listBox_Deck;
         }
@@ -241,16 +246,16 @@ namespace Multi_TCG_Deckbuilder
         private Dictionary<string, IEnumerable<DeckBuilderCard>> GetAllDecks()
         {
             Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks = new Dictionary<string, IEnumerable<DeckBuilderCard>>();
-            foreach (var deckGroup in this.deckControls)
+            foreach (var controls_Deck in this.deckControls)
             {
-                allDecks.Add(deckGroup.Key, deckGroup.Value.Cardlist);
+                allDecks.Add(controls_Deck.Key, controls_Deck.Value.Cardlist);
             }
 
             return allDecks;
         }
 
         // Sub-Routine for Adding a Card to a ListBox Item Collection
-        private bool AddCard(DeckBuilderCardArt card, DeckGroup controls_Deck)
+        private bool AddCard(DeckBuilderCardArt card, DeckControls controls_Deck)
         {
             // Convert ListBox Items to Cardlist Format
             Dictionary<string, IEnumerable<DeckBuilderCard>> allDecks = this.GetAllDecks();
@@ -267,7 +272,7 @@ namespace Multi_TCG_Deckbuilder
         }
 
         // Sub-Routine for Moving a Card from a ListBox Item Collection to Another
-        private bool MoveCard(DeckBuilderCardArt card, DeckGroup controls_DeckFrom, DeckGroup controls_DeckTo)
+        private bool MoveCard(DeckBuilderCardArt card, DeckControls controls_DeckFrom, DeckControls controls_DeckTo)
         {
             if (controls_DeckTo.ValidateAdd(card) && controls_DeckFrom.Remove(card))
             {
@@ -469,7 +474,7 @@ namespace Multi_TCG_Deckbuilder
             {
                 string toDeck = this.deckBuilderService.DefaultDeckName(card);
                 // Add to Default or First Deck
-                DeckGroup controls_Deck = this.deckControls.GetValueOrDefault(toDeck) ?? this.deckControls.Values.First();
+                DeckControls controls_Deck = this.deckControls.GetValueOrDefault(toDeck) ?? this.deckControls.Values.First();
                 
                 this.AddCard(card, controls_Deck);
             }
@@ -492,7 +497,7 @@ namespace Multi_TCG_Deckbuilder
         {
             Image image = (Image)sender;
             string deck = (string)image.Tag;
-            DeckGroup? controls_Deck = this.deckControls.GetValueOrDefault(deck);
+            DeckControls? controls_Deck = this.deckControls.GetValueOrDefault(deck);
             DeckBuilderCardArt? card = image.DataContext as DeckBuilderCardArt;
             if (card != null && controls_Deck != null)
             {
@@ -559,14 +564,14 @@ namespace Multi_TCG_Deckbuilder
 
                 if (card != null && listbox != null)
                 {
-                    DeckGroup? controlsTo = this.deckControls.GetValueOrDefault((string) listbox.Tag);
+                    DeckControls? controlsTo = this.deckControls.GetValueOrDefault((string) listbox.Tag);
 
                     // Determine if Card is being Moved
                     if (e.Effects.HasFlag(DragDropEffects.Move) && !e.KeyStates.HasFlag(DragDropKeyStates.ControlKey)
                         && e.Data.GetDataPresent("listTag"))
                     {
                         string? originalDeck = e.Data.GetData("listTag") as string;
-                        DeckGroup? originalControls = this.deckControls.GetValueOrDefault(originalDeck != null ? originalDeck : "");
+                        DeckControls? originalControls = this.deckControls.GetValueOrDefault(originalDeck != null ? originalDeck : "");
                         if (originalControls != null && controlsTo != null)
                         {
                             MoveCard(card, originalControls, controlsTo);
@@ -609,7 +614,7 @@ namespace Multi_TCG_Deckbuilder
             if (e.Data.GetDataPresent("listTag") && e.Data.GetDataPresent("myFormat"))
             {
                 string? deck = e.Data.GetData("listTag") as string;
-                DeckGroup? controls_Deck = deck != null ? this.deckControls.GetValueOrDefault(deck) : null;
+                DeckControls? controls_Deck = deck != null ? this.deckControls.GetValueOrDefault(deck) : null;
                 DeckBuilderCardArt? card = e.Data.GetData("myFormat") as DeckBuilderCardArt;
                 if (controls_Deck != null && card != null)
                 {

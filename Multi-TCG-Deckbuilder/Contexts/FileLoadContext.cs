@@ -20,7 +20,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
         /// <param name="deckControls">The Deck Controls including the ListBoxes</param>
         /// <returns></returns>
         public static DeckBuilderDeckFile CreateDeckFile(string gameName, string formatName,
-            Dictionary<string, DeckGroup> deckControls)
+            Dictionary<string, DeckControls> deckControls)
         {
             List<DeckBuilderDeck> decks = new List<DeckBuilderDeck>();
             foreach (var valuePair in deckControls)
@@ -40,7 +40,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
         /// <param name="deckControls">The Deck Controls including the ListBoxes</param>
         /// <returns>JSON Text Serialized from the DeckBuilderDeckFile</returns>
         public static string ConvertToJSON(string gameName, string formatName,
-            Dictionary<string, DeckGroup> deckControls)
+            Dictionary<string, DeckControls> deckControls)
         {
             DeckBuilderDeckFile deckFile = CreateDeckFile(gameName, formatName, deckListBoxes);
             return JsonSerializer.Serialize<DeckBuilderDeckFile>(deckFile);
