@@ -18,6 +18,13 @@ namespace Multi_TCG_Deckbuilder.Dialogs
         string openedFile;
         public RenderTargetBitmap CreatedImage { get; }
 
+        /// <summary>
+        /// Constructor Logic for the ExportImage Window
+        /// </summary>
+        /// <param name="game">Full Name of the Game</param>
+        /// <param name="format">Full Name of the Format</param>
+        /// <param name="decks">The name of each Deck and the Cards</param>
+        /// <param name="openedFile">The currently opened File in the DeckBuilder Window.</param>
         public ExportImage(string game, string format, IEnumerable<KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>> decks, string openedFile)
         {
             InitializeComponent();
@@ -27,6 +34,13 @@ namespace Multi_TCG_Deckbuilder.Dialogs
             this.openedFile = openedFile;
         }
 
+        /// <summary>
+        /// Creates the Image to be Exported
+        /// </summary>
+        /// <param name="game">Full Name of the Game</param>
+        /// <param name="format">Full Name of the Format</param>
+        /// <param name="decks">The name of each Deck and the Cards</param>
+        /// <returns></returns>
         private RenderTargetBitmap CreateImage(string game, string format, IEnumerable<KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>> decks)
         {
             // Create Drawiong Canvas
@@ -119,12 +133,14 @@ namespace Multi_TCG_Deckbuilder.Dialogs
             return bmp;
         }
 
+        // Copies the Bitmap Image to the Clipboard
         private void CommandBinding_Copy_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             Clipboard.SetImage(this.CreatedImage);
             MessageBox.Show("Image has been copied to your Clipboard!", "Copied!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
+        // Saves the Bitmap Image to a File
         private void CommandBinding_Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             Contexts.FileLoadContext.ExportImageDialog(this.CreatedImage, this.openedFile);

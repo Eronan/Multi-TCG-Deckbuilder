@@ -1,25 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IGamePlugInBase;
-using System.Text.Json;
-using System.IO;
-using System.Windows.Media.Imaging;
-using IGamePlugInBase.IO;
+﻿using IGamePlugInBase.IO;
 using Multi_TCG_Deckbuilder.Models;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using System.Windows.Media.Imaging;
 
 namespace Multi_TCG_Deckbuilder.Contexts
 {
-    internal class FileLoadContext
+    /// <summary>
+    /// Static Methods that are used to Create a (.mtdk) File
+    /// </summary>
+    internal static class FileLoadContext
     {
-
+        /// <summary>
+        /// Initializes a Deck File
+        /// </summary>
+        /// <param name="gameName">Short Name of the Game Plug-In</param>
+        /// <param name="formatName">Short Name of the Format</param>
+        /// <param name="deckControls">The Deck Controls including the ListBoxes</param>
+        /// <returns></returns>
         public static DeckBuilderDeckFile CreateDeckFile(string gameName, string formatName,
-            Dictionary<string, DeckGroup> deckListBoxes)
+            Dictionary<string, DeckGroup> deckControls)
         {
             List<DeckBuilderDeck> decks = new List<DeckBuilderDeck>();
-            foreach (var valuePair in deckListBoxes)
+            foreach (var valuePair in deckControls)
             {
                 decks.Add(new DeckBuilderDeck(valuePair.Key, valuePair.Value.Cardlist));
             }
@@ -28,13 +32,25 @@ namespace Multi_TCG_Deckbuilder.Contexts
             return deckFile;
         }
 
+        /// <summary>
+        /// Converts a DeckBuilderDeckFile into JSON Text.
+        /// </summary>
+        /// <param name="gameName">Short Name of the Game Plug-In</param>
+        /// <param name="formatName">Short Name of the Format</param>
+        /// <param name="deckControls">The Deck Controls including the ListBoxes</param>
+        /// <returns>JSON Text Serialized from the DeckBuilderDeckFile</returns>
         public static string ConvertToJSON(string gameName, string formatName,
-            Dictionary<string, DeckGroup> deckListBoxes)
+            Dictionary<string, DeckGroup> deckControls)
         {
             DeckBuilderDeckFile deckFile = CreateDeckFile(gameName, formatName, deckListBoxes);
             return JsonSerializer.Serialize<DeckBuilderDeckFile>(deckFile);
         }
 
+        /// <summary>
+        /// Writes Text to a File
+        /// </summary>
+        /// <param name="deckFile">JSON Text of a (.mtdk) File.</param>
+        /// <param name="filePath">File Location to save the File to.</param>
         public static void WriteToFile(string deckFile, string filePath)
         {
             // Write To File
@@ -45,6 +61,11 @@ namespace Multi_TCG_Deckbuilder.Contexts
             }
         }
 
+        /// <summary>
+        /// Reads an (.mtdk) File.
+        /// </summary>
+        /// <param name="filePath">File Path of the (.mtdk) File.</param>
+        /// <returns>JSON Text of the (.mtdk) File</returns>
         public static string? ReadFromFile(string filePath)
         {
             if (!filePath.EndsWith(".mtdk")) { return null; }
@@ -56,11 +77,22 @@ namespace Multi_TCG_Deckbuilder.Contexts
             return deckFile;
         }
 
+        /// <summary>
+        /// Deserializes a (.mtdk) File's JSON Text
+        /// </summary>
+        /// <param name="deckFile">JSON Text of the Deck File</param>
+        /// <returns>Returns a DeckBuilderDeckFile Instance</returns>
         public static DeckBuilderDeckFile? ConvertFromJson(string deckFile)
         {
             return JsonSerializer.Deserialize<DeckBuilderDeckFile>(deckFile);
         }
 
+        /// <summary>
+        /// The SaveFileDialog that is used for Exporting Images and Encodes them.
+        /// </summary>
+        /// <param name="bitmap">The Image to be Exported.</param>
+        /// <param name="openedFile">The File Path of the File to write to.</param>
+        /// <returns>Successfully Exported Image</returns>
         public static bool ExportImageDialog(RenderTargetBitmap bitmap, string openedFile = "")
         {
             // Create Save Dialog

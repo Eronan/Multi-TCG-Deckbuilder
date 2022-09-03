@@ -19,12 +19,15 @@ namespace Multi_TCG_Deckbuilder.Dialogs
     /// </summary>
     public partial class About : Window
     {
-
+        /// <summary>
+        /// Constructs an About Window
+        /// </summary>
+        /// <param name="text">Text to be Displayed on the About Window.</param>
         public About(string? text = null)
         {
             InitializeComponent();
 
-            // Program About
+            // Default Program About
             if (text == null)
             {
                 Version? version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
@@ -59,11 +62,13 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                 textBlock.TextWrapping = TextWrapping.Wrap;
                 textBlock.Margin = new Thickness(10);
 
+                // Create Line with Hyperlinks
                 if (line.Contains("https://"))
-                { 
+                {
                     string nonLink = "";
                     foreach (string word in line.Split(' '))
                     {
+                        // Creates a Hyperlink
                         if (word.StartsWith("http"))
                         {
                             textBlock.Inlines.Add(nonLink);

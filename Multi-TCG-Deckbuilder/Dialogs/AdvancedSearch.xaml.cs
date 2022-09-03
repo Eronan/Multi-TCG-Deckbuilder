@@ -16,6 +16,11 @@ namespace Multi_TCG_Deckbuilder.Dialogs
         private IList<SearchField> searchFields;
         private ComboBox[] searchComparisons;
         private dynamic[] inputBoxes;
+        
+        /// <summary>
+        /// Constructs an Advanced Search Window
+        /// </summary>
+        /// <param name="fields">Fields that can be searched.</param>
         public AdvancedSearch(IEnumerable<SearchField> fields)
         {
             InitializeComponent();
@@ -176,6 +181,10 @@ namespace Multi_TCG_Deckbuilder.Dialogs
             this.MaxHeight = stack_Search.ActualHeight + SystemParameters.WindowCaptionHeight * 2;
         }
 
+        /// <summary>
+        /// Sets the Values after Confirming an Advanced Search Filter
+        /// </summary>
+        /// <returns>Confirms that none of the Fields are currently their Default Value.</returns>
         private bool UpdateValues()
         {
             bool existsNonDefault = false;
@@ -206,18 +215,21 @@ namespace Multi_TCG_Deckbuilder.Dialogs
             return existsNonDefault;
         }
 
+        // Confirm Button to Search
         private void button_Search_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = this.UpdateValues();
             this.Close();
         }
 
+        // Cancels Searching
         private void button_Cancel_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = false;
             this.Close();
         }
 
+        // Clears and Resets everything to their Defaults
         private void button_Clear_Click(object sender, RoutedEventArgs e)
         {
             for (int i = 0; i < this.inputBoxes.Length; i++)

@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
 namespace Multi_TCG_Deckbuilder.Converters
 {
+    /// <summary>
+    /// Converts a Relative File Path to an Absolute File Path or Empty Image
+    /// </summary>
     public sealed class CardArtConverter : IValueConverter
     {
         public object Convert(object value, Type targetType,
