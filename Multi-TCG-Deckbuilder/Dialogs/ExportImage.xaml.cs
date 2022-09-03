@@ -70,7 +70,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                 double cardInRow = 0;
                 foreach (var card in deck.Value)
                 {
-                    var imageFile = new BitmapImage(new Uri(card.FileLocation));
+                    var imageFile = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + card.FileLocation));
 
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {

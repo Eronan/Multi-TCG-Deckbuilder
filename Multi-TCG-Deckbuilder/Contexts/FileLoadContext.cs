@@ -42,7 +42,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
         public static string ConvertToJSON(string gameName, string formatName,
             Dictionary<string, DeckControls> deckControls)
         {
-            DeckBuilderDeckFile deckFile = CreateDeckFile(gameName, formatName, deckListBoxes);
+            DeckBuilderDeckFile deckFile = CreateDeckFile(gameName, formatName, deckControls);
             return JsonSerializer.Serialize<DeckBuilderDeckFile>(deckFile);
         }
 

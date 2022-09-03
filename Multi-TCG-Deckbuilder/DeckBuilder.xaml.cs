@@ -237,9 +237,10 @@ namespace Multi_TCG_Deckbuilder
                 panel_Decks.Children.Add(listBox_Deck);
             }
 
-            this.deckControls.Add(deck.Name, new DeckControls(textblock_Label, listBox_Deck, deck));
+            var deckControl = new DeckControls(textblock_Label, listBox_Deck, deck);
+            this.deckControls.Add(deck.Name, deckControl);
 
-            return listBox_Deck;
+            return deckControl;
         }
 
         // Sub-Routine for getting Decks in a Format for being parsed to Plug-In Functions
@@ -265,6 +266,17 @@ namespace Multi_TCG_Deckbuilder
             {
                 controls_Deck.Add(card);
                 button_ViewStats.Content = this.deckBuilderService.GetStats(allDecks);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool RemoveCard(DeckBuilderCardArt card, DeckControls controls_Deck)
+        {
+            if (controls_Deck.Remove(card))
+            {
+                button_ViewStats.Content = this.deckBuilderService.GetStats(this.GetAllDecks());
                 return true;
             }
 
@@ -501,7 +513,7 @@ namespace Multi_TCG_Deckbuilder
             DeckBuilderCardArt? card = image.DataContext as DeckBuilderCardArt;
             if (card != null && controls_Deck != null)
             {
-                controls_Deck.Remove(card);
+                RemoveCard(card, controls_Deck);
             }
         }
 
@@ -618,7 +630,7 @@ namespace Multi_TCG_Deckbuilder
                 DeckBuilderCardArt? card = e.Data.GetData("myFormat") as DeckBuilderCardArt;
                 if (controls_Deck != null && card != null)
                 {
-                    controls_Deck.Remove(card);
+                    RemoveCard(card, controls_Deck);
                 }
             }
             else if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -795,7 +807,7 @@ namespace Multi_TCG_Deckbuilder
             {
                 foreach (var card in deck.Cardlist)
                 {
-                    var imageFile = new BitmapImage(new Uri(card.FileLocation));
+                    var imageFile = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + card.FileLocation));
 
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {
