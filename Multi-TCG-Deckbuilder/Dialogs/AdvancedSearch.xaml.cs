@@ -251,5 +251,10 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                 }
             }
         }
+
+        public IEnumerable<SearchField> SearchFields
+        {
+            get { return this.searchFields; }
+        }
     }
 }

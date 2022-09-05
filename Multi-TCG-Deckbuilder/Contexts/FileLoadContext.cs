@@ -20,12 +20,12 @@ namespace Multi_TCG_Deckbuilder.Contexts
         /// <param name="deckControls">The Deck Controls including the ListBoxes</param>
         /// <returns></returns>
         public static DeckBuilderDeckFile CreateDeckFile(string gameName, string formatName,
-            Dictionary<string, DeckControls> deckControls)
+            IEnumerable<DeckModel> deckModels)
         {
             List<DeckBuilderDeck> decks = new List<DeckBuilderDeck>();
-            foreach (var valuePair in deckControls)
+            foreach (var deckModel in deckModels)
             {
-                decks.Add(new DeckBuilderDeck(valuePair.Key, valuePair.Value.Cardlist));
+                decks.Add(new DeckBuilderDeck(deckModel.DeckName, deckModel.Cards));
             }
 
             DeckBuilderDeckFile deckFile = new DeckBuilderDeckFile(gameName, formatName, decks.ToArray());
@@ -40,9 +40,9 @@ namespace Multi_TCG_Deckbuilder.Contexts
         /// <param name="deckControls">The Deck Controls including the ListBoxes</param>
         /// <returns>JSON Text Serialized from the DeckBuilderDeckFile</returns>
         public static string ConvertToJSON(string gameName, string formatName,
-            Dictionary<string, DeckControls> deckControls)
+            IEnumerable<DeckModel> deckModels)
         {
-            DeckBuilderDeckFile deckFile = CreateDeckFile(gameName, formatName, deckControls);
+            DeckBuilderDeckFile deckFile = CreateDeckFile(gameName, formatName, deckModels);
             return JsonSerializer.Serialize<DeckBuilderDeckFile>(deckFile);
         }
 

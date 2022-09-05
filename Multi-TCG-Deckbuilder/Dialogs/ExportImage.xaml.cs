@@ -1,4 +1,5 @@
 ﻿using IGamePlugInBase;
+using Multi_TCG_Deckbuilder.Models;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -25,7 +26,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
         /// <param name="format">Full Name of the Format</param>
         /// <param name="decks">The name of each Deck and the Cards</param>
         /// <param name="openedFile">The currently opened File in the DeckBuilder Window.</param>
-        public ExportImage(string game, string format, IEnumerable<KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>> decks, string openedFile)
+        public ExportImage(string game, string format, IEnumerable<DeckModel> decks, string openedFile)
         {
             InitializeComponent();
 
@@ -41,7 +42,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
         /// <param name="format">Full Name of the Format</param>
         /// <param name="decks">The name of each Deck and the Cards</param>
         /// <returns></returns>
-        private RenderTargetBitmap CreateImage(string game, string format, IEnumerable<KeyValuePair<string, IEnumerable<DeckBuilderCardArt>>> decks)
+        private RenderTargetBitmap CreateImage(string game, string format, IEnumerable<DeckModel> decks)
         {
             // Create Drawiong Canvas
             DrawingVisual drawingVisual = new DrawingVisual();
@@ -53,7 +54,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
             foreach (var deck in decks)
             {
                 // Draw Deck Name Text
-                FormattedText deckName = new FormattedText(deck.Key,
+                FormattedText deckName = new FormattedText(deck.Deck.Label,
                     System.Globalization.CultureInfo.GetCultureInfo("en-au"),
                     FlowDirection.LeftToRight,
                     new Typeface(""),
@@ -68,7 +69,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                 y += textSize;
 
                 double cardInRow = 0;
-                foreach (var card in deck.Value)
+                foreach (var card in deck.Cards)
                 {
                     var imageFile = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + card.FileLocation));
 
