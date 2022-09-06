@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -12,7 +13,7 @@ namespace Multi_TCG_Deckbuilder.Models
     /// <summary>
     /// A Collection of Window Controls for a Deck and Necessary Variables
     /// </summary>
-    public class DeckModel
+    public class DeckModel : INotifyPropertyChanged
     {
         /// <summary>
         /// Initializes a <see cref="DeckModel"/>
@@ -51,6 +52,16 @@ namespace Multi_TCG_Deckbuilder.Models
         /// <see cref="IDeck"/> Interface the Model was created from
         /// </summary>
         public IDeck Deck { get; }
+
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        // Create the OnPropertyChanged method to raise the event
+        // The calling member's name will be used as the parameter.
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
         // Sorts the Cardlist
         private ObservableCollection<CardModel> SortListBoxDeck(int leftIndex, int rightIndex, Comparison<CardModel> comparer)
@@ -97,6 +108,7 @@ namespace Multi_TCG_Deckbuilder.Models
         public void Add(CardModel card)
         {
             Cards.Add(card);
+            OnPropertyChanged(nameof(LabelText));
         }
 
         /// <summary>
@@ -106,7 +118,9 @@ namespace Multi_TCG_Deckbuilder.Models
         /// <returns>Card was successfully removed from the DeckControls</returns>
         public bool Remove(CardModel card)
         {
-            return Cards.Remove(card);
+            var result = Cards.Remove(card);
+            OnPropertyChanged(nameof(LabelText));
+            return result;
         }
 
         /// <summary>
@@ -115,6 +129,7 @@ namespace Multi_TCG_Deckbuilder.Models
         public void Clear()
         {
             Cards.Clear();
+            OnPropertyChanged(nameof(LabelText));
         }
 
         /// <summary>
