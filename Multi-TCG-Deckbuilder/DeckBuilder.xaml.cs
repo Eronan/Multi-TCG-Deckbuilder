@@ -41,7 +41,6 @@ namespace Multi_TCG_Deckbuilder
             this.deckBuilderService = format.DeckBuilderService;
             this.deckBuilderService.InitializeService();
 
-
             // Create Necessary Lists
             this.fullList = new List<CardModel>();
             this.searchList = new List<CardModel>();
@@ -89,7 +88,6 @@ namespace Multi_TCG_Deckbuilder
         private void ChangeFormat(IFormat format)
         {
             this.format = format;
-
             this.Title = string.Format("Multi-TCG Deck Builder: {0} - {1}", this.game.LongName, this.format.LongName);
 
             this.deckBuilderService = format.DeckBuilderService;
@@ -101,9 +99,6 @@ namespace Multi_TCG_Deckbuilder
             this.DeckModel = this.format.Decks.ToDictionary(val => val.Name, val => new DeckModel(val));
             panel_Decks.ItemsSource = this.DeckModel.Values;
 
-            //panel_Decks.Children.Clear();
-
-            //this.CreateDeckListBoxes(this.format.Decks);
             button_ViewStats.Content = this.deckBuilderService.GetStats(this.GetAllDecks());
         }
 
@@ -155,99 +150,6 @@ namespace Multi_TCG_Deckbuilder
 
             button_ViewStats.Content = this.deckBuilderService.GetStats(this.GetAllDecks());
         }
-
-        // Creates all the Deck List Boxes from an Array of Decks
-        private void CreateDeckListBoxes(IEnumerable<IDeck> decks)
-        {
-            /*
-            if (decks.Count() == 1)
-            {
-                // this.CreateDeckListBox(decks.First(), true);
-            }
-            else
-            {
-                foreach (IDeck deck in decks)
-                {
-                    // this.CreateDeckListBox(deck, false);
-                }
-            }*/
-            panel_Decks.ItemsSource = decks.Select(deck => new DeckModel(deck));
-        }
-
-        /// <summary>
-        /// Creates a Collection of WPF Controls from a Deck Interface and Adds it to DeckModel
-        /// </summary>
-        /// <param name="deck">The Deck Interface it is created From.</param>
-        /// <param name="onlyDeck">Determines whether the Deck Interface is the only Deck in a Format.</param>
-        /// <returns>The Collection of WPF Controls</returns>
-        /*
-        private DeckModel CreateDeckListBox(IDeck deck, bool onlyDeck)
-        {
-            // Deck Label
-            TextBlock textblock_Label = new TextBlock();
-            textblock_Label.Name = "labelDeck_" + deck.Name;
-            textblock_Label.Text = deck.Label + ": (0) ❌";
-
-            // Uniform Grid
-            System.Windows.Controls.Primitives.UniformGrid uniform = new System.Windows.Controls.Primitives.UniformGrid();
-            var templatePanel = new FrameworkElementFactory(typeof(System.Windows.Controls.Primitives.UniformGrid));
-            templatePanel.SetValue(System.Windows.Controls.Primitives.UniformGrid.ColumnsProperty, 10);
-            templatePanel.SetValue(System.Windows.Controls.Primitives.UniformGrid.HeightProperty, double.NaN);
-            templatePanel.SetValue(System.Windows.Controls.Primitives.UniformGrid.VerticalAlignmentProperty, VerticalAlignment.Top);
-            Binding panelBinding = new Binding("ViewportWidth");
-            panelBinding.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor);
-            panelBinding.RelativeSource.AncestorType = typeof(ScrollViewer);
-            templatePanel.SetValue(System.Windows.Controls.Primitives.UniformGrid.WidthProperty, panelBinding);
-
-            // ListBox Panel Template
-            var panelTemplate = new ItemsPanelTemplate();
-            panelTemplate.VisualTree = templatePanel;
-
-            // Deck List Box
-            ListBox listBox_Deck = new ListBox();
-            listBox_Deck.Name = "listBoxDeck_" + deck.Name;
-            listBox_Deck.Tag = deck.Name;
-            listBox_Deck.HorizontalAlignment = HorizontalAlignment.Stretch;
-            listBox_Deck.VerticalAlignment = VerticalAlignment.Top;
-            listBox_Deck.Width = double.NaN;
-            listBox_Deck.MinHeight = 40;
-            // listBox_Deck.MinHeight = Math.Ceiling(deck.ExpectedDeckSize / 10.0d) * 40;
-            if (onlyDeck)
-            {
-                listBox_Deck.VerticalAlignment = VerticalAlignment.Stretch;
-                listBox_Deck.Height = double.NaN;
-                listBox_Deck.Margin = new Thickness(0, 15, 0, 0);
-            }
-            else
-            {
-                listBox_Deck.VerticalAlignment = VerticalAlignment.Top;
-            }
-            listBox_Deck.ItemTemplate = this.FindResource("ImageControl_Deck") as DataTemplate;
-            listBox_Deck.ItemsPanel = panelTemplate;
-            listBox_Deck.AllowDrop = true;
-            listBox_Deck.DragOver += this.ListBox_Deck_DragOver;
-            listBox_Deck.Drop += this.ListBox_Deck_Drop;
-            listBox_Deck.GotFocus += this.listBox_GotFocus;
-            listBox_Deck.SelectionChanged += this.listBox_SelectionChanged;
-
-            if (onlyDeck)
-            {
-                grid_Decks.Children.Add(textblock_Label);
-                grid_Decks.Children.Add(listBox_Deck);
-            }
-            else
-            {
-                panel_Decks.Children.Add(textblock_Label);
-                panel_Decks.Children.Add(listBox_Deck);
-            }
-
-            var deckModel = new DeckModel(deck);
-            this.DeckModel.Add(deck.Name, deckModel);
-            listBox_Deck.ItemsSource = deckModel.Cards;
-
-            return deckModel;
-        }
-        */
 
         // Sub-Routine for getting Decks in a Format for being parsed to Plug-In Functions
         private Dictionary<string, IEnumerable<DeckBuilderCard>> GetAllDecks()

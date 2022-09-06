@@ -125,7 +125,7 @@
                         <DataTemplate>
                             <StackPanel>
                                 <TextBlock Text="{Binding LabelText}"/>
-                                <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Top" MinHeight="40" Margin="0,0,0,15"
+                                <ListBox HorizontalAlignment="Stretch" VerticalAlignment="{Binding }" MinHeight="40" Margin="0,0,0,15"
                                     ItemsSource="{Binding Cards}" Tag="{Binding DeckName}"
                                     DragOver="ListBox_Deck_DragOver" Drop="ListBox_Deck_Drop" GotFocus="listBox_GotFocus" SelectionChanged="listBox_SelectionChanged">
                                     <ListBox.ItemsPanel>

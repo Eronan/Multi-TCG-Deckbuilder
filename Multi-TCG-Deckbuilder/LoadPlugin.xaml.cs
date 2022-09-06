@@ -21,10 +21,19 @@ namespace Multi_TCG_Deckbuilder
     {
         GitHubClient? client;
         Version? currentVersion;
+        string executablePath;
 
         public LoadPlugin()
         {
             InitializeComponent();
+
+            string? assemblyLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            if (assemblyLocation != null)
+            {
+                Directory.SetCurrentDirectory(assemblyLocation);
+            }
+
+            executablePath = Directory.GetCurrentDirectory();
 
             // Find Installed Plug-Ins
             if (!Directory.Exists(@".\plug-ins\"))
@@ -58,17 +67,17 @@ namespace Multi_TCG_Deckbuilder
                     catch (ApplicationException e)
                     {
                         Console.WriteLine("{0} is not a valid Plug-In\n{1}", pluginPath, e.Message);
-                        MessageBox.Show(string.Format("{0} is not a valid Plug-In DLL. Please delete it from the Plug-Ins Folder.\n{1}", pluginPath, e.Message), "Plug-In Invalid", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format("{0} is not a valid Plug-In DLL. Please delete it from the Plug-Ins Folder.\n{1}", pluginPath, e.Message.Split('\n')[0]), "Plug-In Invalid", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     catch (ReflectionTypeLoadException e)
                     {
                         Console.WriteLine("{0} is outdated.\n{1}", pluginPath, e.Message);
-                        MessageBox.Show(string.Format("{0} is outdated.\n{1}", pluginPath, e.Message), "Plug-In Outdated", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format("{0} is outdated.\n{1}", pluginPath, e.Message.Split('\n')[0]), "Plug-In Outdated", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e.Message);
-                        MessageBox.Show(string.Format("Something is wrong with the Plug-In: {0}. Please fix or delete it from the Plug-Ins Folder.\n{1}", pluginPath, e.Message), "Plug-In Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format("Something is wrong with the Plug-In: {0}. Please fix or delete it from the Plug-Ins Folder.\n{1}", pluginPath, e.Message.Split('\n')[0]), "Plug-In Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
@@ -225,7 +234,7 @@ namespace Multi_TCG_Deckbuilder
                 catch (BadImageFormatException error)
                 {
                     Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
-                    MessageBox.Show(error.Message);
+                    MessageBox.Show(error.Message.Split('\n')[0]);
                 }
             }
             else
@@ -305,7 +314,7 @@ namespace Multi_TCG_Deckbuilder
             }
             catch (Exception error)
             {
-                MessageBox.Show(String.Format("Download Unsuccessful. Attempt to download the necessary files manually.\n{0}",error.Message), "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(String.Format("Download Unsuccessful. Attempt to download the necessary files manually.\n{0}",error.Message.Split('\n')[0]), "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             Mouse.OverrideCursor = null;
