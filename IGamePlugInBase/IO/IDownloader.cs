@@ -15,7 +15,8 @@
         /// Used to Download any necessary files for the Plug-In.
         /// Make sure to use proper Exception-Handling and throwing.
         /// </summary>
+        /// <param name="httpClient">The HTTP Client used for this operation.</param>
         /// <returns>The Asynchronous Task that is run.</returns>
-        public Task DownloadFiles();
+        public Task DownloadFiles(HttpClient httpClient);
     }
 }

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,6 +27,11 @@ namespace Multi_TCG_Deckbuilder
             InitializeComponent();
 
             // Find Installed Plug-Ins
+            if (!Directory.Exists(@".\plug-ins\"))
+            {
+                Directory.CreateDirectory(@".\plug-ins\");
+            }
+
             string[] pluginPaths = Directory.GetFiles(@".\plug-ins\", "*.dll", SearchOption.AllDirectories);
 
             // Load Plug-Ins
@@ -283,7 +289,7 @@ namespace Multi_TCG_Deckbuilder
 
             try
             {
-                var download = game.Downloader.DownloadFiles();
+                var download = game.Downloader.DownloadFiles(MTCGHttpClientFactory.HttpClient);
 
                 if (MessageBox.Show("Make sure that you have already previously downloaded files manually! If downloading takes too long, the program will time-out and corrupt the downloaded files.\nAre you sure you want to download Files, this can take a while?", "Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
@@ -309,7 +315,7 @@ namespace Multi_TCG_Deckbuilder
         private async void MenuItem_UpdateApp_Click(object sender, RoutedEventArgs e)
         {
             // Initialize Values
-            this.client = this.client ?? new GitHubClient(new ProductHeaderValue("tcg-deck-builder"));
+            this.client = this.client ?? new GitHubClient(new Connection(new ProductHeaderValue("tcg-deck-builder"), new Octokit.Internal.HttpClientAdapter(() => { return MTCGHttpClientFactory.clientHandler; })));
             this.currentVersion = this.currentVersion ?? Assembly.GetExecutingAssembly().GetName().Version;
 
             var releases = await this.client.Repository.Release.GetAll("Eronan", "Multi-TCG-Deckbuilder");
