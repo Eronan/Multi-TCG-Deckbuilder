@@ -98,11 +98,12 @@ namespace Multi_TCG_Deckbuilder
             this.advancedSearchList = this.fullList;
             this.searchList.Clear();
 
-            this.DeckModel = new Dictionary<string, DeckModel>();
+            this.DeckModel = this.format.Decks.ToDictionary(val => val.Name, val => new DeckModel(val));
+            panel_Decks.ItemsSource = this.DeckModel.Values;
 
             //panel_Decks.Children.Clear();
 
-            this.CreateDeckListBoxes(this.format.Decks);
+            //this.CreateDeckListBoxes(this.format.Decks);
             button_ViewStats.Content = this.deckBuilderService.GetStats(this.GetAllDecks());
         }
 
@@ -332,8 +333,6 @@ namespace Multi_TCG_Deckbuilder
 
             return true;
         }
-
-        // Sort ListBox Items based on DeckBuilderCard
 
         // Add Import MenuItem
         private void AddImportMenuItem(IImportMenuItem importMenu)

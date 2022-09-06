@@ -115,18 +115,19 @@
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
             <ScrollViewer x:Name="scroll_Decks" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" Width="Auto" Margin="1,0,1,0">
-                <ItemsControl x:Name ="panel_Decks" ItemsSource="{Binding Decks}">
+                <ItemsControl x:Name ="panel_Decks">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto" Height="auto" Margin="0,0,0,0"/>
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Width="auto" Height="auto" Margin="0,0,0,0"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
                                 <TextBlock Text="{Binding LabelText}"/>
-                                <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Top" MinHeight="40" Margin="0, 15, 0, 0"
-                                    ItemsSource="{Binding Cards}" Tag="{Binding DeckName}">
+                                <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Top" MinHeight="40" Margin="0,0,0,15"
+                                    ItemsSource="{Binding Cards}" Tag="{Binding DeckName}"
+                                    DragOver="ListBox_Deck_DragOver" Drop="ListBox_Deck_Drop" GotFocus="listBox_GotFocus" SelectionChanged="listBox_SelectionChanged">
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <UniformGrid Columns="10" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportWidth}" Height="auto" VerticalAlignment="Top" />
