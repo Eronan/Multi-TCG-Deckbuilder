@@ -92,6 +92,13 @@ namespace Multi_TCG_Deckbuilder
 
             this.deckBuilderService = format.DeckBuilderService;
             this.deckBuilderService.InitializeService();
+
+            if (this.format.Decks.Count() == 0)
+            {
+                throw new NotImplementedException("Decks for this Format were not implemented.");
+            }
+
+            this.button_AdvancedSearch.IsEnabled = this.deckBuilderService.SearchFields.Count() > 0;
             this.fullList = deckBuilderService.CardList.Select(card => new CardModel(card.CardID, card.ArtID, card.Name, card.FileLocation, card.Orientation, card.ViewDetails)).ToList();
             this.advancedSearchList = this.fullList;
             this.searchList.Clear();
@@ -125,8 +132,17 @@ namespace Multi_TCG_Deckbuilder
                 }
 
                 // Change Format
-                IFormat newFormat = this.game.Formats.First(item => item.Name == deckFile.Format);
-                ChangeFormat(newFormat);
+                try
+                {
+                    IFormat newFormat = this.game.Formats.First(item => item.Name == deckFile.Format);
+                    ChangeFormat(newFormat);
+                }
+                catch (NotImplementedException e)
+                {
+                    Console.WriteLine(e.Message);
+                    MessageBox.Show(string.Format("This Format is not properly implemented and cannot be opened.\n{0}", e.Message), "Format Not Implemented!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
             }
             else
             {
@@ -226,6 +242,10 @@ namespace Multi_TCG_Deckbuilder
                 {
                     if (showMessages)
                     {
+                        if (cardsInDeck == 0)
+                        {
+                            errorMessages.Add("There are no cards in the Deck.");
+                        }
                         MessageBox.Show(string.Join("\n", errorMessages), "Invalid Deck!", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     return false;
@@ -343,31 +363,22 @@ namespace Multi_TCG_Deckbuilder
         // Filter Button Clicked
         private void button_AdvancedSearch_Click(object sender, RoutedEventArgs e)
         {
-            try
+            AdvancedSearch searchWindow = new AdvancedSearch(this.deckBuilderService.SearchFields);
+            if (searchWindow.ShowDialog() == true)
             {
-                AdvancedSearch searchWindow = new AdvancedSearch(this.deckBuilderService.SearchFields);
-                if (searchWindow.ShowDialog() == true)
-                {
-                    this.advancedSearchList = deckBuilderService.AdvancedFilterSearchList(this.fullList.Cast<CardModel>(), deckBuilderService.SearchFields).Cast<CardModel>().ToList();
+                this.advancedSearchList = deckBuilderService.AdvancedFilterSearchList(this.fullList.Cast<CardModel>(), deckBuilderService.SearchFields).Cast<CardModel>().ToList();
 
-                    string searchText = textBox_SearchText.Text;
-                    if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.fullList == null || searchText.Length < 4)
-                    {
-                        this.searchList = this.advancedSearchList;
-                        this.listBox_CardResults.ItemsSource = this.searchList;
-                    }
-                    else
-                    {
-                        this.searchList = this.advancedSearchList.Where(item => item.ViewDetails.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
-                        this.listBox_CardResults.ItemsSource = this.searchList;
-                    }
+                string searchText = textBox_SearchText.Text;
+                if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.fullList == null || searchText.Length < 4)
+                {
+                    this.searchList = this.advancedSearchList;
+                    this.listBox_CardResults.ItemsSource = this.searchList;
                 }
-            }
-            catch (NotImplementedException error)
-            {
-                Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
-                MessageBox.Show("Advanced Search is not implemented for this Plug-In. Disabling button.", "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
-                button_AdvancedSearch.IsEnabled = false;
+                else
+                {
+                    this.searchList = this.advancedSearchList.Where(item => item.ViewDetails.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    this.listBox_CardResults.ItemsSource = this.searchList;
+                }
             }
         }
 

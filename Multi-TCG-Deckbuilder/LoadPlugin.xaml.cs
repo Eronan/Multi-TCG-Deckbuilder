@@ -138,7 +138,8 @@ namespace Multi_TCG_Deckbuilder
         static IEnumerable<IGamePlugIn> GetGamePlugIns(Assembly assembly)
         {
             int count = 0;
-
+            string? exceptionMessage = null;
+            
             foreach (Type type in assembly.GetTypes())
             {
                 if (typeof(IGamePlugIn).IsAssignableFrom(type))
@@ -172,6 +173,7 @@ namespace Multi_TCG_Deckbuilder
                         catch (Exception e) when (e is IndexOutOfRangeException || e is NotImplementedException)
                         {
                             Console.Write(e.Message);
+                            exceptionMessage = $"Can't find any valid IGamePlugIn type in {assembly} from {assembly.Location} that implements the necessary variables.";
                             continue;
                         }
 
@@ -185,9 +187,10 @@ namespace Multi_TCG_Deckbuilder
             if (count == 0)
             {
                 string availableTypes = string.Join(",", assembly.GetTypes().Select(t => t.FullName));
-                throw new ApplicationException(
-                    $"Can't find any valid IGamePlugIn type in {assembly} from {assembly.Location}.\n" +
-                    $"Available types: {availableTypes}");
+
+                exceptionMessage = exceptionMessage ?? $"Can't find any valid IGamePlugIn type in {assembly} from {assembly.Location}.\n" +
+                    $"Available types: {availableTypes}";
+                throw new ApplicationException(exceptionMessage);
             }
         }
 

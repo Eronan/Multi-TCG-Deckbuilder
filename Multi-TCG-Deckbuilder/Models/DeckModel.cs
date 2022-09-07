@@ -44,7 +44,14 @@ namespace Multi_TCG_Deckbuilder.Models
         {
             get
             {
-                return string.Format("{0}: ({1}) {2}", Deck.Label, Cards.Count, Deck.ValidateDeck(Cards).Length == 0 ? "✔" : "❌");
+                try
+                {
+                    return string.Format("{0}: ({1}) {2}", Deck.Label, Cards.Count, Deck.ValidateDeck(Cards).Length == 0 ? "✔" : "❌");
+                }
+                catch (NotImplementedException e)
+                {
+                    return string.Format("{0}: ({1})", Deck.Label, Cards.Count);
+                }
             }
         }
 
@@ -148,7 +155,15 @@ namespace Multi_TCG_Deckbuilder.Models
         /// <returns>Card is allowed to be Added.</returns>
         public bool ValidateAdd(CardModel card)
         {
-            return Deck.ValidateAdd(card, Cards);
+            try
+            {
+                return Deck.ValidateAdd(card, Cards);
+            }
+            catch (NotImplementedException e)
+            {
+                Console.WriteLine(e.Message);
+                return true;
+            }
         }
 
         /// <summary>
