@@ -99,7 +99,7 @@ namespace Multi_TCG_Deckbuilder
             }
 
             this.button_AdvancedSearch.IsEnabled = this.deckBuilderService.SearchFields.Count() > 0;
-            this.fullList = deckBuilderService.CardList.Select(card => new CardModel(card.CardID, card.ArtID, card.Name, card.FileLocation, card.Orientation, card.ViewDetails)).ToList();
+            this.fullList = deckBuilderService.CardList.Select(card => new CardModel(card.CardID, card.ArtID, card.Name, card.FileLocation, card.DownloadLocation, card.Orientation, card.ViewDetails)).ToList();
             this.advancedSearchList = this.fullList;
             this.searchList.Clear();
 
@@ -346,18 +346,33 @@ namespace Multi_TCG_Deckbuilder
                 searchBox.Foreground = SystemColors.GrayTextBrush;
                 searchBox.Text = "Search";
             }
+            else
+            {
+                string searchText = textBox_SearchText.Text;
+                if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.advancedSearchList == null || searchText.Length < 4)
+                {
+                    return;
+                }
+
+                this.searchList = this.advancedSearchList.Where(item => item.ViewDetails.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                this.listBox_CardResults.ItemsSource = this.searchList;
+            }
         }
 
         // Search For Card Function
-        private void searchBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void textBox_SearchText_KeyDown(object sender, KeyEventArgs e)
         {
-            string searchText = textBox_SearchText.Text;
-            if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.advancedSearchList == null || searchText.Length < 4)
+            if (e.Key == Key.Return)
             {
-                return;
+                string searchText = textBox_SearchText.Text;
+                if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.advancedSearchList == null || searchText.Length < 4)
+                {   
+                    return;
+                }
+
+                this.searchList = this.advancedSearchList.Where(item => item.ViewDetails.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                this.listBox_CardResults.ItemsSource = this.searchList;
             }
-            this.searchList = this.advancedSearchList.Where(item => item.ViewDetails.Contains(searchText, StringComparison.InvariantCultureIgnoreCase)).ToList();
-            this.listBox_CardResults.ItemsSource = this.searchList;
         }
 
         // Filter Button Clicked

@@ -270,7 +270,7 @@ namespace Multi_TCG_Deckbuilder
             IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
             if (game == null || game.Downloader == null)
             {
-                MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (game != null) { MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error); }
                 return;
             }
 
@@ -296,7 +296,7 @@ namespace Multi_TCG_Deckbuilder
             IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
             if (game == null || game.Downloader == null)
             {
-                MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (game != null) { MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error); }
                 return;
             }
 
@@ -304,16 +304,17 @@ namespace Multi_TCG_Deckbuilder
 
             try
             {
-                List<Task> taskList = new List<Task>();
-                foreach (var uriAndFile in game.Downloader.FileDownloads)
-                {
-                    taskList.Add(MTCGHttpClientFactory.DownloadFile(uriAndFile));
-                }
-
-                Task.WaitAll(taskList.ToArray(), TimeSpan.FromMinutes(5));
-
                 if (MessageBox.Show("Make sure that you have already previously downloaded files manually! If downloading takes too long, the program will time-out and corrupt the downloaded files.\nAre you sure you want to download Files, this can take a while?", "Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
+                    List<Task> taskList = new List<Task>();
+                    foreach (var uriAndFile in game.Downloader.FileDownloads)
+                    {
+                        var task = MTCGHttpClientFactory.DownloadFile(uriAndFile);
+                        taskList.Add(task);
+                    }
+
+                    Task.WaitAll(taskList.ToArray(), TimeSpan.FromSeconds(30));
+
                     MessageBox.Show("Download Successful!", "Success!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }
             }

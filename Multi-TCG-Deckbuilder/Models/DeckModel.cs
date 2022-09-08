@@ -50,6 +50,7 @@ namespace Multi_TCG_Deckbuilder.Models
                 }
                 catch (NotImplementedException e)
                 {
+                    Console.WriteLine(e.Message);
                     return string.Format("{0}: ({1})", Deck.Label, Cards.Count);
                 }
             }

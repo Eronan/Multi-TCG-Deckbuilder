@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace Multi_TCG_Deckbuilder.Contexts
 {
@@ -19,6 +20,8 @@ namespace Multi_TCG_Deckbuilder.Contexts
             PooledConnectionIdleTimeout = TimeSpan.FromMinutes(5)
         };
         private static HttpClient? _httpClient;
+        private static int activeTasks = 0;
+        private static int awaitingTasks = 0;
 
         public static HttpClient HttpClient
         {
@@ -35,13 +38,41 @@ namespace Multi_TCG_Deckbuilder.Contexts
 
         public static async Task DownloadFile(UrlToFile urlToFile)
         {
-            var byteFile = await HttpClient.GetByteArrayAsync(urlToFile.Url);
+            string? directoryPath = Path.GetDirectoryName(urlToFile.FileName); 
+            if (directoryPath != null && !Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            while (activeTasks > 80)
+            {
+
+            }
+
+            activeTasks++;
+            var byteFile = await HttpClient.GetByteArrayAsync(urlToFile.Url).ConfigureAwait(false);
+            activeTasks--;
             await File.WriteAllBytesAsync(urlToFile.FileName, byteFile);
         }
 
         public static async Task DownloadFile(string url, string fileLocation)
         {
-            var byteFile = await HttpClient.GetByteArrayAsync(url);
+            string? directoryPath = Path.GetDirectoryName(fileLocation);
+            if (directoryPath != null && !Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            awaitingTasks++;
+            while (activeTasks > 80)
+            {
+
+            }
+
+            activeTasks++;
+            var byteFile = await HttpClient.GetByteArrayAsync(url).ConfigureAwait(false);
+            activeTasks--;
+            awaitingTasks--;
             await File.WriteAllBytesAsync(fileLocation, byteFile);
         }
     }

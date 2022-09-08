@@ -29,10 +29,14 @@ namespace Multi_TCG_Deckbuilder.Models
 
                 if (!File.Exists(FullPath))
                 {
-                    MTCGHttpClientFactory.DownloadFile(DownloadLocation, FullPath).Wait();
+                    MTCGHttpClientFactory.DownloadFile(DownloadLocation, FullPath);
+                    return new BitmapImage(new Uri(DownloadLocation));
                 }
-
-                return new BitmapImage(new Uri(FullPath));
+                else
+                {
+                    return new BitmapImage(new Uri(FullPath));
+                }
+                
             }
         }
 
