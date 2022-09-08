@@ -6,17 +6,15 @@
     public interface IDownloader
     {
         /// <summary>
-        /// The URL which users users should download new updates from. Please only use trusted Websites.
+        /// The URL which users users should download new versions of the Plug-In from. Please only use trusted Websites.
         /// Preferably GitLab or GitHub with the Source Code.
         /// </summary>
         public string DownloadLink { get; }
 
         /// <summary>
-        /// Used to Download any necessary files for the Plug-In.
-        /// Make sure to use proper Exception-Handling and throwing.
+        /// A list of files that need to be downloaded for the Program to Run.
+        /// Images should not be kept here, they are downloaded as the Program Runs.
         /// </summary>
-        /// <param name="httpClient">The HTTP Client used for this operation.</param>
-        /// <returns>The Asynchronous Task that is run.</returns>
-        public Task DownloadFiles(HttpClient httpClient);
+        public IEnumerable<UrlToFile> FileDownloads { get; }
     }
 }

@@ -23,13 +23,15 @@
         /// <param name="fileLocation">Relative Path for the Image to be Displayed</param>
         /// <param name="orientation">The Orientation the Image is in.</param>
         /// <param name="viewDetails">The Description and Information displayed when a card is Selected.</param>
-        public DeckBuilderCardArt(string cardID, string artID, string name, string fileLocation, CardArtOrientation orientation, string viewDetails = "") : base(cardID, artID)
+        public DeckBuilderCardArt(string cardID, string artID, string name, string fileLocation, string downloadLocation, CardArtOrientation orientation, string viewDetails) : base(cardID, artID)
         {
-            this.Name = name;
-            this.FileLocation = fileLocation;
-            this.Orientation = orientation;
-            this.ViewDetails = viewDetails;
+            Name = name;
+            FileLocation = fileLocation;
+            DownloadLocation = downloadLocation;
+            Orientation = orientation;
+            ViewDetails = viewDetails;
         }
+        
 
         /// <summary>
         /// Card Name that is Displayed
@@ -40,6 +42,11 @@
         /// Relative Path for the Card's Image File
         /// </summary>
         public string FileLocation { get; private set; }
+
+        /// <summary>
+        /// URL for the Program to download an Image from Online if the Image is missing.
+        /// </summary>
+        public string DownloadLocation { get; set; }
 
         /// <summary>
         /// Orientation in which its FileLocation Image is

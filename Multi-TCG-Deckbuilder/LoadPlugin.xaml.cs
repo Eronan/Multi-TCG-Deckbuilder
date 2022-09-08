@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -303,12 +304,16 @@ namespace Multi_TCG_Deckbuilder
 
             try
             {
-                var download = game.Downloader.DownloadFiles(MTCGHttpClientFactory.HttpClient);
+                List<Task> taskList = new List<Task>();
+                foreach (var uriAndFile in game.Downloader.FileDownloads)
+                {
+                    taskList.Add(MTCGHttpClientFactory.DownloadFile(uriAndFile));
+                }
+
+                Task.WaitAll(taskList.ToArray(), TimeSpan.FromMinutes(5));
 
                 if (MessageBox.Show("Make sure that you have already previously downloaded files manually! If downloading takes too long, the program will time-out and corrupt the downloaded files.\nAre you sure you want to download Files, this can take a while?", "Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
-                    download.Wait(new TimeSpan(0, 10, 0));
-
                     MessageBox.Show("Download Successful!", "Success!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }
             }
