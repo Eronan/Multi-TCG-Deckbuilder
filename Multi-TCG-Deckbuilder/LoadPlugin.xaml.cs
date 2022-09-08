@@ -269,6 +269,7 @@ namespace Multi_TCG_Deckbuilder
             IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
             if (game == null || game.Downloader == null)
             {
+                MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -294,6 +295,7 @@ namespace Multi_TCG_Deckbuilder
             IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
             if (game == null || game.Downloader == null)
             {
+                MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
