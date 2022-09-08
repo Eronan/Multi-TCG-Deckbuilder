@@ -4,20 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Multi_TCG_Deckbuilder"
-        xmlns:viewmodel="clr-namespace:Multi_TCG_Deckbuilder.ViewModels"
-        xmlns:model="clr-namespace:Multi_TCG_Deckbuilder.Models"
         xmlns:convert="clr-namespace:Multi_TCG_Deckbuilder.Converters"
         xmlns:plugin="clr-namespace:IGamePlugInBase;assembly=IGamePlugInBase"
-        xmlns:pluginio="clr-namespace:IGamePlugInBase.IO;assembly=IGamePlugInBase"
         mc:Ignorable="d"
-        Title="{Binding WindowTitle}" Height="450" Width="800" MinHeight="450" MinWidth="800"
+        Title="Deck Builder" Height="450" Width="800" MinHeight="450" MinWidth="800"
         AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver"
-        DataContext="{Binding RelativeSource={RelativeSource Self}, Path=ViewModel}"
-        >
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.Resources>
-        <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type model:CardModel}">
-            <Image Source="{Binding FullPath}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+        <convert:CardArtConverter x:Key="CardArtConverter" />
+        <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type plugin:DeckBuilderCardArt}">
+            <Image Source="{Binding FileLocation, Converter={StaticResource ResourceKey=CardArtConverter}}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
                    MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove" />
+        </DataTemplate>
+        <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type plugin:DeckBuilderCardArt}">
+            <Image Source="{Binding FileLocation, Converter={StaticResource ResourceKey=CardArtConverter}}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+                       MouseRightButtonDown="ImageCardDeck_MouseRightDown" MouseMove="ImageCardDeck_MouseMove"
+                       Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}"/>
         </DataTemplate>
         <DrawingImage x:Key="FilterImage">
             <DrawingImage.Drawing>
@@ -69,28 +71,10 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_New" InputGestureText="Ctrl+N" Command="New"/>
                 <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="Open"/>
-                <MenuItem x:Name="MenuItem_Import" Header="_Import" IsEnabled="{Binding ImportEnabled}" ItemsSource="{Binding ImportMenus}">
-                    <MenuItem.ItemContainerStyle>
-                        <Style TargetType="MenuItem" BasedOn="{x:Type pluginio:IImportMenuItem}">
-                            <Setter Property="Header" Value="{Binding Header}"/>
-                            <EventSetter Event="Click" Handler="ImportMenuItem_Click"/>
-                        </Style>
-                    </MenuItem.ItemContainerStyle>
-                </MenuItem>
+                <MenuItem x:Name="MenuItem_Import" Header="_Import"/>
                 <MenuItem x:Name="MenuItem_Export" Header="_Export" Loaded="MenuItem_File_Opening">
-                    <MenuItem.ItemsSource>
-                        <CompositeCollection>
-                            <MenuItem Header="_To Image" Click="MenuItem_ExportImage_Click"/>
-                            <MenuItem Header="_To Tabletop Simulator" Click="MenuItem_TableTop_Click"/>
-                            <CollectionContainer Collection="{Binding ExportMenus}" />
-                        </CompositeCollection>
-                    </MenuItem.ItemsSource>
-                    <MenuItem.ItemContainerStyle>
-                        <Style TargetType="MenuItem" BasedOn="{x:Type pluginio:IExportMenuItem}">
-                            <Setter Property="Header" Value="{Binding Header}"/>
-                            <EventSetter Event="Click" Handler="ImportMenuItem_Click"/>
-                        </Style>
-                    </MenuItem.ItemContainerStyle>
+                    <MenuItem Header="_To Image" Click="MenuItem_ExportImage_Click"/>
+                    <MenuItem Header="_To Tabletop Simulator" Click="MenuItem_TableTop_Click"/>
                 </MenuItem>
                 <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="Save"/>
                 <MenuItem Header="_Save As" InputGestureText="Ctrl+Shift+S" Command="SaveAs"/>
@@ -117,7 +101,7 @@
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="223*"/>
             </Grid.RowDefinitions>
-            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" Source="{Binding FullPath}" />
+            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" Source="{Binding FileLocation, Converter={StaticResource ResourceKey=CardArtConverter}}" />
             <TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" FontSize="15px" Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center"/>
             <Border Grid.Row="2" BorderThickness="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
             <ScrollViewer Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="1,1,1,1"
@@ -131,18 +115,19 @@
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
             <ScrollViewer x:Name="scroll_Decks" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" Width="Auto" Margin="1,0,1,0">
-                <ItemsControl x:Name ="panel_Decks" ItemsSource="{Binding Decks}">
+                <ItemsControl x:Name ="panel_Decks">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="auto" Height="auto" Margin="0,0,0,0"/>
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Width="auto" Height="auto" Margin="0,0,0,0"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
                                 <TextBlock Text="{Binding LabelText}"/>
-                                <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Top" MinHeight="40" Margin="0, 15, 0, 0"
-                                    ItemsSource="{Binding Cards}" Tag="{Binding DeckName}">
+                                <ListBox HorizontalAlignment="Stretch" VerticalAlignment="{Binding }" MinHeight="40" Margin="0,0,0,15"
+                                    ItemsSource="{Binding Cards}" Tag="{Binding DeckName}"
+                                    DragOver="ListBox_Deck_DragOver" Drop="ListBox_Deck_Drop" GotFocus="listBox_GotFocus" SelectionChanged="listBox_SelectionChanged">
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <UniformGrid Columns="10" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportWidth}" Height="auto" VerticalAlignment="Top" />
@@ -161,7 +146,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-            <Button x:Name="button_ViewStats" Grid.Row="1" Background="Transparent" BorderThickness="0" BorderBrush="Transparent" Click="MenuItem_ViewStats_Click" Content="{Binding BasicDetailsText}"/>
+            <Button x:Name="button_ViewStats" Grid.Row="1" Background="Transparent" BorderThickness="0" BorderBrush="Transparent" Click="MenuItem_ViewStats_Click" />
         </Grid>
         <Grid Grid.Column="2" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" >
             <Grid.RowDefinitions>
@@ -178,7 +163,7 @@
             <Button x:Name="button_ClearFilters" Grid.Column="2" Margin="0,0,5,0" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Width="25" Click="button_ClearFilters_Click" >
                 <Image Source="{StaticResource ResourceKey=FilterRemoveImage}"/>
             </Button>
-            <ListBox x:Name="listBox_CardResults" Grid.Row="1" d:ItemsSource="{Binding FilteredList}" Margin="1,1,1,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <ListBox x:Name="listBox_CardResults" Grid.Row="1" d:ItemsSource="{d:SampleData ItemCount=20}" Margin="1,1,1,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                      Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}" BorderThickness="0" BorderBrush="Transparent" ItemTemplate="{StaticResource ResourceKey=ImageControl_Results}"
                      SelectionChanged="listBox_SelectionChanged" GotFocus="listBox_GotFocus">
                 <ListBox.ItemsPanel>
