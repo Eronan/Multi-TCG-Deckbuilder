@@ -35,7 +35,7 @@ namespace Multi_TCG_Deckbuilder.ViewModels
             this.format = format;
 
             this.DeckBuilderService.InitializeService();
-            this.fullList = this.DeckBuilderService.CardList.Select(card => new CardModel(card.CardID, card.ArtID, card.Name, card.FileLocation, card.Orientation, card.ViewDetails)).ToList();
+            this.fullList = this.DeckBuilderService.CardList.Select(card => new CardModel(card.CardID, card.ArtID, card.Name, card.FileLocation, card.DownloadLocation, card.Orientation, card.ViewDetails)).ToList();
             this.advancedSearchCriteria = this.DeckBuilderService.SearchFields;
             this.deckBuilderDecks = format.Decks.ToDictionary(deck => deck.Name, deck => new DeckModel(deck));
         }

@@ -1,6 +1,8 @@
 ﻿using IGamePlugInBase;
+using Multi_TCG_Deckbuilder.Contexts;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +12,7 @@ namespace Multi_TCG_Deckbuilder.Models
 {
     public class CardModel : DeckBuilderCardArt
     {
-        public CardModel(string cardID, string artID, string name, string fileLocation, CardArtOrientation orientation, string viewDetails = "") : base(cardID, artID, name, fileLocation, orientation, viewDetails)
+        public CardModel(string cardID, string artID, string name, string fileLocation, string downloadUrl, CardArtOrientation orientation, string viewDetails = "") : base(cardID, artID, name, fileLocation, downloadUrl, orientation, viewDetails)
         {
         }
 
@@ -18,6 +20,18 @@ namespace Multi_TCG_Deckbuilder.Models
         {
             get
             {
+                /*
+                if (false)
+                {
+                    return new BitmapImage(new Uri(DownloadLocation));
+                }
+                */
+
+                if (!File.Exists(FullPath))
+                {
+                    MTCGHttpClientFactory.DownloadFile(DownloadLocation, FullPath).Wait();
+                }
+
                 return new BitmapImage(new Uri(FullPath));
             }
         }

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using IGamePlugInBase.IO;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -28,6 +30,19 @@ namespace Multi_TCG_Deckbuilder.Contexts
                 }
                 return _httpClient;
             }
+        }
+
+
+        public static async Task DownloadFile(UrlToFile urlToFile)
+        {
+            var byteFile = await HttpClient.GetByteArrayAsync(urlToFile.Url);
+            await File.WriteAllBytesAsync(urlToFile.FileName, byteFile);
+        }
+
+        public static async Task DownloadFile(string url, string fileLocation)
+        {
+            var byteFile = await HttpClient.GetByteArrayAsync(url);
+            await File.WriteAllBytesAsync(fileLocation, byteFile);
         }
     }
 }
