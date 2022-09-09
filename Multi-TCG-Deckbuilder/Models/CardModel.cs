@@ -29,7 +29,7 @@ namespace Multi_TCG_Deckbuilder.Models
 
                 if (!File.Exists(FullPath))
                 {
-                    MTCGHttpClientFactory.DownloadFile(DownloadLocation, FullPath);
+                    //_ = MTCGHttpClientFactory.DownloadFile(DownloadLocation, FullPath);
                     return new BitmapImage(new Uri(DownloadLocation));
                 }
                 else
@@ -42,7 +42,19 @@ namespace Multi_TCG_Deckbuilder.Models
 
         public string FullPath
         {
-            get { return AppDomain.CurrentDomain.BaseDirectory + FileLocation; }
+            get
+            {
+                var returnPath = AppDomain.CurrentDomain.BaseDirectory + FileLocation;
+                if (!File.Exists(returnPath))
+                {
+                    _ = MTCGHttpClientFactory.DownloadFile(DownloadLocation, returnPath);
+                    return DownloadLocation;
+                }
+                else
+                {
+                    return returnPath;
+                }
+            }
         }
     }
 }

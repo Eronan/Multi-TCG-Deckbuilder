@@ -14,11 +14,11 @@
     <Window.Resources>
         <convert:CardArtConverter x:Key="CardArtConverter" />
         <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type model:CardModel}">
-            <Image Source="{Binding Image}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+            <Image Source="{Binding FullPath}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
                    MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove" />
         </DataTemplate>
         <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type model:CardModel}">
-            <Image Source="{Binding Image}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+            <Image Source="{Binding FullPath}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
                        MouseRightButtonDown="ImageCardDeck_MouseRightDown" MouseMove="ImageCardDeck_MouseMove"
                        Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}"/>
         </DataTemplate>
@@ -102,7 +102,7 @@
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="223*"/>
             </Grid.RowDefinitions>
-            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" Source="{Binding Image}" />
+            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" Source="{Binding FullPath}" />
             <TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" FontSize="15px" Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center"/>
             <Border Grid.Row="2" BorderThickness="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
             <ScrollViewer Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="1,1,1,1"
