@@ -13,6 +13,7 @@
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.Resources>
         <convert:CardArtConverter x:Key="CardArtConverter" />
+        <convert:DeckBoxHeightConverter x:Key="DeckBoxHeightConverter" />
         <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type model:CardModel}">
             <Image Source="{Binding FullPath}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
                    MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove" />
@@ -123,10 +124,10 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate DataType="{x:Type model:DeckModel}">
                             <StackPanel>
                                 <TextBlock Text="{Binding LabelText}"/>
-                                <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Top" MinHeight="40" Margin="0,0,0,15"
+                                <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,15" MinHeight="{Binding ActualWidth, Converter={StaticResource DeckBoxHeightConverter}, RelativeSource={RelativeSource Self}, ConverterParameter=1}"
                                     ItemsSource="{Binding Cards}" Tag="{Binding DeckName}"
                                     DragOver="ListBox_Deck_DragOver" Drop="ListBox_Deck_Drop" GotFocus="listBox_GotFocus" SelectionChanged="listBox_SelectionChanged"
                                     ItemTemplate="{StaticResource ResourceKey=ImageControl_Deck}">

@@ -22,6 +22,15 @@ namespace Multi_TCG_Deckbuilder.Models
         public DeckModel(IDeck deck)
         {
             Deck = deck;
+            try
+            {
+                ExpectedLines = (int)Math.Ceiling((double)deck.ExpectedDeckSize / 10.0);
+            }
+            catch (NotImplementedException ex)
+            {
+                Console.WriteLine(ex.Message);
+                ExpectedLines = 1;
+            }
         }
 
         /// <summary>
@@ -185,5 +194,10 @@ namespace Multi_TCG_Deckbuilder.Models
         {
             get => this.Cards[index];
         }
+
+        /// <summary>
+        /// Expected Lines
+        /// </summary>
+        public int ExpectedLines { get; }
     }
 }
