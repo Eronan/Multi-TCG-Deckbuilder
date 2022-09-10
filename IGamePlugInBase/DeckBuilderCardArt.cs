@@ -36,12 +36,12 @@
         /// <summary>
         /// Card Name that is Displayed
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Relative Path for the Card's Image File
         /// </summary>
-        public string FileLocation { get; private set; }
+        public string FileLocation { get; set; }
 
         /// <summary>
         /// URL for the Program to download an Image from Online if the Image is missing.
@@ -51,11 +51,11 @@
         /// <summary>
         /// Orientation in which its FileLocation Image is
         /// </summary>
-        public CardArtOrientation Orientation { get; private set; }
+        public CardArtOrientation Orientation { get; set; }
 
         /// <summary>
         /// Description about the Card
         /// </summary>
-        public string ViewDetails { get; private set; }
+        public string ViewDetails { get; set; }
     }
 }

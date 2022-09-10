@@ -37,9 +37,7 @@ namespace Multi_TCG_Deckbuilder
             // Set Up Variables
             this.game = gamePlugIn;
             this.format = format;
-
             this.deckBuilderService = format.DeckBuilderService;
-            this.deckBuilderService.InitializeService();
 
             // Create Necessary Lists
             this.fullList = new List<CardModel>();
