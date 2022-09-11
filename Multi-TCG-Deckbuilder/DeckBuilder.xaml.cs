@@ -793,7 +793,8 @@ namespace Multi_TCG_Deckbuilder
         // Set Preferences for the Application
         private void CommandBinding_Preferences_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-
+            Preferences preferences = new Preferences();
+            preferences.ShowDialog();
         }
 
         // Open About Window for Plug-In
