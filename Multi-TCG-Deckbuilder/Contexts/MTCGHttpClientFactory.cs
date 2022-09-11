@@ -20,7 +20,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
             PooledConnectionIdleTimeout = TimeSpan.FromMinutes(5)
         };
         private static HttpClient? _httpClient;
-        private static List<string> FileNames = new List<string>();
+        public static List<string> FileNames = new List<string>();
 
         public static HttpClient HttpClient
         {
