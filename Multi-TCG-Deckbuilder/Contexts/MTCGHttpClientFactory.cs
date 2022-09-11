@@ -19,7 +19,6 @@ namespace Multi_TCG_Deckbuilder.Contexts
             PooledConnectionLifetime = TimeSpan.FromMinutes(10),
             PooledConnectionIdleTimeout = TimeSpan.FromMinutes(5)
         };
-        public static bool disableDownloading = false;
         private static HttpClient? _httpClient;
         private static List<string> FileNames = new List<string>();
 

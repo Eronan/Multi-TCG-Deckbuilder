@@ -31,7 +31,7 @@
                 <MenuItem Header="_Open Deck" Command="Open"/>
                 <MenuItem Header="_Exit" Click="button_Cancel_Click"/>
             </MenuItem>
-            <MenuItem Header="_Check for Updates" SubmenuOpened="MenuItem_Updates_SubmenuOpened">
+            <MenuItem Header="_Check for Updates">
                 <MenuItem Header="_Download New Plug-In DLL" Click="MenuItem_UpdatePlugIn_Click">
                     <MenuItem.Style>
                         <Style TargetType="{x:Type MenuItem}">

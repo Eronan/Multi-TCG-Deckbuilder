@@ -27,15 +27,12 @@ namespace Multi_TCG_Deckbuilder.Dialogs
 
         public bool HideWarning { get; set; }
 
-        public bool TempDownloadDisabled { get; set; }
-
         public Preferences()
         {
             InitializeComponent();
 
             DownloadImages = Properties.Settings.Default.DownloadImages;
             HideWarning = Properties.Settings.Default.HideWarningDialogs;
-            TempDownloadDisabled = MTCGHttpClientFactory.disableDownloading;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
         }
 
@@ -45,7 +42,6 @@ namespace Multi_TCG_Deckbuilder.Dialogs
         {
             Properties.Settings.Default.DownloadImages = DownloadImages;
             Properties.Settings.Default.HideWarningDialogs = HideWarning;
-            MTCGHttpClientFactory.disableDownloading = TempDownloadDisabled;
             Properties.Settings.Default.Save();
             this.Close();
         }

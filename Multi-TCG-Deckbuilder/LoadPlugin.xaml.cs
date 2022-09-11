@@ -26,8 +26,6 @@ namespace Multi_TCG_Deckbuilder
         Version? currentVersion;
         string executablePath;
 
-        public bool DownloadEnabled { get => !MTCGHttpClientFactory.disableDownloading; }
-
         public LoadPlugin()
         {
             InitializeComponent();
@@ -332,9 +330,7 @@ namespace Multi_TCG_Deckbuilder
             catch (AggregateException error) when (error.InnerExceptions.Any(except => except is HttpRequestException || except.InnerException is SocketException))
             {
                 Console.Write(error.Message);
-                MessageBox.Show("Download Unsuccessful. Could not connect to the internet. Downloading has been temporarily disabled, to re-enable it go to Preferences.", "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
-                MTCGHttpClientFactory.disableDownloading = true;
-                OnPropertyChanged(new DependencyPropertyChangedEventArgs());
+                MessageBox.Show("Download Unsuccessful. Please make sure you are connected to the internet.", "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception error)
             {
@@ -391,8 +387,7 @@ namespace Multi_TCG_Deckbuilder
             catch (Exception error) when (error is SocketException || error is HttpRequestException)
             {
                 Console.Write(error.Message);
-                MessageBox.Show("Checking for Updates unsuccessful. Could not connect to the internet. Downloading has been temporarily disabled, to re-enable it go to Preferences.", "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
-                MTCGHttpClientFactory.disableDownloading = true;
+                MessageBox.Show("Download Unsuccessful. Please make sure you are connected to the internet.", "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception error)
             {
@@ -410,12 +405,6 @@ namespace Multi_TCG_Deckbuilder
         private void button_Cancel_Click(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);
-        }
-
-        private void MenuItem_Updates_SubmenuOpened(object sender, RoutedEventArgs e)
-        {
-            MenuItem_PlugInFiles.IsEnabled = DownloadEnabled;
-            MenuItem_UpdateApp.IsEnabled = DownloadEnabled;
         }
     }
 }

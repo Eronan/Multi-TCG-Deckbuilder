@@ -39,7 +39,7 @@ namespace Multi_TCG_Deckbuilder.Models
                 var returnPath = AppDomain.CurrentDomain.BaseDirectory + FileLocation;
                 if (File.Exists(returnPath)) { return returnPath; }
 
-                if (Properties.Settings.Default.DownloadImages && !MTCGHttpClientFactory.disableDownloading)
+                if (Properties.Settings.Default.DownloadImages)
                 {
                     _ = MTCGHttpClientFactory.DownloadFile(DownloadLocation, returnPath);
                 }
