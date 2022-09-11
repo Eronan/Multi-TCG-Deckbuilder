@@ -21,8 +21,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
         };
         public static bool disableDownloading = false;
         private static HttpClient? _httpClient;
-        private static int activeTasks = 0;
-        private static int awaitingTasks = 0;
+        private static List<string> FileNames = new List<string>();
 
         public static HttpClient HttpClient
         {
@@ -39,42 +38,35 @@ namespace Multi_TCG_Deckbuilder.Contexts
 
         public static async Task DownloadFile(UrlToFile urlToFile)
         {
+            if (FileNames.Contains(urlToFile.FileName)) { return; }
+
+            FileNames.Add(urlToFile.FileName);
+
             string? directoryPath = Path.GetDirectoryName(urlToFile.FileName); 
             if (directoryPath != null && !Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
             }
 
-            while (activeTasks > 100)
-            {
-
-            }
-
-            activeTasks++;
             var byteFile = await HttpClient.GetByteArrayAsync(urlToFile.Url).ConfigureAwait(false);
-            activeTasks--;
             await File.WriteAllBytesAsync(urlToFile.FileName, byteFile);
+            FileNames.Remove(urlToFile.FileName);
         }
 
         public static async Task DownloadFile(string url, string fileLocation)
         {
+            if (FileNames.Contains(fileLocation)) { return; }
+
+            FileNames.Add(fileLocation);
+
             string? directoryPath = Path.GetDirectoryName(fileLocation);
             if (directoryPath != null && !Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
             }
-
-            awaitingTasks++;
-            while (activeTasks > 100)
-            {
-
-            }
-
-            activeTasks++;
             var byteFile = await HttpClient.GetByteArrayAsync(url).ConfigureAwait(false);
-            activeTasks--;
-            awaitingTasks--;
             await File.WriteAllBytesAsync(fileLocation, byteFile);
+            FileNames.Remove(fileLocation);
         }
     }
 }
