@@ -821,5 +821,10 @@ namespace Multi_TCG_Deckbuilder
                 MenuItem_Export.IsEnabled = false;
             }
         }
+
+        private void Image_ImageFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+            ((Image)sender).Source = this.Resources["ErrorImage"] as DrawingImage;
+        }
     }
 }

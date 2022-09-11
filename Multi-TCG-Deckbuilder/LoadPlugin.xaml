@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Multi_TCG_Deckbuilder"
         mc:Ignorable="d"
         Title="Load Plug-In" Height="450" Width="800"
-        MinHeight="450" MinWidth="800">
+        MinHeight="450" MinWidth="800"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.CommandBindings>
         <CommandBinding Command="New" Executed="CommandBinding_New_Executed" CanExecute="CommandBinding_New_CanExecute"/>
         <CommandBinding Command="Open" Executed="CommandBinding_Open_Executed"/>
@@ -30,7 +31,7 @@
                 <MenuItem Header="_Open Deck" Command="Open"/>
                 <MenuItem Header="_Exit" Click="button_Cancel_Click"/>
             </MenuItem>
-            <MenuItem Header="_Check for Updates">
+            <MenuItem Header="_Check for Updates" SubmenuOpened="MenuItem_Updates_SubmenuOpened">
                 <MenuItem Header="_Download New Plug-In DLL" Click="MenuItem_UpdatePlugIn_Click">
                     <MenuItem.Style>
                         <Style TargetType="{x:Type MenuItem}">
@@ -43,7 +44,7 @@
                         </Style>
                     </MenuItem.Style>
                 </MenuItem>
-                <MenuItem Header="_Download Plug-In Files" Click="MenuItem_PlugInFiles_Click">
+                <MenuItem x:Name="MenuItem_PlugInFiles" Header="_Download Plug-In Files" Click="MenuItem_PlugInFiles_Click">
                     <MenuItem.Style>
                         <Style TargetType="{x:Type MenuItem}">
                             <Setter Property="IsEnabled" Value="True" />
@@ -55,7 +56,7 @@
                         </Style>
                     </MenuItem.Style>
                 </MenuItem>
-                <MenuItem Header="_Check Application Updates" Click="MenuItem_UpdateApp_Click"/>
+                <MenuItem x:Name="MenuItem_UpdateApp" Header="_Check Application Updates" Click="MenuItem_UpdateApp_Click"/>
             </MenuItem>
             <MenuItem Header="_About">
                 <MenuItem Header="_About Multi-TCG Deck Builder" Click="MenuItem_ProgramAbout_Click" />

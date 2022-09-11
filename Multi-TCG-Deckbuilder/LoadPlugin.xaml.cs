@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,6 +24,8 @@ namespace Multi_TCG_Deckbuilder
         GitHubClient? client;
         Version? currentVersion;
         string executablePath;
+
+        public bool DownloadEnabled { get => !MTCGHttpClientFactory.disableDownloading; }
 
         public LoadPlugin()
         {
@@ -47,7 +50,7 @@ namespace Multi_TCG_Deckbuilder
             // Load Plug-Ins
             List<IGamePlugIn> gamePlugIns = new List<IGamePlugIn>();
 
-            if (true || pluginPaths.Length > 0 &&
+            if (Properties.Settings.Default.HideWarningDialogs || pluginPaths.Length > 0 &&
                     MessageBox.Show(
                         "DLL files can be harmful to your computer, and cause irrepairable damage. Please only download Plug-Ins trusted sources.\nDo you trust all of the following Plug-Ins?\n\n\t" +
                             string.Join("\n\t-", pluginPaths.Select(file => Path.GetFileName(file))),
@@ -84,6 +87,7 @@ namespace Multi_TCG_Deckbuilder
             }
             else
             {
+                MessageBox.Show("Please delete the untrusted Plug-Ins, and restart the Application.", "Restart Application", MessageBoxButton.OK, MessageBoxImage.None);
                 this.Close();
                 return;
             }
@@ -323,9 +327,17 @@ namespace Multi_TCG_Deckbuilder
                 Console.WriteLine(error.Message);
                 MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            catch (AggregateException error) when (error.InnerExceptions.Any(except => except is HttpRequestException || except.InnerException is SocketException))
+            {
+                Console.Write(error.Message);
+                MessageBox.Show("Download Unsuccessful. Could not connect to the internet. Downloading has been temporarily disabled, to re-enable it go to Preferences.", "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
+                MTCGHttpClientFactory.disableDownloading = true;
+                OnPropertyChanged(new DependencyPropertyChangedEventArgs());
+            }
             catch (Exception error)
             {
-                MessageBox.Show(String.Format("Download Unsuccessful. Attempt to download the necessary files manually.\n{0}",error.Message.Split('\n')[0]), "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.Write(error.Message);
+                MessageBox.Show(string.Format("Download Unsuccessful. Attempt to download the necessary files manually.\n{0}",error.Message.Split('\n')[0]), "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             Mouse.OverrideCursor = null;
@@ -338,38 +350,52 @@ namespace Multi_TCG_Deckbuilder
             this.client = this.client ?? new GitHubClient(new Connection(new ProductHeaderValue("tcg-deck-builder"), new Octokit.Internal.HttpClientAdapter(() => { return MTCGHttpClientFactory.clientHandler; })));
             this.currentVersion = this.currentVersion ?? Assembly.GetExecutingAssembly().GetName().Version;
 
-            var releases = await this.client.Repository.Release.GetAll("Eronan", "Multi-TCG-Deckbuilder");
-            var latest = releases.FirstOrDefault(release => !release.Prerelease);
-
-            if (latest == null)
+            try
             {
-                MessageBox.Show("Program is up to date!", "Up to Date!", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
+                var releases = await this.client.Repository.Release.GetAll("Eronan", "Multi-TCG-Deckbuilder");
+                var latest = releases.FirstOrDefault(release => !release.Prerelease);
 
-            Console.WriteLine(
-                "The latest release is tagged at {0} and is named {1}",
-                latest.TagName,
-                latest.Name);
-
-            var latestVersion = new Version(latest.TagName);
-
-            if (latestVersion.CompareTo(this.currentVersion) > 0)
-            {
-                var result = MessageBox.Show("There seems to be a new Version available, do you want to download it?", "New Version Available", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.No);
-                if (result == MessageBoxResult.Yes)
+                if (latest == null)
                 {
-                    var process = new System.Diagnostics.ProcessStartInfo(latest.HtmlUrl)
+                    MessageBox.Show("Program is up to date!", "Up to Date!", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                Console.WriteLine(
+                    "The latest release is tagged at {0} and is named {1}",
+                    latest.TagName,
+                    latest.Name);
+
+                var latestVersion = new Version(latest.TagName);
+
+                if (latestVersion.CompareTo(this.currentVersion) > 0)
+                {
+                    var result = MessageBox.Show("There seems to be a new Version available, do you want to download it?", "New Version Available", MessageBoxButton.YesNo, MessageBoxImage.Information, MessageBoxResult.No);
+                    if (result == MessageBoxResult.Yes)
                     {
-                        UseShellExecute = true,
-                        Verb = "open"
-                    };
-                    System.Diagnostics.Process.Start(process);
+                        var process = new System.Diagnostics.ProcessStartInfo(latest.HtmlUrl)
+                        {
+                            UseShellExecute = true,
+                            Verb = "open"
+                        };
+                        System.Diagnostics.Process.Start(process);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Program is up to date!", "Up to Date!", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
-            else
+            catch (Exception error) when (error is SocketException || error is HttpRequestException)
             {
-                MessageBox.Show("Program is up to date!", "Up to Date!", MessageBoxButton.OK, MessageBoxImage.Information);
+                Console.Write(error.Message);
+                MessageBox.Show("Checking for Updates unsuccessful. Could not connect to the internet. Downloading has been temporarily disabled, to re-enable it go to Preferences.", "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
+                MTCGHttpClientFactory.disableDownloading = true;
+            }
+            catch (Exception error)
+            {
+                Console.Write(error.Message);
+                MessageBox.Show(string.Format("Checking for Updates unsuccessful. Open the URL from the About Window instead.\n{0}", error.Message.Split('\n')[0]), "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -382,6 +408,12 @@ namespace Multi_TCG_Deckbuilder
         private void button_Cancel_Click(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);
+        }
+
+        private void MenuItem_Updates_SubmenuOpened(object sender, RoutedEventArgs e)
+        {
+            MenuItem_PlugInFiles.IsEnabled = DownloadEnabled;
+            MenuItem_UpdateApp.IsEnabled = DownloadEnabled;
         }
     }
 }

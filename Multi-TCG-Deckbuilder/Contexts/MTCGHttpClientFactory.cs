@@ -19,6 +19,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
             PooledConnectionLifetime = TimeSpan.FromMinutes(10),
             PooledConnectionIdleTimeout = TimeSpan.FromMinutes(5)
         };
+        public static bool disableDownloading = false;
         private static HttpClient? _httpClient;
         private static int activeTasks = 0;
         private static int awaitingTasks = 0;
@@ -44,7 +45,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
                 Directory.CreateDirectory(directoryPath);
             }
 
-            while (activeTasks > 80)
+            while (activeTasks > 100)
             {
 
             }
@@ -64,7 +65,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
             }
 
             awaitingTasks++;
-            while (activeTasks > 80)
+            while (activeTasks > 100)
             {
 
             }

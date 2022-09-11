@@ -45,15 +45,14 @@ namespace Multi_TCG_Deckbuilder.Models
             get
             {
                 var returnPath = AppDomain.CurrentDomain.BaseDirectory + FileLocation;
-                if (!File.Exists(returnPath))
+                if (File.Exists(returnPath)) { return returnPath; }
+
+                if (!MTCGHttpClientFactory.disableDownloading)
                 {
                     _ = MTCGHttpClientFactory.DownloadFile(DownloadLocation, returnPath);
-                    return DownloadLocation;
                 }
-                else
-                {
-                    return returnPath;
-                }
+
+                return DownloadLocation;
             }
         }
     }
