@@ -5,10 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Multi_TCG_Deckbuilder.Dialogs"
         mc:Ignorable="d"
-        Title="Preferences" Height="450" Width="450"
-        MinHeight="450" MaxHeight="450"
-        MinWidth="450" MaxWidth="450">
-    <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-        
-    </Grid>
+        Title="Preferences" Height="150" Width="220"
+        MinHeight="150" MaxHeight="150"
+        MinWidth="220" MaxWidth="220"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <StackPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Orientation="Vertical">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,15,0">
+            <Label Content="Download Images?" VerticalAlignment="Center"/>
+            <CheckBox IsChecked="{Binding DownloadImages}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,15,0">
+            <Label Content="Hide Warning on Load?" VerticalAlignment="Center"/>
+            <CheckBox IsChecked="{Binding HideWarning}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,15,0">
+            <Label Content="Temporarily Disable Download?" VerticalAlignment="Center"/>
+            <CheckBox IsChecked="{Binding TempDownloadDisabled}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Margin="5,5,5,5" Width="40" Content="Save" Click="Button_Save_Click"/>
+            <Button Margin="5,5,5,5" Width="40" Content="Cancel" IsCancel="True"/>
+        </StackPanel>
+    </StackPanel>
 </Window>

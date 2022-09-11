@@ -20,16 +20,8 @@ namespace Multi_TCG_Deckbuilder.Models
         {
             get
             {
-                /*
-                if (false)
-                {
-                    return new BitmapImage(new Uri(DownloadLocation));
-                }
-                */
-
                 if (!File.Exists(FullPath))
                 {
-                    //_ = MTCGHttpClientFactory.DownloadFile(DownloadLocation, FullPath);
                     return new BitmapImage(new Uri(DownloadLocation));
                 }
                 else
@@ -47,7 +39,7 @@ namespace Multi_TCG_Deckbuilder.Models
                 var returnPath = AppDomain.CurrentDomain.BaseDirectory + FileLocation;
                 if (File.Exists(returnPath)) { return returnPath; }
 
-                if (!MTCGHttpClientFactory.disableDownloading)
+                if (Properties.Settings.Default.DownloadImages && !MTCGHttpClientFactory.disableDownloading)
                 {
                     _ = MTCGHttpClientFactory.DownloadFile(DownloadLocation, returnPath);
                 }

@@ -1,6 +1,7 @@
 ﻿using IGamePlugInBase;
 using IGamePlugInBase.IO;
 using Multi_TCG_Deckbuilder.Contexts;
+using Multi_TCG_Deckbuilder.Dialogs;
 using Octokit;
 using System;
 using System.Collections.Generic;
@@ -265,7 +266,8 @@ namespace Multi_TCG_Deckbuilder
 
         private void CommandBinding_Preferences_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            
+            Preferences preferences = new Preferences();
+            preferences.ShowDialog();
         }
 
         // Run Update Method
