@@ -117,8 +117,79 @@ namespace Multi_TCG_Deckbuilder
                 return;
             }
 
-            DeckBuilder deckBuilderWindow = new DeckBuilder(game, format, deckFile, filePath);
-            deckBuilderWindow.Show();
+            OpenDeckBuilderWindow(game, format, deckFile, filePath);
+        }
+
+         private void OpenDeckBuilderWindow(IGamePlugIn game, IFormat format, DeckBuilderDeckFile? deckFile = null, string? filePath = null)
+        {
+            // Initialize Plug-In Information, if not previously initialized
+            try
+            {
+                DeckBuilder deckBuilderWindow = new DeckBuilder(game, format, deckFile, filePath ?? "");
+                deckBuilderWindow.Show();
+            }
+            catch (NotImplementedException error)
+            {
+                Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
+                MessageBox.Show(string.Format("The Format for this Plug-In is not Implemented. Please choose a different format.\n{0}", (error.StackTrace ?? "").Split('\n')[0]), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (PlugInFilesMissingException error)
+            {
+                Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
+                MessageBox.Show("Download the Latest Version of the Plug-In before continuing.", "Files Missing", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                DownloadPlugInFiles(game);
+            }
+            catch (BadImageFormatException error)
+            {
+                Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
+                MessageBox.Show(error.Message.Split('\n')[0]);
+            }
+        }
+
+        private void DownloadPlugInFiles(IGamePlugIn game)
+        {
+            if (game.Downloader == null)
+            {
+                MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            try
+            {
+                if (MessageBox.Show("Make sure that you have already previously downloaded files manually! If downloading takes too long, the program will time-out and corrupt the downloaded files.\nAre you sure you want to download Files, this can take a while?", "Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
+                {
+                    List<Task> taskList = new List<Task>();
+                    foreach (var uriAndFile in game.Downloader.FileDownloads)
+                    {
+                        var task = MTCGHttpClientFactory.DownloadFile(uriAndFile);
+                        taskList.Add(task);
+                    }
+
+                    Task.WaitAll(taskList.ToArray(), TimeSpan.FromSeconds(30));
+
+                    MessageBox.Show("Download Successful!", "Success!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                }
+            }
+            catch (NotImplementedException error)
+            {
+                Console.WriteLine(error.Message);
+                MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (AggregateException error) when (error.InnerExceptions.Any(except => except is HttpRequestException || except.InnerException is SocketException))
+            {
+                Console.Write(error.Message);
+                MessageBox.Show("Download Unsuccessful. Please make sure you are connected to the internet.", "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (Exception error)
+            {
+                Console.Write(error.Message);
+                MessageBox.Show(string.Format("Download Unsuccessful. Attempt to download the necessary files manually.\n{0}", error.Message.Split('\n')[0]), "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            Mouse.OverrideCursor = null;
         }
 
         static Assembly LoadPlugins(string relativePath)
@@ -215,34 +286,7 @@ namespace Multi_TCG_Deckbuilder
             IFormat? format = listBox_FormatList.SelectedItem as IFormat;
             if (game != null && format != null)
             {
-                // Initialize Plug-In Information, if not previously initialized
-                try
-                {
-                    DeckBuilder deckbuilderWindow = new DeckBuilder(game, format);
-                    deckbuilderWindow.Show();
-                }
-                catch (NotImplementedException error)
-                {
-                    Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
-                    MessageBox.Show(string.Format("The Format for this Plug-In is not Implemented. Please choose a different format.\n{0}", (error.StackTrace ?? "").Split('\n')[0]), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                catch (PlugInFilesMissingException error)
-                {
-                    Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
-                    MessageBox.Show("Download the Latest Version of the Plug-In before continuing.", "Files Missing", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                    MenuItem_PlugInFiles_Click(sender, e);
-                }
-                catch (BadImageFormatException error)
-                {
-                    Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
-                    MessageBox.Show(error.Message.Split('\n')[0]);
-                }
-                catch (Exception error)
-                {
-                    Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
-                    MessageBox.Show(error.Message.Split('\n')[0] + (error.StackTrace != null ? "\n" + error.StackTrace.Split('\n')[0] : ""));
-                }
+                OpenDeckBuilderWindow(game, format);
             }
             else
             {
@@ -298,47 +342,10 @@ namespace Multi_TCG_Deckbuilder
         private void MenuItem_PlugInFiles_Click(object sender, RoutedEventArgs e)
         {
             IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
-            if (game == null || game.Downloader == null)
-            {
-                if (game != null) { MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error); }
-                return;
-            }
+            
+            if (game == null) { return; }
 
-            Mouse.OverrideCursor = Cursors.Wait;
-
-            try
-            {
-                if (MessageBox.Show("Make sure that you have already previously downloaded files manually! If downloading takes too long, the program will time-out and corrupt the downloaded files.\nAre you sure you want to download Files, this can take a while?", "Confirm Download", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes)
-                {
-                    List<Task> taskList = new List<Task>();
-                    foreach (var uriAndFile in game.Downloader.FileDownloads)
-                    {
-                        var task = MTCGHttpClientFactory.DownloadFile(uriAndFile);
-                        taskList.Add(task);
-                    }
-
-                    Task.WaitAll(taskList.ToArray(), TimeSpan.FromSeconds(30));
-
-                    MessageBox.Show("Download Successful!", "Success!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                }
-            }
-            catch (NotImplementedException error)
-            {
-                Console.WriteLine(error.Message);
-                MessageBox.Show(string.Format("The {0} Plug-In has not yet implemented this function.", game.LongName), "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            catch (AggregateException error) when (error.InnerExceptions.Any(except => except is HttpRequestException || except.InnerException is SocketException))
-            {
-                Console.Write(error.Message);
-                MessageBox.Show("Download Unsuccessful. Please make sure you are connected to the internet.", "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            catch (Exception error)
-            {
-                Console.Write(error.Message);
-                MessageBox.Show(string.Format("Download Unsuccessful. Attempt to download the necessary files manually.\n{0}",error.Message.Split('\n')[0]), "Unsuccesful!", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-            Mouse.OverrideCursor = null;
+            DownloadPlugInFiles(game);
         }
 
         // Open Update Link

@@ -2,6 +2,7 @@
 using Multi_TCG_Deckbuilder.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -71,7 +72,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                 double cardInRow = 0;
                 foreach (var card in deck.Cards)
                 {
-                    var imageFile = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + card.FileLocation));
+                    var imageFile = card.Image;
 
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {

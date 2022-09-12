@@ -734,7 +734,7 @@ namespace Multi_TCG_Deckbuilder
             {
                 foreach (var card in deck.Cards)
                 {
-                    var imageFile = new BitmapImage(new Uri(AppDomain.CurrentDomain.BaseDirectory + card.FileLocation));
+                    var imageFile = new BitmapImage(new Uri(card.FullPath));
 
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {
