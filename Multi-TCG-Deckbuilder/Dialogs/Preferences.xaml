@@ -4,20 +4,24 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Multi_TCG_Deckbuilder.Dialogs"
-        mc:Ignorable="d"
-        Title="Preferences" Height="125" Width="220"
-        MinHeight="125" MaxHeight="125"
-        MinWidth="220" MaxWidth="220"
+        mc:Ignorable="d" WindowStyle="ToolWindow"
+        Title="Preferences" Height="150" Width="250"
+        MinHeight="150" MaxHeight="150"
+        MinWidth="250" MaxWidth="250"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" >
     <StackPanel Orientation="Vertical" VerticalAlignment="Center">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,15,0">
-            <Label Content="Download Images?" VerticalAlignment="Center"/>
+            <Label Content="Download plug-in images" VerticalAlignment="Center"/>
             <CheckBox IsChecked="{Binding DownloadImages}" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,15,0">
-            <Label Content="Hide Warning on Load?" VerticalAlignment="Center"/>
+            <Label Content="Hide start-up warning message" VerticalAlignment="Center"/>
             <CheckBox IsChecked="{Binding HideWarning}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,15,0">
+            <Label Content="Delete corrupted files automatically" VerticalAlignment="Center"/>
+            <CheckBox IsChecked="{Binding AutoDelete}" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Button Margin="5,5,5,5" Width="40" Content="Save" Click="Button_Save_Click"/>
