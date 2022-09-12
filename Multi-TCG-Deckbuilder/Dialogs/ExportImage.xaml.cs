@@ -1,8 +1,6 @@
 ﻿using IGamePlugInBase;
 using Multi_TCG_Deckbuilder.Models;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -75,7 +73,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                 {
                     var imageFile = card.Image;
                     failed = failed || !card.Loaded;
-                    
+
                     if (card.FileCorrupted)
                     {
                         MessageBox.Show(string.Format("{0} is corrupted. Delete it and try again.", card.FileLocation), "Corrupted File!", MessageBoxButton.OK, MessageBoxImage.Error);

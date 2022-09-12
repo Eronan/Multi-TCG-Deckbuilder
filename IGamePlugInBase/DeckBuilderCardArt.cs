@@ -31,7 +31,7 @@
             Orientation = orientation;
             ViewDetails = viewDetails;
         }
-        
+
 
         /// <summary>
         /// Card Name that is Displayed

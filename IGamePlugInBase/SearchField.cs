@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IGamePlugInBase
+﻿namespace IGamePlugInBase
 {
     /// <summary>
     /// Determines the Comparison to be Performed
     /// </summary>
     public enum SearchFieldComparison
-    { 
+    {
         Equals = '=',
         NotEquals = '≠',
         LessThan = '≤',
@@ -24,7 +18,7 @@ namespace IGamePlugInBase
     /// Selection (String),
     /// </summary>
     public enum SearchFieldType
-    { 
+    {
         Text = 0,
         Number = 1,
         Selection = 2,

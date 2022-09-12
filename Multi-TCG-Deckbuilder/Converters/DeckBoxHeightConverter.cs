@@ -1,8 +1,6 @@
-﻿using Multi_TCG_Deckbuilder.Models;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows.Data;
-using System.Windows.Media.Imaging;
 
 namespace Multi_TCG_Deckbuilder.Converters
 {

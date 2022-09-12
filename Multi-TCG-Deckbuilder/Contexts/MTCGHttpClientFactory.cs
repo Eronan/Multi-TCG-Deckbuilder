@@ -2,11 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 
 namespace Multi_TCG_Deckbuilder.Contexts
 {
@@ -41,7 +38,7 @@ namespace Multi_TCG_Deckbuilder.Contexts
 
             FileNames.Add(urlToFile.FileName);
 
-            string? directoryPath = Path.GetDirectoryName(urlToFile.FileName); 
+            string? directoryPath = Path.GetDirectoryName(urlToFile.FileName);
             if (directoryPath != null && !Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);

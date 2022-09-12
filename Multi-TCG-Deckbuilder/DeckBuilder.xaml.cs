@@ -1,17 +1,14 @@
 ﻿using IGamePlugInBase;
+using IGamePlugInBase.IO;
+using Multi_TCG_Deckbuilder.Dialogs;
+using Multi_TCG_Deckbuilder.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
-using Multi_TCG_Deckbuilder.Dialogs;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using IGamePlugInBase.IO;
-using Multi_TCG_Deckbuilder.Models;
 
 namespace Multi_TCG_Deckbuilder
 {
@@ -364,7 +361,7 @@ namespace Multi_TCG_Deckbuilder
             {
                 string searchText = textBox_SearchText.Text;
                 if (textBox_SearchText.Foreground == SystemColors.GrayTextBrush || this.advancedSearchList == null || searchText.Length < 4)
-                {   
+                {
                     return;
                 }
 

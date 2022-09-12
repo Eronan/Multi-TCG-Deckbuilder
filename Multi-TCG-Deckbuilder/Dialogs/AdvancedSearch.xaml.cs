@@ -16,7 +16,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
         private IList<SearchField> searchFields;
         private ComboBox[] searchComparisons;
         private dynamic[] inputBoxes;
-        
+
         /// <summary>
         /// Constructs an Advanced Search Window
         /// </summary>

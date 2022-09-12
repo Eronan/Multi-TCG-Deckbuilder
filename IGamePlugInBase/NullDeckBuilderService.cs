@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IGamePlugInBase
+﻿namespace IGamePlugInBase
 {
     /// <summary>
     /// Used as the Default Deck Builder Service when not specfied.

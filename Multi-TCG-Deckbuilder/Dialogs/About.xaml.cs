@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Multi_TCG_Deckbuilder.Dialogs
 {
@@ -44,9 +36,9 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                     "To find Verified Plug-Ins that work with the latest versions of the Application, please visit: \n" +
                     "https://github.com/Eronan/Multi-TCG-Deckbuilder/releases";
             }
-            
+
             // Create About Text
-            foreach(string line in text.Split('\n'))
+            foreach (string line in text.Split('\n'))
             {
                 // If text is only lines, replace with a separator and go to next line
                 if (line.All(character => character == '-' || character == '=' || character == '_'))
@@ -75,7 +67,8 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                             Hyperlink hyperlink = new Hyperlink();
                             hyperlink.NavigateUri = new Uri(word);
                             hyperlink.Inlines.Add(word);
-                            hyperlink.RequestNavigate += (sender, e) => {
+                            hyperlink.RequestNavigate += (sender, e) =>
+                            {
                                 var process = new System.Diagnostics.ProcessStartInfo(e.Uri.ToString())
                                 {
                                     UseShellExecute = true,
@@ -98,7 +91,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                     textBlock.Text = line;
                 }
                 stack_Text.Children.Add(textBlock);
-                
+
             }
         }
     }

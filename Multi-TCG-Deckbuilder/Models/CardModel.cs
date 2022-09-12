@@ -3,7 +3,6 @@ using Multi_TCG_Deckbuilder.Contexts;
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace Multi_TCG_Deckbuilder.Models
@@ -49,7 +48,7 @@ namespace Multi_TCG_Deckbuilder.Models
                 if (Properties.Settings.Default.DownloadImages && !MTCGHttpClientFactory.FileNames.Contains(FullPath))
                 {
                     MTCGHttpClientFactory.FileNames.Add(FullPath);
-                    if (_image != null && Loaded) { SaveImage(_image, new EventArgs());}
+                    if (_image != null && Loaded) { SaveImage(_image, new EventArgs()); }
                     else
                     {
                         _image = new BitmapImage(new Uri(DownloadLocation));

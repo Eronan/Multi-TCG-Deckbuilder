@@ -120,7 +120,7 @@ namespace Multi_TCG_Deckbuilder
             OpenDeckBuilderWindow(game, format, deckFile, filePath);
         }
 
-         private void OpenDeckBuilderWindow(IGamePlugIn game, IFormat format, DeckBuilderDeckFile? deckFile = null, string? filePath = null)
+        private void OpenDeckBuilderWindow(IGamePlugIn game, IFormat format, DeckBuilderDeckFile? deckFile = null, string? filePath = null)
         {
             // Initialize Plug-In Information, if not previously initialized
             try
@@ -209,7 +209,7 @@ namespace Multi_TCG_Deckbuilder
         {
             int count = 0;
             string? exceptionMessage = null;
-            
+
             foreach (Type type in assembly.GetTypes())
             {
                 if (typeof(IGamePlugIn).IsAssignableFrom(type))
@@ -342,7 +342,7 @@ namespace Multi_TCG_Deckbuilder
         private void MenuItem_PlugInFiles_Click(object sender, RoutedEventArgs e)
         {
             IGamePlugIn? game = listBox_GameList.SelectedItem as IGamePlugIn;
-            
+
             if (game == null) { return; }
 
             DownloadPlugInFiles(game);
