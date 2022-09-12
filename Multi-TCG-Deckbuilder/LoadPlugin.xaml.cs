@@ -49,15 +49,10 @@ namespace Multi_TCG_Deckbuilder
             // Load Plug-Ins
             List<IGamePlugIn> gamePlugIns = new List<IGamePlugIn>();
 
-            if (Properties.Settings.Default.HideWarningDialogs || pluginPaths.Length > 0 &&
-                    MessageBox.Show(
-                        "DLL files can be harmful to your computer, and cause irrepairable damage. Please only download Plug-Ins trusted sources.\nDo you trust all of the following Plug-Ins?\n\n\t" +
-                            string.Join("\n\t-", pluginPaths.Select(file => Path.GetFileName(file))),
-                        "Warning!",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Warning,
-                        MessageBoxResult.Yes
-                    ) == MessageBoxResult.Yes)
+            if (Properties.Settings.Default.HideWarningDialogs || pluginPaths.Length == 0 ||
+                MessageBox.Show("DLL files can be harmful to your computer, and cause irrepairable damage. Please only download Plug-Ins trusted sources.\nDo you trust all of the following Plug-Ins?\n\n\t"
+                        + string.Join("\n\t-", pluginPaths.Select(file => Path.GetFileName(file))), "Warning!", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes
+                            ) == MessageBoxResult.Yes)
             {
                 foreach (string pluginPath in pluginPaths)
                 {
@@ -242,6 +237,11 @@ namespace Multi_TCG_Deckbuilder
                 {
                     Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
                     MessageBox.Show(error.Message.Split('\n')[0]);
+                }
+                catch (Exception error)
+                {
+                    Console.WriteLine("{0}\n{1}", error.Message, error.StackTrace);
+                    MessageBox.Show(error.Message.Split('\n')[0] + (error.StackTrace != null ? "\n" + error.StackTrace.Split('\n')[0] : ""));
                 }
             }
             else
