@@ -734,7 +734,14 @@ namespace Multi_TCG_Deckbuilder
             {
                 foreach (var card in deck.Cards)
                 {
-                    var imageFile = new BitmapImage(new Uri(card.FullPath));
+                    if (!card.Loaded && MessageBox.Show("There was a problem loading the Image. Restart the Application and ensure you have an Internet Connection. Do you want to continue exporting anyways?",
+                                                        "Image Failed",
+                                                        MessageBoxButton.YesNo,
+                                                        MessageBoxImage.Error) != MessageBoxResult.Yes)
+                    {
+                        return;
+                    }
+                    var imageFile = card.Image;
 
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {

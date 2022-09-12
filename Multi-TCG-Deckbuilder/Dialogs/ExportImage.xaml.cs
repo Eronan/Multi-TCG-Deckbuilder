@@ -73,6 +73,10 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                 foreach (var card in deck.Cards)
                 {
                     var imageFile = card.Image;
+                    if (!card.Loaded)
+                    {
+                        MessageBox.Show("There was a problem loading the Image. Restart the Application and ensure you have an Internet Connection.", "Image Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
 
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {

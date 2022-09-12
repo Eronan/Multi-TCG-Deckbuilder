@@ -14,15 +14,6 @@
     <Window.Resources>
         <convert:CardArtConverter x:Key="CardArtConverter" />
         <convert:DeckBoxHeightConverter x:Key="DeckBoxHeightConverter" />
-        <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type model:CardModel}">
-            <Image Source="{Binding Image}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
-                   MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove" ImageFailed="Image_ImageFailed" />
-        </DataTemplate>
-        <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type model:CardModel}">
-            <Image Source="{Binding Image}" Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
-                       MouseRightButtonDown="ImageCardDeck_MouseRightDown" MouseMove="ImageCardDeck_MouseMove" ImageFailed="Image_ImageFailed" 
-                       Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}"/>
-        </DataTemplate>
         <DrawingImage x:Key="FilterImage">
             <DrawingImage.Drawing>
                 <DrawingGroup ClipGeometry="M0,0 V107.128 H122.88 V0 H0 Z">
@@ -67,6 +58,37 @@
                 </DrawingGroup>
             </DrawingImage.Drawing>
         </DrawingImage>
+        <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type model:CardModel}">
+            <Image Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+                   MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove">
+                <Image.Style>
+                    <Style>
+                        <Setter Property="Image.Source" Value="{Binding Image}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Loaded}" Value="False">
+                                <Setter Property="Image.Source" Value="{StaticResource ErrorImage}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+        </DataTemplate>
+        <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type model:CardModel}">
+            <Image Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+                       MouseRightButtonDown="ImageCardDeck_MouseRightDown" MouseMove="ImageCardDeck_MouseMove"
+                       Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}">
+                <Image.Style>
+                    <Style>
+                        <Setter Property="Image.Source" Value="{Binding Image}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Loaded}" Value="False">
+                                <Setter Property="Image.Source" Value="{StaticResource ErrorImage}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+        </DataTemplate>
     </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="New" Executed="CommandBinding_New_Executed"/>

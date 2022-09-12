@@ -1,19 +1,17 @@
 ﻿using IGamePlugInBase;
 using Multi_TCG_Deckbuilder.Contexts;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
 namespace Multi_TCG_Deckbuilder.Models
 {
-    public class CardModel : DeckBuilderCardArt
+    public class CardModel : DeckBuilderCardArt, INotifyPropertyChanged
     {
         private BitmapImage? _image;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public CardModel(string cardID, string artID, string name, string fileLocation, string downloadUrl, CardArtOrientation orientation, string viewDetails = "") : base(cardID, artID, name, fileLocation, downloadUrl, orientation, viewDetails)
         {
@@ -25,24 +23,31 @@ namespace Multi_TCG_Deckbuilder.Models
             {
                 if (File.Exists(FullPath))
                 {
-                    if (_image == null) { _image = new BitmapImage(new Uri(FullPath)); }
+                    if (_image == null || !Loaded) { _image = new BitmapImage(new Uri(FullPath)); }
                     return _image;
                 }
 
                 if (Properties.Settings.Default.DownloadImages && !MTCGHttpClientFactory.FileNames.Contains(FullPath))
                 {
                     MTCGHttpClientFactory.FileNames.Add(FullPath);
-                    if (_image != null) { SaveImage(_image, new EventArgs());}
+                    if (_image != null && Loaded) { SaveImage(_image, new EventArgs());}
                     else
                     {
                         _image = new BitmapImage(new Uri(DownloadLocation));
+                        _image.DownloadFailed += FailedImage;
                         _image.DownloadCompleted += SaveImage;
+                        _image.DownloadCompleted += SuccessImage;
                     }
 
                     return _image;
                 }
 
-                if (_image == null) { _image = new BitmapImage(new Uri(DownloadLocation)); }
+                if (_image == null || !Loaded)
+                {
+                    _image = new BitmapImage(new Uri(DownloadLocation));
+                    _image.DownloadCompleted += SuccessImage;
+                    _image.DownloadFailed += FailedImage;
+                }
 
                 return _image;
             }
@@ -68,6 +73,18 @@ namespace Multi_TCG_Deckbuilder.Models
             }
             MTCGHttpClientFactory.FileNames.Remove(FullPath);
             image.Freeze();
+        }
+
+        private void SuccessImage(object? sender, EventArgs e)
+        {
+            Loaded = true;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Loaded"));
+        }
+
+        private void FailedImage(object? sender, EventArgs e)
+        {
+            Loaded = false;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Loaded"));
         }
 
         private BitmapEncoder GetEncoderFromExtension(string filePath)
@@ -101,5 +118,7 @@ namespace Multi_TCG_Deckbuilder.Models
                 return AppDomain.CurrentDomain.BaseDirectory + FileLocation;
             }
         }
+
+        public bool Loaded { get; set; }
     }
 }
