@@ -3,6 +3,7 @@ using Multi_TCG_Deckbuilder.Contexts;
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace Multi_TCG_Deckbuilder.Models
@@ -21,9 +22,27 @@ namespace Multi_TCG_Deckbuilder.Models
         {
             get
             {
-                if (File.Exists(FullPath))
+                if (FileCorrupted && !Properties.Settings.Default.AutoDeleteCorrupted) { return (_image = _image ?? new BitmapImage()); }
+
+                if (File.Exists(FullPath) && !FileCorrupted)
                 {
-                    if (_image == null || !Loaded) { _image = new BitmapImage(new Uri(FullPath)); }
+                    if (_image == null || !Loaded)
+                    {
+                        try
+                        {
+                            _image = new BitmapImage(new Uri(FullPath));
+                        }
+                        catch (NotSupportedException e)
+                        {
+                            Console.WriteLine(e.Message);
+                            Console.WriteLine("{0} Image is corrupted. Please delete image.", FullPath);
+                            FileCorrupted = true;
+
+                            Loaded = false;
+                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Loaded"));
+                            _image = new BitmapImage();
+                        }
+                    }
                     return _image;
                 }
 
@@ -67,7 +86,7 @@ namespace Multi_TCG_Deckbuilder.Models
                 Directory.CreateDirectory(directoryPath);
             }
 
-            using (var fileStream = new FileStream(FullPath, FileMode.CreateNew))
+            using (var fileStream = new FileStream(FullPath, FileMode.Create))
             {
                 ImageEncoder.Save(fileStream);
             }
@@ -120,5 +139,7 @@ namespace Multi_TCG_Deckbuilder.Models
         }
 
         public bool Loaded { get; set; } = true;
+
+        public bool FileCorrupted { get; set; } = false;
     }
 }

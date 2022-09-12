@@ -714,7 +714,14 @@ namespace Multi_TCG_Deckbuilder
                 this.DeckModel.Values,
                 this.openedFile
             );
-            exportWindow.Show();
+            if (!exportWindow.CorruptedFile)
+            {
+                exportWindow.Show();
+            }
+            else
+            {
+                exportWindow.Close();
+            }
         }
 
         // Export to Image in Tabletop Simulator Custom Deck Format
@@ -737,6 +744,12 @@ namespace Multi_TCG_Deckbuilder
                 {
                     var imageFile = card.Image;
                     failed = failed || !card.Loaded;
+
+                    if (card.FileCorrupted)
+                    {
+                        MessageBox.Show(string.Format("{0} is corrupted. Delete it and try again.", card.FileLocation), "Corrupted File!", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {

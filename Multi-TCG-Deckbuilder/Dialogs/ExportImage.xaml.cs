@@ -75,6 +75,13 @@ namespace Multi_TCG_Deckbuilder.Dialogs
                 {
                     var imageFile = card.Image;
                     failed = failed || !card.Loaded;
+                    
+                    if (card.FileCorrupted)
+                    {
+                        MessageBox.Show(string.Format("{0} is corrupted. Delete it and try again.", card.FileLocation), "Corrupted File!", MessageBoxButton.OK, MessageBoxImage.Error);
+                        CorruptedFile = true;
+                        continue;
+                    }
 
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {
@@ -134,7 +141,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
             bmp.Render(drawingVisual);
             image_Deck.Source = bmp;
 
-            if (failed)
+            if (failed && !CorruptedFile)
             {
                 MessageBox.Show("There was a problem loading one or more Images. Please check that your internet connection is stable before re-trying.", "Image Failed", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -154,5 +161,7 @@ namespace Multi_TCG_Deckbuilder.Dialogs
         {
             Contexts.FileLoadContext.ExportImageDialog(this.CreatedImage, this.openedFile);
         }
+
+        public bool CorruptedFile { get; set; } = false;
     }
 }

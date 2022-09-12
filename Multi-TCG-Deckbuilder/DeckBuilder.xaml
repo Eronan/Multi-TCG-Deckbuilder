@@ -35,7 +35,7 @@
                 </DrawingGroup>
             </DrawingImage.Drawing>
         </DrawingImage>
-        <DrawingImage x:Key="ErrorImage">
+        <!--<DrawingImage x:Key="ErrorImage">
             <DrawingImage.Drawing>
                 <DrawingGroup ClipGeometry="M0,0 V192 H240 V0 H0 Z">
                     <DrawingGroup Opacity="1">
@@ -55,6 +55,29 @@
                         <GeometryDrawing Brush="#FF000000" Geometry="F1 M240,192z M0,0z M147.99,94.789C147.98994,102.1297 147.56094,108.374 146.703,113.522 145.94027,118.67 144.5579,123.532 142.556,128.108 140.1726,133.828 137.1696,138.0227 133.547,140.692 130.0196,143.266 125.539,144.553 120.105,144.553 114.385,144.553 109.714,143.266 106.091,140.692 102.5636,138.0227 99.6083,133.828 97.225,128.108 95.223,123.4367 93.793,118.5747 92.935,113.522 92.17232,108.374 91.791,102.13 91.791,94.789 91.790992,87.5437 92.17232,81.347 92.935,76.199 93.79299,70.9557 95.223,66.046 97.225,61.47 99.7036,55.7501 102.7066,51.6508 106.234,49.172 109.8566,46.5981 114.4803,45.3111 120.105,45.311 125.6343,45.311097 130.163,46.5981 133.69,49.172 137.2173,51.6508 140.1726,55.8454 142.556,61.756 143.50927,64.1394 144.3196,66.5227 144.987,68.906 145.74961,71.2894 146.3216,73.8157 146.703,76.485 147.1796,79.0591 147.51327,81.8714 147.704,84.922 147.8946,87.8774 147.98994,91.1664 147.99,94.789 M134.834,94.789C134.83395,92.1197 134.7386,89.6887 134.548,87.496 134.4526,85.3034 134.26195,83.3014 133.976,81.49 133.78528,79.5834 133.49928,77.7721 133.118,76.056 132.73662,74.3401 132.30762,72.6241 131.831,70.908 130.5916,66.6181 129.0186,63.5197 127.112,61.613 125.3006,59.7064 122.965,58.7531 120.105,58.753 114.1943,58.753084 110.1426,62.7094 107.95,70.622 106.806,74.2447 105.9956,77.9151 105.519,81.633 105.13765,85.2557 104.94698,89.7364 104.947,95.075 104.94698,97.649 104.9946,100.0324 105.09,102.225 105.28065,104.3224 105.47131,106.3244 105.662,108.231 105.94798,110.0424 106.28164,111.8537 106.663,113.665 107.04431,115.4764 107.47331,117.3354 107.95,119.242 110.1426,127.1547 114.1943,131.111 120.105,131.111 122.965,131.11102 125.3006,130.15768 127.112,128.251 129.0186,126.3444 130.5916,123.3414 131.831,119.242 132.40295,117.3354 132.8796,115.524 133.261,113.808 133.64228,111.9967 133.92828,110.1377 134.119,108.231 134.40495,106.3244 134.59562,104.3224 134.691,102.225 134.7863,100.0324 134.83395,97.5537 134.834,94.789" />
                         <GeometryDrawing Brush="#FF000000" Geometry="F1 M240,192z M0,0z M213.29,119.67L213.29,142.836 199.562,142.836 199.562,119.67 159.808,119.67 159.808,109.946 199.562,47.026 213.29,47.026 213.29,106.8 219.01,106.8 219.01,119.67 213.29,119.67 M199.562,70.907L176.682,106.8 199.562,106.8 199.562,70.907" />
                     </DrawingGroup>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>-->
+        <DrawingImage x:Key="ErrorImage">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V640 H640 V0 H0 Z">
+                    <GeometryDrawing Brush="#FFFF3011">
+                        <GeometryDrawing.Geometry>
+                            <EllipseGeometry RadiusX="314" RadiusY="314" Center="320,320" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#FFFFFFFF">
+                        <GeometryDrawing.Geometry>
+                            <EllipseGeometry RadiusX="290" RadiusY="290" Center="317,320" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#FFFF0608">
+                        <GeometryDrawing.Geometry>
+                            <EllipseGeometry RadiusX="281" RadiusY="281" Center="316,320" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#FFFFFFFF" Geometry="F0 M640,640z M0,0z M397.875,191.993L448.007,242.125 242.707,447.425 192.573,397.3z" />
+                    <GeometryDrawing Brush="#FFFFFFFF" Geometry="F0 M640,640z M0,0z M447.743,397.813L397.549,448.007 191.993,242.451 242.187,192.257z" />
                 </DrawingGroup>
             </DrawingImage.Drawing>
         </DrawingImage>
@@ -148,7 +171,18 @@
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="223*"/>
             </Grid.RowDefinitions>
-            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" Source="{Binding Image}" />
+            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0">
+                <Image.Style>
+                    <Style>
+                        <Setter Property="Image.Source" Value="{Binding Image}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding FileCorrupted}" Value="True">
+                                <Setter Property="Image.Source" Value="{StaticResource ErrorImage}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
             <TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" FontSize="15px" Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center"/>
             <Border Grid.Row="2" BorderThickness="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
             <ScrollViewer Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="1,1,1,1"

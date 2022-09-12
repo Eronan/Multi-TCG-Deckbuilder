@@ -46,5 +46,17 @@ namespace Multi_TCG_Deckbuilder.Properties {
                 this["HideWarningDialogs"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoDeleteCorrupted {
+            get {
+                return ((bool)(this["AutoDeleteCorrupted"]));
+            }
+            set {
+                this["AutoDeleteCorrupted"] = value;
+            }
+        }
     }
 }
