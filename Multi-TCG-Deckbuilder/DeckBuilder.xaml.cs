@@ -778,7 +778,7 @@ namespace Multi_TCG_Deckbuilder
                 }
             }
 
-            if (failed && MessageBox.Show("There was a problem loading one or more Images. Do you want to continue saving anyways?",
+            if (failed && MessageBox.Show("There was a problem loading one or more Images. Verify your internet connection before continuing. Do you want to continue saving anyways?",
                 "Image Failed", MessageBoxButton.YesNo, MessageBoxImage.Error, MessageBoxResult.No) == MessageBoxResult.No)
             {
                 return;
