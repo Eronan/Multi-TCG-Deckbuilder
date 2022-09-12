@@ -730,11 +730,13 @@ namespace Multi_TCG_Deckbuilder
             double cardHeight = 0;
             double x = 0;
             double y = 0;
+            bool failed = false;
             foreach (var deck in this.DeckModel.Values)
             {
                 foreach (var card in deck.Cards)
                 {
-                    var imageFile = new BitmapImage(new Uri(card.FullPath));
+                    var imageFile = card.Image;
+                    failed = failed || !card.Loaded;
 
                     if (card.Orientation == CardArtOrientation.Portrait)
                     {
@@ -774,6 +776,12 @@ namespace Multi_TCG_Deckbuilder
                         y += cardHeight;
                     }
                 }
+            }
+
+            if (failed && MessageBox.Show("There was a problem loading one or more Images. Do you want to continue saving anyways?",
+                "Image Failed", MessageBoxButton.YesNo, MessageBoxImage.Error, MessageBoxResult.No) == MessageBoxResult.No)
+            {
+                return;
             }
 
             // Close Drawing Context
