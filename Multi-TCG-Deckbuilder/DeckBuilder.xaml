@@ -1,0 +1,252 @@
+﻿<Window x:Class="Multi_TCG_Deckbuilder.DeckBuilder"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Multi_TCG_Deckbuilder"
+        xmlns:model="clr-namespace:Multi_TCG_Deckbuilder.Models"
+        xmlns:convert="clr-namespace:Multi_TCG_Deckbuilder.Converters"
+        xmlns:plugin="clr-namespace:IGamePlugInBase;assembly=IGamePlugInBase"
+        mc:Ignorable="d"
+        Title="Deck Builder" Height="450" Width="800" MinHeight="450" MinWidth="800"
+        AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Window.Resources>
+        <convert:CardArtConverter x:Key="CardArtConverter" />
+        <convert:DeckBoxHeightConverter x:Key="DeckBoxHeightConverter" />
+        <DrawingImage x:Key="FilterImage">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V107.128 H122.88 V0 H0 Z">
+                    <DrawingGroup.Transform>
+                        <TranslateTransform X="0.00026102352421730757" Y="0" />
+                    </DrawingGroup.Transform>
+                    <DrawingGroup Opacity="1">
+                        <GeometryDrawing Brush="#FF000000" Geometry="F1 M122.88,107.128z M0,0z M2.788,0L120.085,0C121.629,0 122.88,1.251 122.88,2.795 122.88,3.645 122.501,4.406 121.902,4.919L75.082,51.505 75.082,91.484C75.082,92.591,74.439,93.547,73.506,94L51.42,106.752C50.087,107.523 48.381,107.068 47.608,105.736 47.353,105.295 47.232,104.814 47.233,104.338L47.227,104.338 47.227,51.496 0.811,4.761C-0.275,3.669 -0.27,1.904 0.822,0.819 1.366,0.278 2.077,0.0079999999999999 2.788,0.0079999999999999L2.788,0 2.788,0z M113.323,5.591L9.493,5.591 51.851,48.24C52.443,48.752,52.817,49.51,52.817,50.354L52.817,99.503 69.491,89.878 69.491,50.354 69.499,50.354C69.499,49.638,69.773,48.922,70.321,48.377L113.323,5.591 113.323,5.591z" />
+                    </DrawingGroup>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+        <DrawingImage x:Key="FilterRemoveImage">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V110.668 H122.88 V0 H0 Z">
+                    <DrawingGroup Opacity="1">
+                        <GeometryDrawing Brush="#FF000000" Geometry="F0 M122.88,110.668z M0,0z M91.124,15.645C104.052,15.645 114.53,26.124 114.53,39.051 114.53,51.978 104.051,62.457 91.124,62.457 78.197,62.457 67.718,51.978 67.718,39.051 67.718,26.125 78.197,15.645 91.124,15.645L91.124,15.645z M2.756,0L120.078,0C121.626,0 122.88,1.254 122.88,2.802 122.88,3.65 122.512,4.424 121.884,4.941L111.217,18.497C109.812,17.122,108.267,15.89,106.603,14.825L113.231,5.605 9.43,5.605 47.405,51.776C47.995,52.292,48.363,53.03,48.363,53.878L48.363,103.026 69.419,93.403 69.419,57.896C71.07,59.796,72.967,61.478,75.061,62.892L75.061,95.025C75.061,96.13,74.434,97.089,73.475,97.531L46.999,110.289C45.672,111.062 43.976,110.621 43.201,109.256 42.943,108.815 42.833,108.336 42.833,107.856L42.833,55.02 0.803,4.756C-0.267,3.65 -0.267,1.917 0.803,0.811 1.355,0.258 2.056,0 2.756,0L2.756,0z M96.93,28.282C98.258,26.933 100.419,26.927 101.755,28.269 103.09,29.611 103.096,31.793 101.768,33.141L95.939,39.055 101.775,44.974C103.092,46.312 103.074,48.48 101.735,49.817 100.395,51.153 98.242,51.15 96.925,49.811L91.128,43.933 85.321,49.822C83.992,51.171 81.832,51.177 80.495,49.835 79.16,48.493 79.154,46.312 80.482,44.963L86.312,39.05 80.476,33.131C79.159,31.793 79.176,29.624 80.516,28.288 81.855,26.952 84.008,26.955 85.326,28.294L91.122,34.172 96.93,28.282 96.93,28.282z" />
+                    </DrawingGroup>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+        <!--<DrawingImage x:Key="ErrorImage">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V192 H240 V0 H0 Z">
+                    <DrawingGroup Opacity="1">
+                        <GeometryDrawing Brush="#FF000000" Geometry="F1 M240,192z M0,0z M0,12C0,5.3726,5.3721,0,12,0L228,0C234.627,0,240,5.3726,240,12L240,180C240,186.627,234.627,192,228,192L12,192C5.3721,192,0,186.627,0,180L0,12z" />
+                        <GeometryDrawing Brush="#FF000000" Geometry="F1 M240,192z M0,0z M120,96" />
+                    </DrawingGroup>
+                    <DrawingGroup Opacity="1">
+                        <GeometryDrawing Brush="#FFFFFFFF">
+                            <GeometryDrawing.Geometry>
+                                <EllipseGeometry RadiusX="116" RadiusY="92" Center="120,96" />
+                            </GeometryDrawing.Geometry>
+                        </GeometryDrawing>
+                        <GeometryDrawing Brush="#FFFFFFFF" Geometry="F1 M240,192z M0,0z M120,96" />
+                    </DrawingGroup>
+                    <DrawingGroup Opacity="1">
+                        <GeometryDrawing Brush="#FF000000" Geometry="F1 M240,192z M0,0z M68.614,119.67L68.614,142.836 54.886,142.836 54.886,119.67 15.132,119.67 15.132,109.946 54.886,47.026 68.614,47.026 68.614,106.8 74.334,106.8 74.334,119.67 68.614,119.67 M54.886,70.907L32.006,106.8 54.886,106.8 54.886,70.907" />
+                        <GeometryDrawing Brush="#FF000000" Geometry="F1 M240,192z M0,0z M147.99,94.789C147.98994,102.1297 147.56094,108.374 146.703,113.522 145.94027,118.67 144.5579,123.532 142.556,128.108 140.1726,133.828 137.1696,138.0227 133.547,140.692 130.0196,143.266 125.539,144.553 120.105,144.553 114.385,144.553 109.714,143.266 106.091,140.692 102.5636,138.0227 99.6083,133.828 97.225,128.108 95.223,123.4367 93.793,118.5747 92.935,113.522 92.17232,108.374 91.791,102.13 91.791,94.789 91.790992,87.5437 92.17232,81.347 92.935,76.199 93.79299,70.9557 95.223,66.046 97.225,61.47 99.7036,55.7501 102.7066,51.6508 106.234,49.172 109.8566,46.5981 114.4803,45.3111 120.105,45.311 125.6343,45.311097 130.163,46.5981 133.69,49.172 137.2173,51.6508 140.1726,55.8454 142.556,61.756 143.50927,64.1394 144.3196,66.5227 144.987,68.906 145.74961,71.2894 146.3216,73.8157 146.703,76.485 147.1796,79.0591 147.51327,81.8714 147.704,84.922 147.8946,87.8774 147.98994,91.1664 147.99,94.789 M134.834,94.789C134.83395,92.1197 134.7386,89.6887 134.548,87.496 134.4526,85.3034 134.26195,83.3014 133.976,81.49 133.78528,79.5834 133.49928,77.7721 133.118,76.056 132.73662,74.3401 132.30762,72.6241 131.831,70.908 130.5916,66.6181 129.0186,63.5197 127.112,61.613 125.3006,59.7064 122.965,58.7531 120.105,58.753 114.1943,58.753084 110.1426,62.7094 107.95,70.622 106.806,74.2447 105.9956,77.9151 105.519,81.633 105.13765,85.2557 104.94698,89.7364 104.947,95.075 104.94698,97.649 104.9946,100.0324 105.09,102.225 105.28065,104.3224 105.47131,106.3244 105.662,108.231 105.94798,110.0424 106.28164,111.8537 106.663,113.665 107.04431,115.4764 107.47331,117.3354 107.95,119.242 110.1426,127.1547 114.1943,131.111 120.105,131.111 122.965,131.11102 125.3006,130.15768 127.112,128.251 129.0186,126.3444 130.5916,123.3414 131.831,119.242 132.40295,117.3354 132.8796,115.524 133.261,113.808 133.64228,111.9967 133.92828,110.1377 134.119,108.231 134.40495,106.3244 134.59562,104.3224 134.691,102.225 134.7863,100.0324 134.83395,97.5537 134.834,94.789" />
+                        <GeometryDrawing Brush="#FF000000" Geometry="F1 M240,192z M0,0z M213.29,119.67L213.29,142.836 199.562,142.836 199.562,119.67 159.808,119.67 159.808,109.946 199.562,47.026 213.29,47.026 213.29,106.8 219.01,106.8 219.01,119.67 213.29,119.67 M199.562,70.907L176.682,106.8 199.562,106.8 199.562,70.907" />
+                    </DrawingGroup>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>-->
+        <DrawingImage x:Key="ErrorImage">
+            <DrawingImage.Drawing>
+                <DrawingGroup ClipGeometry="M0,0 V640 H640 V0 H0 Z">
+                    <GeometryDrawing Brush="#FFFF3011">
+                        <GeometryDrawing.Geometry>
+                            <EllipseGeometry RadiusX="314" RadiusY="314" Center="320,320" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#FFFFFFFF">
+                        <GeometryDrawing.Geometry>
+                            <EllipseGeometry RadiusX="290" RadiusY="290" Center="317,320" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#FFFF0608">
+                        <GeometryDrawing.Geometry>
+                            <EllipseGeometry RadiusX="281" RadiusY="281" Center="316,320" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#FFFFFFFF" Geometry="F0 M640,640z M0,0z M397.875,191.993L448.007,242.125 242.707,447.425 192.573,397.3z" />
+                    <GeometryDrawing Brush="#FFFFFFFF" Geometry="F0 M640,640z M0,0z M447.743,397.813L397.549,448.007 191.993,242.451 242.187,192.257z" />
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+        <DataTemplate x:Key="ImageControl_Results" DataType="{x:Type model:CardModel}">
+            <Image Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+                   MouseRightButtonDown="ImageCardSearch_MouseRightDown" MouseMove="ImageCardSearch_MouseMove">
+                <Image.Style>
+                    <Style>
+                        <Setter Property="Image.Source" Value="{Binding Image}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Loaded}" Value="False">
+                                <Setter Property="Image.Source" Value="{StaticResource ErrorImage}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+        </DataTemplate>
+        <DataTemplate x:Key="ImageControl_Deck" DataType="{x:Type model:CardModel}">
+            <Image Width="auto" Height="auto" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,0"
+                       MouseRightButtonDown="ImageCardDeck_MouseRightDown" MouseMove="ImageCardDeck_MouseMove"
+                       Tag="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}, Path=Tag}">
+                <Image.Style>
+                    <Style>
+                        <Setter Property="Image.Source" Value="{Binding Image}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Loaded}" Value="False">
+                                <Setter Property="Image.Source" Value="{StaticResource ErrorImage}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+        </DataTemplate>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="CommandBinding_New_Executed"/>
+        <CommandBinding Command="Open" Executed="CommandBinding_Open_Executed"/>
+        <CommandBinding Command="Save" Executed="CommandBinding_Save_Executed" CanExecute="CommandBinding_Save_CanExecute"/>
+        <CommandBinding Command="SaveAs" Executed="CommandBinding_SaveAs_Executed" CanExecute="CommandBinding_Save_CanExecute"/>
+        <CommandBinding Command="Properties" Executed="CommandBinding_Preferences_Executed"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Ctrl" Command="New"/>
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="Open"/>
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="Save"/>
+        <KeyBinding Key="S" Modifiers="Ctrl+Shift" Command="SaveAs"/>
+        <KeyBinding Key="P" Modifiers="Ctrl" Command="Properties"/>
+    </Window.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="430*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="231*"/>
+            <ColumnDefinition Width="338*"/>
+            <ColumnDefinition Width="231*"/>
+        </Grid.ColumnDefinitions>
+        <Menu Grid.ColumnSpan="3">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" InputGestureText="Ctrl+N" Command="New"/>
+                <MenuItem Header="_Open" InputGestureText="Ctrl+O" Command="Open"/>
+                <MenuItem x:Name="MenuItem_Import" Header="_Import"/>
+                <MenuItem x:Name="MenuItem_Export" Header="_Export" Loaded="MenuItem_File_Opening">
+                    <MenuItem Header="_To Image" Click="MenuItem_ExportImage_Click"/>
+                    <MenuItem Header="_To Tabletop Simulator" Click="MenuItem_TableTop_Click"/>
+                </MenuItem>
+                <MenuItem Header="_Save" InputGestureText="Ctrl+S" Command="Save"/>
+                <MenuItem Header="_Save As" InputGestureText="Ctrl+Shift+S" Command="SaveAs"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Check Deck" Click="MenuItem_CheckValid_Click"/>
+                <MenuItem Header="_Sort Deck" Click="MenuItem_Sort_Click"/>
+                <MenuItem Header="_View Stats" Click="MenuItem_ViewStats_Click"/>
+                <Separator/>
+                <MenuItem Header="_Preferences" InputGestureText="Ctrl+P" Command="Properties"/>
+            </MenuItem>
+            <MenuItem Header="_About">
+                <MenuItem Header="_About Plug-In" Click="MenuItem_PlugInAbout_Click"/>
+                <MenuItem Header="_About Multi-TCG Deck Builder" Click="MenuItem_ProgramAbout_Click" />
+            </MenuItem>
+        </Menu>
+        <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
+        <Border Grid.Row="1" Grid.Column="2" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}" BorderThickness="1"/>
+        <Grid x:Name="grid_ViewCard" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+              DataContext="{Binding ElementName=listBox_CardResults, Path=SelectedItem}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="172*"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="223*"/>
+            </Grid.RowDefinitions>
+            <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0">
+                <Image.Style>
+                    <Style>
+                        <Setter Property="Image.Source" Value="{Binding Image}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding FileCorrupted}" Value="True">
+                                <Setter Property="Image.Source" Value="{StaticResource ErrorImage}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <TextBlock Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="0,0,18,0" FontSize="15px" Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center"/>
+            <Border Grid.Row="2" BorderThickness="1" BorderBrush="{StaticResource {x:Static SystemColors.ControlDarkBrushKey}}"/>
+            <ScrollViewer Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Height="auto" Width="auto" Margin="1,1,1,1"
+                          Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}" HorizontalScrollBarVisibility="Disabled">
+                <TextBlock VerticalAlignment="Top" HorizontalAlignment="Stretch" Width="auto" Height="auto" Margin="0,0,0,0" Text="{Binding ViewDetails}" TextWrapping="Wrap"/>
+            </ScrollViewer>
+        </Grid>
+        <Grid x:Name="grid_Decks" Grid.Column="1" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="185*"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <ScrollViewer x:Name="scroll_Decks" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" Width="Auto" Margin="1,0,1,0">
+                <ItemsControl x:Name ="panel_Decks">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Width="auto" Height="auto" Margin="0,0,0,0"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type model:DeckModel}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding LabelText}"/>
+                                <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,0,0,15" MinHeight="{Binding ActualWidth, Converter={StaticResource DeckBoxHeightConverter}, RelativeSource={RelativeSource Self}, ConverterParameter=1}"
+                                    ItemsSource="{Binding Cards}" Tag="{Binding DeckName}"
+                                    DragOver="ListBox_Deck_DragOver" Drop="ListBox_Deck_Drop" GotFocus="listBox_GotFocus" SelectionChanged="listBox_SelectionChanged"
+                                    ItemTemplate="{StaticResource ResourceKey=ImageControl_Deck}">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="10" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportWidth}" Height="auto" VerticalAlignment="Top" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                </ListBox>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+            <Button x:Name="button_ViewStats" Grid.Row="1" Background="Transparent" BorderThickness="0" BorderBrush="Transparent" Click="MenuItem_ViewStats_Click" />
+        </Grid>
+        <Grid Grid.Column="2" Grid.Row="1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="38"/>
+                <RowDefinition Height="197*"/>
+            </Grid.RowDefinitions>
+            <Label x:Name="label_Search" Content="Search:" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Height="26" Width="48" RenderTransformOrigin="0.119,0.506" />
+            <TextBox x:Name="textBox_SearchText" TextWrapping="Wrap" Text="Search" Width="auto" Margin="48,10,65,10" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"
+                     Foreground="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}" GotFocus="searchBox_GotFocus" LostFocus="searchBox_LostFocus"
+                     KeyDown="textBox_SearchText_KeyDown"/>
+            <Button x:Name="button_AdvancedSearch" Grid.Column="1" Margin="0,0,35,0" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Width="25" Click="button_AdvancedSearch_Click">
+                <Image Source="{StaticResource ResourceKey=FilterImage}"/>
+            </Button>
+            <Button x:Name="button_ClearFilters" Grid.Column="2" Margin="0,0,5,0" VerticalAlignment="Center" Height="20" HorizontalAlignment="Right" Width="25" Click="button_ClearFilters_Click" >
+                <Image Source="{StaticResource ResourceKey=FilterRemoveImage}"/>
+            </Button>
+            <ListBox x:Name="listBox_CardResults" Grid.Row="1" d:ItemsSource="{d:SampleData ItemCount=20}" Margin="1,1,1,1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     Background="{StaticResource {x:Static SystemColors.ControlLightLightBrushKey}}" BorderThickness="0" BorderBrush="Transparent" ItemTemplate="{StaticResource ResourceKey=ImageControl_Results}"
+                     SelectionChanged="listBox_SelectionChanged" GotFocus="listBox_GotFocus" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="4" Width="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}, Path=ViewportWidth}" Height="auto" VerticalAlignment="Top" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+        </Grid>
+    </Grid>
+</Window>
